@@ -1,5 +1,6 @@
-use uuid::Uuid;
+use crate::block::Block;
 use crate::position::Position;
+use uuid::Uuid;
 
 pub enum Colour {
     White,
@@ -9,8 +10,9 @@ pub enum Colour {
 pub struct Player {
     pub colour: Colour,
     pub name: String,
-    id: String,
-    position: Position,
+    pub id: String,
+    pub position: Position,
+    pub blocks: [Block; 10],
 }
 
 impl Player {
@@ -20,18 +22,24 @@ impl Player {
             Colour::White => 0,
             Colour::Black => grid_size,
         };
+        let blocks: [Block; 10] = [
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+            Block::new(),
+        ];
         Self {
             name,
             colour,
             id,
-            position: Position::new(
-                p_x,
-                grid_size / 2,
-            ),
+            position: Position::new(p_x, grid_size / 2),
+            blocks,
         }
-    }
-
-    pub fn get_id(self) -> String {
-        self.id
     }
 }

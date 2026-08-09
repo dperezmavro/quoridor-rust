@@ -1,7 +1,7 @@
+mod block;
 mod game;
 mod grid;
 mod player;
-mod block;
 mod position;
 
 use game::Game;
