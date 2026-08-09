@@ -1,10 +1,6 @@
 use uuid::Uuid;
 
-
-use crate::player::{
-    Colour,
-    Player,
-};
+use crate::player::{Colour, Player};
 
 use crate::grid::Grid;
 
@@ -16,13 +12,8 @@ pub struct Game {
     // TODO dio : other stuff like date started etc
 }
 
-
 impl Game {
-    pub fn new(
-        n1: String,
-        n2: String,
-        size: usize,
-    ) -> Self {
+    pub fn new(n1: String, n2: String, size: u32) -> Self {
         let id = Uuid::new_v4().to_string();
 
         Self {

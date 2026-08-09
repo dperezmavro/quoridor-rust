@@ -1,13 +1,11 @@
 mod game;
-mod player;
 mod grid;
+mod player;
+mod block;
+mod position;
 
 use game::Game;
 
 fn main() {
-    let g = Game::new(
-        String::from("dio"),
-        String::from("ksenia"),
-        9,
-    );
+    let _g = Game::new(String::from("dio"), String::from("ksenia"), 9);
 }
