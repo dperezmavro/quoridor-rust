@@ -22,18 +22,7 @@ impl Player {
             Colour::White => 0,
             Colour::Black => grid_size,
         };
-        let blocks: [Block; 10] = [
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-            Block::new(),
-        ];
+        let blocks: [Block; 10] = core::array::from_fn(|i: usize| Block::new());
         Self {
             name,
             colour,
