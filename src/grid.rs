@@ -47,7 +47,7 @@ pub enum TileState {
 }
 
 impl Grid {
-    pub fn new(size: u32) -> Self {
+    pub fn new(size: u32, player_1_id: String, player_2_id: String) -> Self {
         let playable_row: [Tile; GRID_SIZE] = [
             Tile::new(TileType::Playable, TileState::Free),
             Tile::new(TileType::BlockPosition, TileState::Free),
@@ -67,6 +67,23 @@ impl Grid {
             Tile::new(TileType::BlockPosition, TileState::Free),
             Tile::new(TileType::Playable, TileState::Free),
         ];
+
+        let player_1_tile = Tile::new(
+            TileType::Playable,
+            TileState::PlayerOccupied {
+                player_id: player_1_id.clone(),
+            },
+        );
+        let player_2_tile = Tile::new(
+            TileType::Playable,
+            TileState::PlayerOccupied {
+                player_id: player_2_id.clone(),
+            },
+        );
+        let mut first_row = playable_row.clone();
+        first_row[size as usize / 2] = player_1_tile.clone();
+        let mut last_row = playable_row.clone();
+        last_row[size as usize / 2] = player_2_tile.clone();
 
         let horizontal_block_row: [Tile; GRID_SIZE] = [
             Tile::new(TileType::BlockPosition, TileState::Free),
@@ -89,7 +106,7 @@ impl Grid {
         ];
 
         let tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]> = Box::new([
-            playable_row.clone(),
+            first_row,
             horizontal_block_row.clone(),
             playable_row.clone(),
             horizontal_block_row.clone(),
@@ -105,7 +122,7 @@ impl Grid {
             horizontal_block_row.clone(),
             playable_row.clone(),
             horizontal_block_row.clone(),
-            playable_row.clone(),
+            last_row,
         ]);
 
         Self { size, tiles }
