@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::player::{Colour, Player};
 
-use crate::grid::Grid;
+use crate::grid::{Grid, Tile, TileState, TileType};
 
 pub struct Game {
     id: String,
@@ -23,6 +23,39 @@ impl Game {
             p1: p1,
             p2: p2,
             id,
+        }
+    }
+
+    pub fn start(&mut self) {
+        self.render();
+    }
+
+    pub fn render(&self) {
+        println!("_________________________________");
+        for row in self.g.tiles.iter() {
+            print!("|");
+            for tile in row.clone() {
+                match tile.tile_type {
+                    TileType::BlockPosition => {
+                        print!("b")
+                    }
+                    TileType::BlockNode => {
+                        print!("*");
+                    }
+                    TileType::Playable => match tile.state {
+                        TileState::Free => {
+                            print!(" ")
+                        }
+                        TileState::PlayerOccupied { player_id } => {
+                            print!("P");
+                        }
+                        TileState::BlockOccupied { player_id } => {
+                            print!("B");
+                        }
+                    },
+                }
+            }
+            println!("|")
         }
     }
 }

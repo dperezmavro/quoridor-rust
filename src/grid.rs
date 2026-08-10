@@ -7,13 +7,13 @@ const GRID_SIZE: usize = NUM_VERTICAL_BLOCK_SLOTS + NUM_PLAYABLE_ROWS;
 
 pub struct Grid {
     pub size: u32,
-    tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
+    pub tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
 }
 
 #[derive(Clone)]
 pub struct Tile {
-    tile_type: TileType,
-    state: TileState,
+    pub tile_type: TileType,
+    pub state: TileState,
 }
 
 impl Tile {
@@ -31,7 +31,6 @@ impl Tile {
 }
 
 #[derive(Clone)]
-
 pub enum TileType {
     BlockPosition,
     BlockNode,
