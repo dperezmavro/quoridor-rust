@@ -32,3 +32,21 @@ impl Player {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_player_white() {
+        let p = Player::new("DUMMY".to_string(), Colour::White, 99);
+        assert_eq!(p.position.x, 49);
+        assert_eq!(p.position.y, 0);
+    }
+
+    fn test_player_black() {
+        let p = Player::new("DUMMY".to_string(), Colour::Black, 99);
+        assert_eq!(p.position.x, 49);
+        assert_eq!(p.position.y, 99);
+    }
+}
