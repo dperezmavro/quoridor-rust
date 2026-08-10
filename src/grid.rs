@@ -1,5 +1,3 @@
-use crate::grid::TileType::Playable;
-
 const NUM_PLAYABLE_ROWS: usize = 9;
 const NUM_VERTICAL_BLOCK_SLOTS: usize = 8;
 
