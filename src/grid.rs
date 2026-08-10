@@ -7,21 +7,40 @@ const GRID_SIZE: usize = NUM_VERTICAL_BLOCK_SLOTS + NUM_PLAYABLE_ROWS;
 
 pub struct Grid {
     pub size: u32,
-    tiles: Option<Box<[[Tile; GRID_SIZE]; GRID_SIZE]>>,
+    tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
 }
 
+#[derive(Clone)]
 pub struct Tile {
-    Type: TileType,
-    State: PlayableTileState,
+    tile_type: TileType,
+    state: TileState,
 }
+
+impl Tile {
+    pub fn new(tile_type: TileType, state: TileState) -> Self {
+        Tile { tile_type, state }
+    }
+
+    pub fn get_dimensions(&self) -> usize {
+        match self.tile_type {
+            TileType::BlockNode => 2,
+            TileType::Playable => 4,
+            TileType::BlockPosition => 4,
+        }
+    }
+}
+
+#[derive(Clone)]
 
 pub enum TileType {
     BlockPosition,
     BlockNode,
-    Playable(PlayableTileState),
+    Playable,
 }
 
-pub enum PlayableTileState {
+#[derive(Clone)]
+
+pub enum TileState {
     PlayerOccupied { player_id: String },
     BlockOccupied { player_id: String },
     Free,
@@ -29,10 +48,66 @@ pub enum PlayableTileState {
 
 impl Grid {
     pub fn new(size: u32) -> Self {
-        // let t = [[Tile {
-        //     State: PlayableTileState::Free,
-        //     Type: TileType::BlockNode,
-        // }; GRID_SIZE]; GRID_SIZE];
-        Self { size, tiles: None }
+        let playable_row: [Tile; GRID_SIZE] = [
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::Playable, TileState::Free),
+        ];
+
+        let horizontal_block_row: [Tile; GRID_SIZE] = [
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+            Tile::new(TileType::BlockNode, TileState::Free),
+            Tile::new(TileType::BlockPosition, TileState::Free),
+        ];
+
+        let tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]> = Box::new([
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+            horizontal_block_row.clone(),
+            playable_row.clone(),
+        ]);
+
+        Self { size, tiles }
     }
 }
