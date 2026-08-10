@@ -20,14 +20,14 @@ impl Player {
         let id = Uuid::new_v4().to_string();
         let p_x = match colour {
             Colour::White => 0,
-            Colour::Black => grid_size,
+            Colour::Black => grid_size - 1,
         };
         let blocks: [Block; 10] = core::array::from_fn(|i: usize| Block::new());
         Self {
             name,
             colour,
             id,
-            position: Position::new(p_x, grid_size / 2),
+            position: Position::new(grid_size / 2, p_x), // multi-dimensional array, x and y are flipped around
             blocks,
         }
     }

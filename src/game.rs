@@ -17,7 +17,7 @@ impl Game {
         assert!(size % 2 != 0);
         let id = Uuid::new_v4().to_string();
         let p1 = Player::new(n1, Colour::White, size);
-        let p2 = Player::new(n2, Colour::White, size);
+        let p2 = Player::new(n2, Colour::Black, size);
         Self {
             g: Grid::new(size, p1.name.clone(), p2.name.clone()),
             p1: p1,
@@ -34,5 +34,16 @@ mod tests {
     #[should_panic]
     fn game_new_even_size() {
         let g = Game::new(String::from("a"), String::from("a"), 4);
+    }
+
+    #[test]
+    fn simple_game() {
+        let g = Game::new(String::from("a"), String::from("a"), 5);
+        assert_eq!(g.g.size, 5);
+        assert_eq!(g.p1.position.y, 0);
+        assert_eq!(g.p1.position.x, 2);
+
+        assert_eq!(g.p2.position.y, 4);
+        assert_eq!(g.p2.position.x, 2);
     }
 }
