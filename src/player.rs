@@ -15,6 +15,8 @@ pub struct Player {
     pub blocks: [Block; 10],
 }
 
+const NUM_BLOCKS: usize = 10;
+
 impl Player {
     pub fn new(name: String, colour: Colour, grid_size: u32) -> Self {
         let id = Uuid::new_v4().to_string();
@@ -22,7 +24,8 @@ impl Player {
             Colour::White => 0,
             Colour::Black => grid_size - 1,
         };
-        let blocks: [Block; 10] = core::array::from_fn(|i: usize| Block::new());
+        let blocks: [Block; NUM_BLOCKS] =
+            core::array::from_fn(|i: usize| Block::new());
         Self {
             name,
             colour,
@@ -44,9 +47,16 @@ mod tests {
         assert_eq!(p.position.y, 0);
     }
 
+    #[test]
     fn test_player_black() {
         let p = Player::new("DUMMY".to_string(), Colour::Black, 99);
         assert_eq!(p.position.x, 49);
-        assert_eq!(p.position.y, 99);
+        assert_eq!(p.position.y, 98);
+    }
+
+    #[test]
+    fn test_player_blocks() {
+        let p = Player::new("DUMMY".to_string(), Colour::Black, 99);
+        assert_eq!(p.blocks.len(), NUM_BLOCKS);
     }
 }
