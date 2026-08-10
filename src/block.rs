@@ -1,7 +1,6 @@
 use crate::player::Colour;
 use crate::position::Position;
 
-
 pub enum Orientation {
     Horizontal,
     Vertical,
