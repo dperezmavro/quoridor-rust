@@ -14,6 +14,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(n1: String, n2: String, size: u32) -> Self {
+        assert!(size % 2 != 0);
         let id = Uuid::new_v4().to_string();
         let p1 = Player::new(n1, Colour::White, size);
         let p2 = Player::new(n2, Colour::White, size);
