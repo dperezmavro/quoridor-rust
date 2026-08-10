@@ -26,3 +26,13 @@ impl Game {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    #[should_panic]
+    fn game_new_even_size() {
+        let g = Game::new(String::from("a"), String::from("a"), 4);
+    }
+}
