@@ -1,10 +1,10 @@
 pub struct Position {
-    pub x: u32,
-    pub y: u32,
+    pub x: usize,
+    pub y: usize,
 }
 
 impl Position {
-    pub fn new(x: u32, y: u32) -> Self {
+    pub fn new(x: usize, y: usize) -> Self {
         Self { x, y }
     }
 }

@@ -1,13 +1,11 @@
-const GRID_SIZE: usize = 9;
+pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = 4;
 const HORIZONTAL_BLOCK_MATRIX_X: usize = 5;
 
 const VERTICAL_BLOCK_MATRIX_Y: usize = 5;
 const VERTICAL_BLOCK_MATRIX_X: usize = 4;
 
-
 pub struct Grid {
-    pub size: u32,
     pub tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
 }
 
@@ -47,7 +45,7 @@ pub enum TileState {
 }
 
 impl Grid {
-    pub fn new(size: u32, player_1_id: String, player_2_id: String) -> Self {
+    pub fn new(player_1_id: String, player_2_id: String) -> Self {
         let playable_row: [Tile; GRID_SIZE] = [
             Tile::new(TileType::Playable, TileState::Free),
             Tile::new(TileType::Playable, TileState::Free),
@@ -73,10 +71,9 @@ impl Grid {
             },
         );
         let mut first_row = playable_row.clone();
-        first_row[size as usize / 2] = player_1_tile.clone();
+        first_row[GRID_SIZE / 2] = player_1_tile.clone();
         let mut last_row = playable_row.clone();
-        last_row[size as usize / 2] = player_2_tile.clone();
-
+        last_row[GRID_SIZE / 2] = player_2_tile.clone();
 
         let tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]> = Box::new([
             first_row,
@@ -90,6 +87,6 @@ impl Grid {
             last_row,
         ]);
 
-        Self { size, tiles }
+        Self { tiles }
     }
 }

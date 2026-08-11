@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::player::{Colour, Player};
 
-use crate::grid::{Grid, Tile, TileState, TileType};
+use crate::grid::{GRID_SIZE, Grid, Tile, TileState, TileType};
 
 pub struct Game {
     id: String,
@@ -13,13 +13,13 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(n1: String, n2: String, size: u32) -> Self {
-        assert!(size % 2 != 0);
+    pub fn new(n1: String, n2: String) -> Self {
         let id = Uuid::new_v4().to_string();
-        let p1 = Player::new(n1, Colour::White, size);
-        let p2 = Player::new(n2, Colour::Black, size);
+        let p1 = Player::new(n1, Colour::White, GRID_SIZE);
+        let p2 = Player::new(n2, Colour::Black, GRID_SIZE);
+        let g = Grid::new(p1.name.clone(), p2.name.clone());
         Self {
-            g: Grid::new(size, p1.name.clone(), p2.name.clone()),
+            g,
             p1: p1,
             p2: p2,
             id,
@@ -64,19 +64,12 @@ impl Game {
 mod tests {
     use super::*;
     #[test]
-    #[should_panic]
-    fn game_new_even_size() {
-        let g = Game::new(String::from("a"), String::from("a"), 4);
-    }
-
-    #[test]
     fn simple_game() {
-        let g = Game::new(String::from("a"), String::from("a"), 5);
-        assert_eq!(g.g.size, 5);
+        let g = Game::new(String::from("a"), String::from("a"));
         assert_eq!(g.p1.position.y, 0);
-        assert_eq!(g.p1.position.x, 2);
+        assert_eq!(g.p1.position.x, GRID_SIZE / 2);
 
-        assert_eq!(g.p2.position.y, 4);
-        assert_eq!(g.p2.position.x, 2);
+        assert_eq!(g.p2.position.y, GRID_SIZE - 1);
+        assert_eq!(g.p2.position.x, GRID_SIZE / 2);
     }
 }

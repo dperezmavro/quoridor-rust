@@ -7,6 +7,6 @@ mod position;
 use game::Game;
 
 fn main() {
-    let mut g = Game::new(String::from("dio"), String::from("ksenia"), 9);
+    let mut g = Game::new(String::from("d"), String::from("k"));
     g.start();
 }

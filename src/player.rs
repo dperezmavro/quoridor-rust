@@ -18,7 +18,7 @@ pub struct Player {
 const NUM_BLOCKS: usize = 10;
 
 impl Player {
-    pub fn new(name: String, colour: Colour, grid_size: u32) -> Self {
+    pub fn new(name: String, colour: Colour, grid_size: usize) -> Self {
         let id = Uuid::new_v4().to_string();
         let p_x = match colour {
             Colour::White => 0,
