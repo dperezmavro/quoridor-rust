@@ -39,18 +39,12 @@ impl Game {
                     TileType::BlockPosition => {
                         print!("b")
                     }
-                    TileType::BlockNode => {
-                        print!("*");
-                    }
                     TileType::Playable => match tile.state {
                         TileState::Free => {
                             print!(" ")
                         }
-                        TileState::PlayerOccupied { player_id } => {
+                        TileState::Occupied => {
                             print!("P");
-                        }
-                        TileState::BlockOccupied { player_id } => {
-                            print!("B");
                         }
                     },
                 }
