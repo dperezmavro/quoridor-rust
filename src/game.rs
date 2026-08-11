@@ -32,7 +32,7 @@ impl Game {
 
     pub fn render(&self) {
         println!("_________________________________");
-        for row in self.g.tiles.iter() {
+        for row in self.g.player_tiles.iter() {
             print!("|");
             for tile in row.clone() {
                 match tile.tile_type {

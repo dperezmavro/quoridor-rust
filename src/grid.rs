@@ -6,7 +6,7 @@ const VERTICAL_BLOCK_MATRIX_Y: usize = 5;
 const VERTICAL_BLOCK_MATRIX_X: usize = 4;
 
 pub struct Grid {
-    pub tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
+    pub player_tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
 }
 
 #[derive(Clone)]
@@ -87,6 +87,6 @@ impl Grid {
             last_row,
         ]);
 
-        Self { tiles }
+        Self { player_tiles: tiles }
     }
 }
