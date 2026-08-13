@@ -1,6 +1,7 @@
 use crate::block::{Block, Orientation};
 use crate::position::Position;
 use std::cmp::PartialEq;
+use std::collections::HashSet;
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = 4;
@@ -11,7 +12,7 @@ const VERTICAL_BLOCK_MATRIX_X: usize = 4;
 
 const BLOCK_LENGTH: usize = 2;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Tile {
     pub tile_type: TileType,
     pub state: TileState,
@@ -30,13 +31,13 @@ impl Tile {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TileType {
     BlockPosition,
     Playable,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TileState {
     Occupied,
     Free,
@@ -129,6 +130,28 @@ impl Grid {
         }
 
         available_blocks
+    }
+
+    pub fn is_grid_traversable(&self) -> bool {
+        let top_left = Position::new(0, 0);
+        let mut reachable_tiles: Vec<Tile> =
+            vec![Tile::new(TileType::Playable, TileState::Free)];
+        let mut visited_tiles: HashSet<Tile> = HashSet::new();
+        while let tile = reachable_tiles.iter_mut().next() {
+            match tile {
+                Some(t) => {
+                    if !visited_tiles.contains(t) {
+                        visited_tiles.insert(*t);
+                        // reachable_tiles.push(*t);
+                    }
+                }
+                None => {}
+            }
+
+            // visited_tiles.insert(*tile);
+        }
+
+        false
     }
 
     pub fn place_block(
