@@ -137,18 +137,17 @@ impl Grid {
         let mut reachable_tiles: Vec<Tile> =
             vec![Tile::new(TileType::Playable, TileState::Free)];
         let mut visited_tiles: HashSet<Tile> = HashSet::new();
-        while let tile = reachable_tiles.iter_mut().next() {
+        while let tile = reachable_tiles.iter().next() {
             match tile {
                 Some(t) => {
                     if !visited_tiles.contains(t) {
                         visited_tiles.insert(*t);
-                        // reachable_tiles.push(*t);
+                        reachable_tiles.push(*t);
+                        // TODO get neighbours of tiles and traverse as well
                     }
                 }
                 None => {}
             }
-
-            // visited_tiles.insert(*tile);
         }
 
         false
