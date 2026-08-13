@@ -153,7 +153,7 @@ impl Grid {
                     self.horizontal_blocks[p.y][p.x].state =
                         TileState::Occupied;
                     self.horizontal_blocks[p.y][p.x + 1].state =
-                        TileState::Free;
+                        TileState::Occupied;
                     return true;
                 }
             }
@@ -165,7 +165,7 @@ impl Grid {
                     self.horizontal_blocks[p.y][p.x].state =
                         TileState::Occupied;
                     self.horizontal_blocks[p.y + 1][p.x].state =
-                        TileState::Free;
+                        TileState::Occupied;
                     return true;
                 }
             }
@@ -210,6 +210,10 @@ mod tests {
         let result =
             grid.place_block(Position::new(0, 0), Orientation::Horizontal);
         assert_eq!(result, true);
+
+        let result =
+            grid.place_block(Position::new(1, 0), Orientation::Horizontal);
+        assert_eq!(result, false);
 
         let result =
             grid.place_block(Position::new(3, 0), Orientation::Vertical);
