@@ -154,6 +154,9 @@ impl Grid {
                         TileState::Occupied;
                     self.horizontal_blocks[p.y][p.x + 1].state =
                         TileState::Occupied;
+
+                    // TODO(dio): add a check here for the validity of the block placement
+                    // can't be allowed if it divides the board in two
                     return true;
                 }
             }
@@ -166,6 +169,9 @@ impl Grid {
                         TileState::Occupied;
                     self.horizontal_blocks[p.y + 1][p.x].state =
                         TileState::Occupied;
+
+                    // TODO(dio): add a check here for the validity of the block placement
+                    // can't be allowed if it divides the board in two
                     return true;
                 }
             }
