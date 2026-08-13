@@ -17,7 +17,7 @@ impl Game {
         let id = Uuid::new_v4().to_string();
         let p1 = Player::new(n1, Colour::White, GRID_SIZE);
         let p2 = Player::new(n2, Colour::Black, GRID_SIZE);
-        let g = Grid::new(p1.name.clone(), p2.name.clone());
+        let g = Grid::new();
         Self {
             g,
             p1: p1,
