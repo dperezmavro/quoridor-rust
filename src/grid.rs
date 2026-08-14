@@ -348,14 +348,16 @@ mod tests {
             GRID_SIZE - 1,
         ));
         assert_eq!(result.len(), 3);
-
-        // let mut g = Grid::new();
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
-        // assert_eq!(result.len(), 2);
-        // let placed =
-        //     g.place_block(Position::new(0, 0), Orientation::Horizontal);
-        // assert_eq!(placed, true);
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
-        // assert_eq!(result.len(), 1);
+    }
+    #[test]
+    fn get_reachable_neighbour_tiles_with_blocks() {
+        let mut g = Grid::new();
+        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        assert_eq!(result.len(), 2);
+        let placed =
+            g.place_block(Position::new(0, 0), Orientation::Horizontal);
+        assert_eq!(placed, true);
+        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        assert_eq!(result.len(), 1);
     }
 }
