@@ -146,33 +146,33 @@ impl Grid {
     pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<Tile> {
         assert_eq!(true, p.x < GRID_SIZE && p.y < GRID_SIZE);
 
-        let mut available_blocks: Vec<Tile> = Vec::new();
+        let mut available_tiles: Vec<Tile> = Vec::new();
         //top
         if p.y > 0 {
             if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
-                available_blocks.push(self.player_tiles[p.y - 1][p.x]);
+                available_tiles.push(self.player_tiles[p.y - 1][p.x]);
             }
         }
-        //bottom
-        if p.y < GRID_SIZE - 1 {
-            if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
-                available_blocks.push(self.player_tiles[p.y + 1][p.x]);
-            }
-        }
-        //right
-        if p.x < GRID_SIZE - 1 {
-            if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
-                available_blocks.push(self.player_tiles[p.y][p.x + 1]);
-            }
-        }
+        // //bottom
+        // if p.y < GRID_SIZE - 1 {
+        //     if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
+        //         available_tiles.push(self.player_tiles[p.y + 1][p.x]);
+        //     }
+        // }
+        // //right
+        // if p.x < GRID_SIZE - 1 {
+        //     if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
+        //         available_tiles.push(self.player_tiles[p.y][p.x + 1]);
+        //     }
+        // }
         //left
         if p.x > 0 {
             if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
-                available_blocks.push(self.player_tiles[p.y][p.x - 1]);
+                available_tiles.push(self.player_tiles[p.y][p.x - 1]);
             }
         }
 
-        available_blocks
+        available_tiles
     }
 
     // pub fn is_grid_traversable(&self) -> bool {
@@ -305,12 +305,12 @@ mod tests {
 
         let result = grid.get_reachable_neighbour_tiles(Position::new(1, 1));
         assert_eq!(result.len(), 4);
-        //
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(
-        //     GRID_SIZE - 1,
-        //     GRID_SIZE - 1,
-        // ));
-        // assert_eq!(result.len(), 2);
+
+        let result = grid.get_reachable_neighbour_tiles(Position::new(
+            GRID_SIZE - 1,
+            GRID_SIZE - 1,
+        ));
+        assert_eq!(result.len(), 2);
 
         // let result = grid.get_reachable_neighbour_tiles(Position::new(
         //     GRID_SIZE - 2,
