@@ -1,14 +1,13 @@
 use crate::block::Orientation;
 use crate::position::Position;
 use std::cmp::PartialEq;
-use std::collections::HashSet;
 
 pub const GRID_SIZE: usize = 9;
-const HORIZONTAL_BLOCK_MATRIX_Y: usize = 4;
-const HORIZONTAL_BLOCK_MATRIX_X: usize = 5;
+const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
+const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE - BLOCK_LENGTH;
 
-const VERTICAL_BLOCK_MATRIX_Y: usize = 5;
-const VERTICAL_BLOCK_MATRIX_X: usize = 4;
+const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - BLOCK_LENGTH;
+const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
 const BLOCK_LENGTH: usize = 2;
 
@@ -36,13 +35,6 @@ impl Tile {
             state: TileState::Free,
             tile_type: TileType::Playable,
             position: Position { x: 0, y: 0 },
-        }
-    }
-
-    pub fn get_dimensions(&self) -> usize {
-        match self.tile_type {
-            TileType::Playable => 4,
-            TileType::BlockPosition => 4,
         }
     }
 }
@@ -151,58 +143,60 @@ impl Grid {
         }
     }
 
-    pub fn get_available_tiles(&self, p: Position) -> Vec<Tile> {
-        assert_eq!(
-            true,
-            p.x >= 0 && p.y >= 0 && p.x < GRID_SIZE && p.y < GRID_SIZE
-        );
+    pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<Tile> {
+        assert_eq!(true, p.x < GRID_SIZE && p.y < GRID_SIZE);
 
         let mut available_blocks: Vec<Tile> = Vec::new();
         //top
-        if p.x > 0 {
-            // do something about y
+        if p.y > 0 {
             if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
-                available_blocks.push(self.horizontal_blocks[p.y - 1][p.x]);
+                available_blocks.push(self.player_tiles[p.y - 1][p.x]);
             }
         }
         //bottom
-        if p.x < GRID_SIZE - 1 {
-            // do something about y
+        if p.y < GRID_SIZE - 1 {
+            if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
+                available_blocks.push(self.player_tiles[p.y + 1][p.x]);
+            }
         }
         //right
-        if p.y < GRID_SIZE - 1 {
-            // do something about x
+        if p.x < GRID_SIZE - 1 {
+            if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
+                available_blocks.push(self.player_tiles[p.y][p.x + 1]);
+            }
         }
         //left
-        if p.y > 0 {
-            // todo do something about X
+        if p.x > 0 {
+            if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
+                available_blocks.push(self.player_tiles[p.y][p.x - 1]);
+            }
         }
 
         available_blocks
     }
 
-    pub fn is_grid_traversable(&self) -> bool {
-        let mut reachable_tiles: Vec<Tile> = vec![Tile::new(
-            TileType::Playable,
-            TileState::Free,
-            Position { x: 0, y: 0 },
-        )];
-        let mut visited_tiles: HashSet<Tile> = HashSet::new();
-        while let tile = reachable_tiles.iter().next() {
-            match tile {
-                Some(t) => {
-                    if !visited_tiles.contains(t) {
-                        visited_tiles.insert(*t);
-                        reachable_tiles.push(*t);
-                        // TODO get neighbours of tiles and traverse as well
-                    }
-                }
-                None => {}
-            }
-        }
-
-        false
-    }
+    // pub fn is_grid_traversable(&self) -> bool {
+    //     let mut reachable_tiles: Vec<Tile> = vec![Tile::new(
+    //         TileType::Playable,
+    //         TileState::Free,
+    //         Position { x: 0, y: 0 },
+    //     )];
+    //     let mut visited_tiles: HashSet<Tile> = HashSet::new();
+    //     while let tile = reachable_tiles.iter().next() {
+    //         match tile {
+    //             Some(t) => {
+    //                 if !visited_tiles.contains(t) {
+    //                     visited_tiles.insert(*t);
+    //                     reachable_tiles.push(*t);
+    //                     // TODO get neighbours of tiles and traverse as well
+    //                 }
+    //             }
+    //             None => {}
+    //         }
+    //     }
+    //
+    //     false
+    // }
 
     pub fn place_block(
         &mut self,
@@ -211,10 +205,7 @@ impl Grid {
     ) -> bool {
         assert_eq!(
             true,
-            p.x >= 0
-                && p.x <= GRID_SIZE - BLOCK_LENGTH
-                && p.y >= 0
-                && p.y <= GRID_SIZE - BLOCK_LENGTH
+            p.x <= GRID_SIZE - BLOCK_LENGTH && p.y <= GRID_SIZE - BLOCK_LENGTH
         );
 
         match orientation {
@@ -305,5 +296,39 @@ mod tests {
         let result =
             grid.place_block(Position::new(3, 0), Orientation::Vertical);
         assert_eq!(result, false);
+    }
+    #[test]
+    fn get_reachable_neighbour_tiles() {
+        // let grid = Grid::new();
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
+        // assert_eq!(result.len(), 2);
+        //
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(1, 1));
+        // assert_eq!(result.len(), 4);
+        //
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(
+        //     GRID_SIZE - 1,
+        //     GRID_SIZE - 1,
+        // ));
+        // assert_eq!(result.len(), 2);
+
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(
+        //     GRID_SIZE - 2,
+        //     GRID_SIZE - 1,
+        // ));
+        // assert_eq!(result.len(), 3);
+        //
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(
+        //     GRID_SIZE - 1,
+        //     GRID_SIZE - 2,
+        // ));
+        // assert_eq!(result.len(), 3);
+        //
+        // let mut g = Grid::new();
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
+        // assert_eq!(result.len(), 2);
+        // g.place_block(Position::new(0, 0), Orientation::Horizontal);
+        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
+        // assert_eq!(result.len(), 1);
     }
 }
