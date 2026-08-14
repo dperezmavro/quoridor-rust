@@ -147,28 +147,34 @@ impl Grid {
         assert_eq!(true, p.x < GRID_SIZE && p.y < GRID_SIZE);
 
         let mut available_tiles: Vec<Tile> = Vec::new();
-        //top
-        if p.y > 0 {
-            if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
-                available_tiles.push(self.player_tiles[p.y - 1][p.x]);
+        if self.horizontal_blocks.len() > 0 {
+            //top
+            if p.y > 0 {
+                if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free
+                {
+                    available_tiles.push(self.player_tiles[p.y - 1][p.x]);
+                }
+            }
+            //bottom
+            if p.y < GRID_SIZE - 1 {
+                if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
+                    available_tiles.push(self.player_tiles[p.y + 1][p.x]);
+                }
             }
         }
-        //bottom
-        if p.y < GRID_SIZE - 1 {
-            if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
-                available_tiles.push(self.player_tiles[p.y + 1][p.x]);
+
+        if self.vertical_blocks.len() > 0 {
+            // right
+            if p.x < GRID_SIZE - 1 {
+                if self.vertical_blocks[p.y][p.x].state == TileState::Free {
+                    available_tiles.push(self.player_tiles[p.y][p.x + 1]);
+                }
             }
-        }
-        // right
-        if p.x < GRID_SIZE - 1 {
-            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
-                available_tiles.push(self.player_tiles[p.y][p.x + 1]);
-            }
-        }
-        //left
-        if p.x > 0 {
-            if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
-                available_tiles.push(self.player_tiles[p.y][p.x - 1]);
+            //left
+            if p.x > 0 {
+                if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
+                    available_tiles.push(self.player_tiles[p.y][p.x - 1]);
+                }
             }
         }
 
@@ -342,11 +348,13 @@ mod tests {
             GRID_SIZE - 1,
         ));
         assert_eq!(result.len(), 3);
-        //
+
         // let mut g = Grid::new();
         // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
         // assert_eq!(result.len(), 2);
-        // g.place_block(Position::new(0, 0), Orientation::Horizontal);
+        // let placed =
+        //     g.place_block(Position::new(0, 0), Orientation::Horizontal);
+        // assert_eq!(placed, true);
         // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
         // assert_eq!(result.len(), 1);
     }
