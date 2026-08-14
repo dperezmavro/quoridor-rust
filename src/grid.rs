@@ -155,13 +155,13 @@ impl Grid {
         }
         //bottom
         if p.y < GRID_SIZE - 1 {
-            if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
+            if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
                 available_tiles.push(self.player_tiles[p.y + 1][p.x]);
             }
         }
         // right
         if p.x < GRID_SIZE - 1 {
-            if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
+            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
                 available_tiles.push(self.player_tiles[p.y][p.x + 1]);
             }
         }
@@ -323,11 +323,9 @@ mod tests {
         ));
         assert_eq!(result.len(), 4);
 
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(
-        //     GRID_SIZE - 2,
-        //     GRID_SIZE - 1,
-        // ));
-        // assert_eq!(result.len(), 3);
+        let result =
+            grid.get_reachable_neighbour_tiles(Position::new(GRID_SIZE - 2, 0));
+        assert_eq!(result.len(), 3);
         //
         // let result = grid.get_reachable_neighbour_tiles(Position::new(
         //     GRID_SIZE - 1,
