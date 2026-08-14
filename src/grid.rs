@@ -326,12 +326,12 @@ mod tests {
         let result =
             grid.get_reachable_neighbour_tiles(Position::new(GRID_SIZE - 2, 0));
         assert_eq!(result.len(), 3);
-        //
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(
-        //     GRID_SIZE - 1,
-        //     GRID_SIZE - 2,
-        // ));
-        // assert_eq!(result.len(), 3);
+
+        let result = grid.get_reachable_neighbour_tiles(Position::new(
+            GRID_SIZE - 1,
+            GRID_SIZE - 2,
+        ));
+        assert_eq!(result.len(), 3);
         //
         // let mut g = Grid::new();
         // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
