@@ -299,12 +299,12 @@ mod tests {
     }
     #[test]
     fn get_reachable_neighbour_tiles() {
-        // let grid = Grid::new();
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
-        // assert_eq!(result.len(), 2);
-        //
-        // let result = grid.get_reachable_neighbour_tiles(Position::new(1, 1));
-        // assert_eq!(result.len(), 4);
+        let grid = Grid::new();
+        let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
+        assert_eq!(result.len(), 2);
+
+        let result = grid.get_reachable_neighbour_tiles(Position::new(1, 1));
+        assert_eq!(result.len(), 4);
         //
         // let result = grid.get_reachable_neighbour_tiles(Position::new(
         //     GRID_SIZE - 1,
