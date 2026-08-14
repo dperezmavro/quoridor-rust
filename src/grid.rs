@@ -1,4 +1,4 @@
-use crate::block::{Block, Orientation};
+use crate::block::Orientation;
 use crate::position::Position;
 use std::cmp::PartialEq;
 use std::collections::HashSet;
@@ -16,11 +16,27 @@ const BLOCK_LENGTH: usize = 2;
 pub struct Tile {
     pub tile_type: TileType,
     pub state: TileState,
+    pub position: Position,
 }
 
 impl Tile {
-    pub fn new(tile_type: TileType, state: TileState) -> Self {
-        Tile { tile_type, state }
+    pub fn new(
+        tile_type: TileType,
+        state: TileState,
+        position: Position,
+    ) -> Self {
+        Tile {
+            tile_type,
+            state,
+            position,
+        }
+    }
+    pub fn default() -> Self {
+        Self {
+            state: TileState::Free,
+            tile_type: TileType::Playable,
+            position: Position { x: 0, y: 0 },
+        }
     }
 
     pub fn get_dimensions(&self) -> usize {
@@ -53,20 +69,31 @@ pub struct Grid {
 
 impl Grid {
     pub fn new() -> Self {
-        let playable_row: [Tile; GRID_SIZE] = [
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-            Tile::new(TileType::Playable, TileState::Free),
-        ];
+        let mut playable_row: [Tile; GRID_SIZE] = [Tile::default(); GRID_SIZE];
+        for i in 0..GRID_SIZE {
+            playable_row[i] = Tile::new(
+                TileType::Playable,
+                TileState::Free,
+                Position { y: 0, x: i },
+            )
+        }
 
-        let player_1_tile = Tile::new(TileType::Playable, TileState::Occupied);
-        let player_2_tile = Tile::new(TileType::Playable, TileState::Occupied);
+        let player_1_tile = Tile::new(
+            TileType::Playable,
+            TileState::Occupied,
+            Position {
+                y: 0,
+                x: GRID_SIZE / 2,
+            },
+        );
+        let player_2_tile = Tile::new(
+            TileType::Playable,
+            TileState::Occupied,
+            Position {
+                y: GRID_SIZE - 1,
+                x: GRID_SIZE / 2,
+            },
+        );
         let mut first_row = playable_row.clone();
         first_row[GRID_SIZE / 2] = player_1_tile.clone();
         let mut last_row = playable_row.clone();
@@ -84,16 +111,38 @@ impl Grid {
             last_row,
         ]);
 
-        let horizontal_blocks = Box::new(
-            [[Tile::new(TileType::BlockPosition, TileState::Free);
-                HORIZONTAL_BLOCK_MATRIX_X];
+        let mut horizontal_blocks: Box<
+            [[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y],
+        > = Box::new(
+            [[Tile::default(); HORIZONTAL_BLOCK_MATRIX_X];
                 HORIZONTAL_BLOCK_MATRIX_Y],
         );
+        for y in 0..HORIZONTAL_BLOCK_MATRIX_Y {
+            for x in 0..HORIZONTAL_BLOCK_MATRIX_X {
+                horizontal_blocks[y][x] = Tile::new(
+                    TileType::BlockPosition,
+                    TileState::Free,
+                    Position { y, x },
+                );
+            }
+        }
 
-        let vertical_blocks = Box::new(
-            [[Tile::new(TileType::BlockPosition, TileState::Free);
-                VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y],
+        let mut vertical_blocks: Box<
+            [[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y],
+        > = Box::new(
+            [[Tile::default(); VERTICAL_BLOCK_MATRIX_X];
+                VERTICAL_BLOCK_MATRIX_Y],
         );
+
+        for y in 0..VERTICAL_BLOCK_MATRIX_Y {
+            for x in 0..VERTICAL_BLOCK_MATRIX_X {
+                vertical_blocks[y][x] = Tile::new(
+                    TileType::BlockPosition,
+                    TileState::Free,
+                    Position { y, x },
+                );
+            }
+        }
 
         Self {
             player_tiles,
@@ -133,9 +182,11 @@ impl Grid {
     }
 
     pub fn is_grid_traversable(&self) -> bool {
-        let top_left = Position::new(0, 0);
-        let mut reachable_tiles: Vec<Tile> =
-            vec![Tile::new(TileType::Playable, TileState::Free)];
+        let mut reachable_tiles: Vec<Tile> = vec![Tile::new(
+            TileType::Playable,
+            TileState::Free,
+            Position { x: 0, y: 0 },
+        )];
         let mut visited_tiles: HashSet<Tile> = HashSet::new();
         while let tile = reachable_tiles.iter().next() {
             match tile {
@@ -210,8 +261,11 @@ mod tests {
     #[test]
     fn test_get_available_tiles() {
         let mut grid = Grid::new();
-        grid.horizontal_blocks[0][0] =
-            Tile::new(TileType::BlockPosition, TileState::Occupied);
+        grid.horizontal_blocks[0][0] = Tile::new(
+            TileType::BlockPosition,
+            TileState::Occupied,
+            Position { x: 0, y: 0 },
+        );
     }
 
     #[test]

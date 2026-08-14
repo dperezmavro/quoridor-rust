@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::player::{Colour, Player};
 
-use crate::grid::{GRID_SIZE, Grid, Tile, TileState, TileType};
+use crate::grid::{GRID_SIZE, Grid, TileState, TileType};
 
 pub struct Game {
     id: String,
