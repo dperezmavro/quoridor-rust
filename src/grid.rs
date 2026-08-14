@@ -4,9 +4,9 @@ use std::cmp::PartialEq;
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
-const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE - BLOCK_LENGTH;
+const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE;
 
-const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - BLOCK_LENGTH;
+const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
 const BLOCK_LENGTH: usize = 2;
@@ -159,12 +159,12 @@ impl Grid {
                 available_tiles.push(self.player_tiles[p.y + 1][p.x]);
             }
         }
-        // //right
-        // if p.x < GRID_SIZE - 1 {
-        //     if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
-        //         available_tiles.push(self.player_tiles[p.y][p.x + 1]);
-        //     }
-        // }
+        // right
+        if p.x < GRID_SIZE - 1 {
+            if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
+                available_tiles.push(self.player_tiles[p.y][p.x + 1]);
+            }
+        }
         //left
         if p.x > 0 {
             if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
@@ -203,10 +203,7 @@ impl Grid {
         p: Position,
         orientation: Orientation,
     ) -> bool {
-        assert_eq!(
-            true,
-            p.x <= GRID_SIZE - BLOCK_LENGTH && p.y <= GRID_SIZE - BLOCK_LENGTH
-        );
+        assert_eq!(true, p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
         match orientation {
             Orientation::Horizontal => {
