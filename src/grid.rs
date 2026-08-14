@@ -153,12 +153,12 @@ impl Grid {
                 available_tiles.push(self.player_tiles[p.y - 1][p.x]);
             }
         }
-        // //bottom
-        // if p.y < GRID_SIZE - 1 {
-        //     if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
-        //         available_tiles.push(self.player_tiles[p.y + 1][p.x]);
-        //     }
-        // }
+        //bottom
+        if p.y < GRID_SIZE - 1 {
+            if self.horizontal_blocks[p.y + 1][p.x].state == TileState::Free {
+                available_tiles.push(self.player_tiles[p.y + 1][p.x]);
+            }
+        }
         // //right
         // if p.x < GRID_SIZE - 1 {
         //     if self.vertical_blocks[p.y][p.x + 1].state == TileState::Free {
