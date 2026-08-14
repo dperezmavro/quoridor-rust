@@ -1,5 +1,6 @@
 use crate::position::Position;
 
+#[derive(Clone)]
 pub enum Orientation {
     Horizontal,
     Vertical,

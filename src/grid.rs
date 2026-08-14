@@ -282,72 +282,46 @@ mod tests {
 
     #[test]
     fn place_block() {
+        struct test_case(usize, usize, Orientation, bool);
+
+        let tests = vec![
+            test_case(0, 0, Orientation::Horizontal, true),
+            test_case(1, 0, Orientation::Horizontal, false),
+            test_case(3, 0, Orientation::Horizontal, true),
+            test_case(3, 0, Orientation::Horizontal, false),
+        ];
+
         let mut grid = Grid::new();
-        let result =
-            grid.place_block(Position::new(0, 0), Orientation::Horizontal);
-        assert_eq!(result, true);
 
-        let result =
-            grid.place_block(Position::new(1, 0), Orientation::Horizontal);
-        assert_eq!(result, false);
-
-        let result =
-            grid.place_block(Position::new(3, 0), Orientation::Vertical);
-        assert_eq!(result, true);
-
-        // attempt to place block on occupied position
-        let result =
-            grid.place_block(Position::new(3, 0), Orientation::Vertical);
-        assert_eq!(result, false);
+        tests.iter().for_each(|t| {
+            let t = t.clone();
+            let result =
+                grid.place_block(Position { x: t.0, y: t.1 }, t.2.clone());
+            assert_eq!(t.3, result);
+        });
     }
     #[test]
     fn get_reachable_neighbour_tiles() {
-        let grid = Grid::new();
-        let result = grid.get_reachable_neighbour_tiles(Position::new(0, 0));
-        assert_eq!(result.len(), 2);
+        struct test_case(usize, usize, usize);
+        let tests = vec![
+            test_case(0, 0, 2),
+            test_case(1, 1, 4),
+            test_case(GRID_SIZE - 1, GRID_SIZE - 1, 2),
+            test_case(0, GRID_SIZE - 1, 2),
+            test_case(GRID_SIZE - 1, 0, 2),
+            test_case(GRID_SIZE - 3, GRID_SIZE - 3, 4),
+            test_case(GRID_SIZE - 2, 0, 3),
+            test_case(0, GRID_SIZE - 2, 3),
+            test_case(GRID_SIZE - 1, GRID_SIZE - 2, 3),
+            test_case(GRID_SIZE - 2, GRID_SIZE - 1, 3),
+        ];
 
-        let result = grid.get_reachable_neighbour_tiles(Position::new(1, 1));
-        assert_eq!(result.len(), 4);
-
-        let result = grid.get_reachable_neighbour_tiles(Position::new(
-            GRID_SIZE - 1,
-            GRID_SIZE - 1,
-        ));
-        assert_eq!(result.len(), 2);
-
-        let result =
-            grid.get_reachable_neighbour_tiles(Position::new(0, GRID_SIZE - 1));
-        assert_eq!(result.len(), 2);
-
-        let result =
-            grid.get_reachable_neighbour_tiles(Position::new(GRID_SIZE - 1, 0));
-        assert_eq!(result.len(), 2);
-
-        let result = grid.get_reachable_neighbour_tiles(Position::new(
-            GRID_SIZE - 3,
-            GRID_SIZE - 3,
-        ));
-        assert_eq!(result.len(), 4);
-
-        let result =
-            grid.get_reachable_neighbour_tiles(Position::new(GRID_SIZE - 2, 0));
-        assert_eq!(result.len(), 3);
-
-        let result =
-            grid.get_reachable_neighbour_tiles(Position::new(0, GRID_SIZE - 2));
-        assert_eq!(result.len(), 3);
-
-        let result = grid.get_reachable_neighbour_tiles(Position::new(
-            GRID_SIZE - 1,
-            GRID_SIZE - 2,
-        ));
-        assert_eq!(result.len(), 3);
-
-        let result = grid.get_reachable_neighbour_tiles(Position::new(
-            GRID_SIZE - 2,
-            GRID_SIZE - 1,
-        ));
-        assert_eq!(result.len(), 3);
+        tests.iter().for_each(|t| {
+            let grid = Grid::new();
+            let result =
+                grid.get_reachable_neighbour_tiles(Position { x: t.0, y: t.1 });
+            assert_eq!(t.2, result.len());
+        });
     }
     #[test]
     fn get_reachable_neighbour_tiles_with_blocks() {
