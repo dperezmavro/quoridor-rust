@@ -43,8 +43,8 @@ impl Tile {
         match self.tile_type {
             TileType::BlockPosition => 'b',
             TileType::Playable => match self.state {
-                TileState::Free => ' ',
-                TileState::Occupied => 'P',
+                TileState::Free => '□',
+                TileState::Occupied => '■',
             },
         }
     }

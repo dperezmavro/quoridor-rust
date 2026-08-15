@@ -33,11 +33,11 @@ impl Game {
     pub fn render(&self) {
         println!("_________________________________");
         for row in self.g.player_tiles.iter() {
-            print!("|");
+            // print!("|");
             for tile in row.iter() {
                 print!("{}", tile.get_print_char());
             }
-            println!("|")
+            println!("");
         }
     }
 }
