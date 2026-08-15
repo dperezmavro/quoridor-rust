@@ -370,7 +370,7 @@ mod tests {
     }
 
     #[test]
-    fn is_grid_traversible_illegal_blocks() {
+    fn is_grid_traversable_illegal_blocks() {
         // illegal block placement, but
         let mut g = Grid::new();
         let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
