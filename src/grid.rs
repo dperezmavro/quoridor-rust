@@ -36,6 +36,14 @@ impl Tile {
             position: Position { x: 0, y: 0 },
         }
     }
+
+    pub fn occupy(&mut self) {
+        self.state = TileState::Occupied;
+    }
+
+    pub fn is_free(&self) -> bool {
+        self.state == TileState::Free
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -153,7 +161,7 @@ impl Grid {
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
         if p.y > 0 {
-            if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
+            if self.horizontal_blocks[p.y - 1][p.x].is_free() {
                 println!("Adding top tile");
                 available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
             }
@@ -162,7 +170,7 @@ impl Grid {
         if p.y < GRID_SIZE - 1 {
             println!("Adding bottom tile");
 
-            if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
+            if self.horizontal_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
         }
@@ -171,7 +179,7 @@ impl Grid {
         if p.x > 0 {
             println!("Adding left tile");
 
-            if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
+            if self.vertical_blocks[p.y][p.x - 1].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
             }
         }
@@ -179,7 +187,7 @@ impl Grid {
         if p.x < GRID_SIZE - 1 {
             println!("Adding right tile");
 
-            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
+            if self.vertical_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
             }
         }
@@ -198,20 +206,13 @@ impl Grid {
         while left_to_explore.len() > 0 {
             let t_v = Vec::from_iter(left_to_explore.iter().cloned());
             let t = t_v[0];
-            println!("[+] Exploring tile {:?}", t.position);
             visited.insert(t);
             let neighbours = self.get_reachable_neighbour_tiles(t.position);
             for tt in neighbours {
-                println!(
-                    "[*] Neighbour for tile {:?}: {:?}",
-                    t.position, tt.position
-                );
-
                 if !visited.contains(&tt) {
                     left_to_explore.insert(tt);
                 }
             }
-            println!("[-] Removing  tile {:?}", t.position);
             left_to_explore.remove(t);
         }
 
@@ -227,14 +228,11 @@ impl Grid {
 
         match orientation {
             Orientation::Horizontal => {
-                if self.horizontal_blocks[p.y][p.x].state == TileState::Free
-                    && self.horizontal_blocks[p.y][p.x + 1].state
-                        == TileState::Free
+                if self.horizontal_blocks[p.y][p.x].is_free()
+                    && self.horizontal_blocks[p.y][p.x + 1].is_free()
                 {
-                    self.horizontal_blocks[p.y][p.x].state =
-                        TileState::Occupied;
-                    self.horizontal_blocks[p.y][p.x + 1].state =
-                        TileState::Occupied;
+                    self.horizontal_blocks[p.y][p.x].occupy();
+                    self.horizontal_blocks[p.y][p.x + 1].occupy();
 
                     // TODO(dio): add a check here for the validity of the block placement
                     // can't be allowed if it divides the board in two
@@ -242,13 +240,11 @@ impl Grid {
                 }
             }
             Orientation::Vertical => {
-                if self.vertical_blocks[p.y][p.x].state == TileState::Free
-                    && self.vertical_blocks[p.y + 1][p.x].state
-                        == TileState::Free
+                if self.vertical_blocks[p.y][p.x].is_free()
+                    && self.vertical_blocks[p.y + 1][p.x].is_free()
                 {
-                    self.vertical_blocks[p.y][p.x].state = TileState::Occupied;
-                    self.vertical_blocks[p.y + 1][p.x].state =
-                        TileState::Occupied;
+                    self.vertical_blocks[p.y][p.x].occupy();
+                    self.vertical_blocks[p.y + 1][p.x].occupy();
 
                     // TODO(dio): add a check here for the validity of the block placement
                     // can't be allowed if it divides the board in two
@@ -393,7 +389,7 @@ mod tests {
         assert_eq!(res, true);
         let neighbours = g.get_reachable_neighbour_tiles(Position::new(1, 1));
         assert_eq!(neighbours.len(), 2);
-        // let result = g.is_grid_traversable();
-        // assert_eq!(result, false);
+        let result = g.is_grid_traversable();
+        assert_eq!(result, false);
     }
 }
