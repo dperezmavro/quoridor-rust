@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::player::{Colour, Player};
 
-use crate::grid::{GRID_SIZE, Grid, TileState, TileType};
+use crate::grid::{GRID_SIZE, Grid};
 
 pub struct Game {
     _id: String,
@@ -35,19 +35,7 @@ impl Game {
         for row in self.g.player_tiles.iter() {
             print!("|");
             for tile in row.iter() {
-                match tile.tile_type {
-                    TileType::BlockPosition => {
-                        print!("b")
-                    }
-                    TileType::Playable => match tile.state {
-                        TileState::Free => {
-                            print!(" ")
-                        }
-                        TileState::Occupied => {
-                            print!("P");
-                        }
-                    },
-                }
+                print!("{}", tile.get_print_char());
             }
             println!("|")
         }

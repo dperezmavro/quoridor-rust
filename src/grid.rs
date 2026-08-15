@@ -1,7 +1,8 @@
 use crate::block::Orientation;
 use crate::position::Position;
-use std::cmp::PartialEq;
 use std::collections::HashSet;
+
+use crate::tile::{Tile, TileState, TileType};
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
@@ -9,54 +10,6 @@ const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE;
 
 const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub struct Tile {
-    pub tile_type: TileType,
-    pub state: TileState,
-    pub position: Position,
-}
-
-impl Tile {
-    pub fn new(
-        tile_type: TileType,
-        state: TileState,
-        position: Position,
-    ) -> Self {
-        Tile {
-            tile_type,
-            state,
-            position,
-        }
-    }
-    pub fn default() -> Self {
-        Self {
-            state: TileState::Free,
-            tile_type: TileType::Playable,
-            position: Position { x: 0, y: 0 },
-        }
-    }
-
-    pub fn occupy(&mut self) {
-        self.state = TileState::Occupied;
-    }
-
-    pub fn is_free(&self) -> bool {
-        self.state == TileState::Free
-    }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub enum TileType {
-    BlockPosition,
-    Playable,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub enum TileState {
-    Occupied,
-    Free,
-}
 
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,

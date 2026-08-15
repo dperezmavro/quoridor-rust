@@ -3,6 +3,7 @@ mod game;
 mod grid;
 mod player;
 mod position;
+mod tile;
 
 use game::Game;
 
