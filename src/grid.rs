@@ -356,7 +356,7 @@ mod tests {
     }
 
     #[test]
-    fn is_grid_traversible() {
+    fn is_grid_traversable() {
         // empty board
         let g = Grid::new();
         let result = g.is_grid_traversible();
