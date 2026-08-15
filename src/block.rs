@@ -1,11 +1,12 @@
 use crate::position::Position;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
+#[derive(Clone, Copy)]
 pub struct Block {
     pub orientation: Orientation,
     pub position: Option<Position>,

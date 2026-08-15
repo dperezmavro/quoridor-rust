@@ -5,7 +5,7 @@ use crate::player::{Colour, Player};
 use crate::grid::{GRID_SIZE, Grid, TileState, TileType};
 
 pub struct Game {
-    id: String,
+    _id: String,
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
@@ -14,7 +14,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(n1: String, n2: String) -> Self {
-        let id = Uuid::new_v4().to_string();
+        let _id = Uuid::new_v4().to_string();
         let p1 = Player::new(n1, Colour::White, GRID_SIZE);
         let p2 = Player::new(n2, Colour::Black, GRID_SIZE);
         let g = Grid::new();
@@ -22,7 +22,7 @@ impl Game {
             g,
             p1: p1,
             p2: p2,
-            id,
+            _id,
         }
     }
 

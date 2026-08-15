@@ -2,7 +2,6 @@ use crate::block::Orientation;
 use crate::position::Position;
 use std::cmp::PartialEq;
 use std::collections::HashSet;
-use std::ops::Deref;
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
@@ -346,7 +345,7 @@ mod tests {
 
     #[test]
     fn get_reachable_neighbour_tiles_assert() {
-        let mut g = Grid::new();
+        let g = Grid::new();
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 2);
         assert_eq!(result[0].position.x, 0);
@@ -358,13 +357,27 @@ mod tests {
 
     #[test]
     fn is_grid_traversible() {
+        // empty board
         let g = Grid::new();
         let result = g.is_grid_traversible();
         assert_eq!(result, true);
 
+        // single block
         let mut g = Grid::new();
         g.place_block(Position::new(0, 1), Orientation::Horizontal);
         let result = g.is_grid_traversible();
         assert_eq!(result, true);
+    }
+
+    #[test]
+    fn is_grid_traversible_illegal_blocks() {
+        // illegal block placement, but
+        let mut g = Grid::new();
+        let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
+        assert_eq!(res, true);
+        let res = g.place_block(Position::new(1, 0), Orientation::Horizontal);
+        assert_eq!(res, true);
+        let result = g.is_grid_traversible();
+        assert_eq!(result, false);
     }
 }
