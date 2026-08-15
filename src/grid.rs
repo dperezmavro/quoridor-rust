@@ -10,8 +10,6 @@ const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
-const BLOCK_LENGTH: usize = 2;
-
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Tile {
     pub tile_type: TileType,
@@ -54,9 +52,9 @@ pub enum TileState {
 
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
-    pub horizontal_blocks:
+    horizontal_blocks:
         Box<[[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y]>,
-    pub vertical_blocks:
+    vertical_blocks:
         Box<[[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y]>,
 }
 
@@ -144,8 +142,8 @@ impl Grid {
 
         Self {
             player_tiles,
-            horizontal_blocks,
-            vertical_blocks,
+            horizontal_blocks: horizontal_blocks,
+            vertical_blocks: vertical_blocks,
         }
     }
 
@@ -156,33 +154,40 @@ impl Grid {
         //top
         if p.y > 0 {
             if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
+                println!("Adding top tile");
                 available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
             }
         }
         //bottom
         if p.y < GRID_SIZE - 1 {
+            println!("Adding bottom tile");
+
             if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
                 available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
         }
 
-        // right
-        if p.x < GRID_SIZE - 1 {
-            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
-                available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
-            }
-        }
         //left
         if p.x > 0 {
+            println!("Adding left tile");
+
             if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
                 available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
+            }
+        }
+        // right
+        if p.x < GRID_SIZE - 1 {
+            println!("Adding right tile");
+
+            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
+                available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
             }
         }
 
         available_tiles
     }
 
-    pub fn is_grid_traversible(&self) -> bool {
+    pub fn is_grid_traversable(&self) -> bool {
         let mut left_to_explore: HashSet<&Tile> = HashSet::new();
         left_to_explore.insert(&Tile {
             position: Position { x: 0, y: 0 },
@@ -237,13 +242,12 @@ impl Grid {
                 }
             }
             Orientation::Vertical => {
-                if self.horizontal_blocks[p.y][p.x].state == TileState::Free
-                    && self.horizontal_blocks[p.y + 1][p.x].state
+                if self.vertical_blocks[p.y][p.x].state == TileState::Free
+                    && self.vertical_blocks[p.y + 1][p.x].state
                         == TileState::Free
                 {
-                    self.horizontal_blocks[p.y][p.x].state =
-                        TileState::Occupied;
-                    self.horizontal_blocks[p.y + 1][p.x].state =
+                    self.vertical_blocks[p.y][p.x].state = TileState::Occupied;
+                    self.vertical_blocks[p.y + 1][p.x].state =
                         TileState::Occupied;
 
                     // TODO(dio): add a check here for the validity of the block placement
@@ -350,7 +354,7 @@ mod tests {
         assert_eq!(placed, true);
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
-        // assert_eq!(result[0].position, Position::new(0, 1));
+        assert_eq!(result[0].position, Position::new(0, 1));
     }
 
     #[test]
@@ -369,13 +373,13 @@ mod tests {
     fn is_grid_traversable() {
         // empty board
         let g = Grid::new();
-        let result = g.is_grid_traversible();
+        let result = g.is_grid_traversable();
         assert_eq!(result, true);
 
         // single block
         let mut g = Grid::new();
         g.place_block(Position::new(0, 1), Orientation::Horizontal);
-        let result = g.is_grid_traversible();
+        let result = g.is_grid_traversable();
         assert_eq!(result, true);
     }
 
