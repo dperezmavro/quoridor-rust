@@ -34,7 +34,7 @@ impl Game {
         println!("_________________________________");
         for row in self.g.player_tiles.iter() {
             print!("|");
-            for tile in row.clone() {
+            for tile in row.iter() {
                 match tile.tile_type {
                     TileType::BlockPosition => {
                         print!("b")

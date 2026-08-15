@@ -1,6 +1,8 @@
 use crate::block::Orientation;
 use crate::position::Position;
 use std::cmp::PartialEq;
+use std::collections::HashSet;
+use std::ops::Deref;
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
@@ -11,7 +13,7 @@ const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
 const BLOCK_LENGTH: usize = 2;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Tile {
     pub tile_type: TileType,
     pub state: TileState,
@@ -39,37 +41,41 @@ impl Tile {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum TileType {
     BlockPosition,
     Playable,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum TileState {
     Occupied,
     Free,
 }
 
 pub struct Grid {
-    pub player_tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]>,
+    pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
     pub horizontal_blocks:
         Box<[[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y]>,
     pub vertical_blocks:
         Box<[[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y]>,
 }
 
+fn generate_row(y: usize) -> Box<[Tile; GRID_SIZE]> {
+    let mut res = Box::new([Tile::default(); GRID_SIZE]);
+    let default = Tile::default();
+    for i in 0..GRID_SIZE {
+        res[i] = Tile {
+            position: Position { x: i, y },
+            ..default
+        };
+    }
+
+    res
+}
+
 impl Grid {
     pub fn new() -> Self {
-        let mut playable_row: [Tile; GRID_SIZE] = [Tile::default(); GRID_SIZE];
-        for i in 0..GRID_SIZE {
-            playable_row[i] = Tile::new(
-                TileType::Playable,
-                TileState::Free,
-                Position { y: 0, x: i },
-            )
-        }
-
         let player_1_tile = Tile::new(
             TileType::Playable,
             TileState::Occupied,
@@ -86,22 +92,23 @@ impl Grid {
                 x: GRID_SIZE / 2,
             },
         );
-        let mut first_row = playable_row.clone();
+        let mut first_row = generate_row(0);
         first_row[GRID_SIZE / 2] = player_1_tile.clone();
-        let mut last_row = playable_row.clone();
+        let mut last_row = generate_row(GRID_SIZE - 1);
         last_row[GRID_SIZE / 2] = player_2_tile.clone();
 
-        let player_tiles: Box<[[Tile; GRID_SIZE]; GRID_SIZE]> = Box::new([
-            first_row,
-            playable_row.clone(),
-            playable_row.clone(),
-            playable_row.clone(),
-            playable_row.clone(),
-            playable_row.clone(),
-            playable_row.clone(),
-            playable_row.clone(),
-            last_row,
-        ]);
+        let player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]> =
+            Box::new([
+                first_row,
+                generate_row(1),
+                generate_row(2),
+                generate_row(3),
+                generate_row(4),
+                generate_row(5),
+                generate_row(6),
+                generate_row(7),
+                last_row,
+            ]);
 
         let mut horizontal_blocks: Box<
             [[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y],
@@ -143,66 +150,69 @@ impl Grid {
         }
     }
 
-    pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<Tile> {
+    pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<&Tile> {
         assert_eq!(true, p.x < GRID_SIZE && p.y < GRID_SIZE);
 
-        let mut available_tiles: Vec<Tile> = Vec::new();
-        if self.horizontal_blocks.len() > 0 {
-            //top
-            if p.y > 0 {
-                if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free
-                {
-                    available_tiles.push(self.player_tiles[p.y - 1][p.x]);
-                }
+        let mut available_tiles: Vec<&Tile> = Vec::new();
+        //top
+        if p.y > 0 {
+            if self.horizontal_blocks[p.y - 1][p.x].state == TileState::Free {
+                available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
             }
-            //bottom
-            if p.y < GRID_SIZE - 1 {
-                if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
-                    available_tiles.push(self.player_tiles[p.y + 1][p.x]);
-                }
+        }
+        //bottom
+        if p.y < GRID_SIZE - 1 {
+            if self.horizontal_blocks[p.y][p.x].state == TileState::Free {
+                available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
         }
 
-        if self.vertical_blocks.len() > 0 {
-            // right
-            if p.x < GRID_SIZE - 1 {
-                if self.vertical_blocks[p.y][p.x].state == TileState::Free {
-                    available_tiles.push(self.player_tiles[p.y][p.x + 1]);
-                }
+        // right
+        if p.x < GRID_SIZE - 1 {
+            if self.vertical_blocks[p.y][p.x].state == TileState::Free {
+                available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
             }
-            //left
-            if p.x > 0 {
-                if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
-                    available_tiles.push(self.player_tiles[p.y][p.x - 1]);
-                }
+        }
+        //left
+        if p.x > 0 {
+            if self.vertical_blocks[p.y][p.x - 1].state == TileState::Free {
+                available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
             }
         }
 
         available_tiles
     }
 
-    // pub fn is_grid_traversable(&self) -> bool {
-    //     let mut reachable_tiles: Vec<Tile> = vec![Tile::new(
-    //         TileType::Playable,
-    //         TileState::Free,
-    //         Position { x: 0, y: 0 },
-    //     )];
-    //     let mut visited_tiles: HashSet<Tile> = HashSet::new();
-    //     while let tile = reachable_tiles.iter().next() {
-    //         match tile {
-    //             Some(t) => {
-    //                 if !visited_tiles.contains(t) {
-    //                     visited_tiles.insert(*t);
-    //                     reachable_tiles.push(*t);
-    //                     // TODO get neighbours of tiles and traverse as well
-    //                 }
-    //             }
-    //             None => {}
-    //         }
-    //     }
-    //
-    //     false
-    // }
+    pub fn is_grid_traversible(&self) -> bool {
+        let mut left_to_explore: HashSet<&Tile> = HashSet::new();
+        left_to_explore.insert(&Tile {
+            position: Position { x: 0, y: 0 },
+            state: TileState::Free,
+            tile_type: TileType::Playable,
+        });
+        let mut visited: HashSet<&Tile> = HashSet::new();
+        while left_to_explore.len() > 0 {
+            let t_v = Vec::from_iter(left_to_explore.iter().cloned());
+            let t = t_v[0];
+            println!("[+] Exploring tile {:?}", t.position);
+            visited.insert(t);
+            let neighbours = self.get_reachable_neighbour_tiles(t.position);
+            for tt in neighbours {
+                println!(
+                    "[*] Neighbour for tile {:?}: {:?}",
+                    t.position, tt.position
+                );
+
+                if !visited.contains(&tt) {
+                    left_to_explore.insert(tt);
+                }
+            }
+            println!("[-] Removing  tile {:?}", t.position);
+            left_to_explore.remove(t);
+        }
+
+        visited.len() == GRID_SIZE * GRID_SIZE
+    }
 
     pub fn place_block(
         &mut self,
@@ -282,19 +292,18 @@ mod tests {
 
     #[test]
     fn place_block() {
-        struct test_case(usize, usize, Orientation, bool);
+        struct TestCase(usize, usize, Orientation, bool);
 
         let tests = vec![
-            test_case(0, 0, Orientation::Horizontal, true),
-            test_case(1, 0, Orientation::Horizontal, false),
-            test_case(3, 0, Orientation::Horizontal, true),
-            test_case(3, 0, Orientation::Horizontal, false),
+            TestCase(0, 0, Orientation::Horizontal, true),
+            TestCase(1, 0, Orientation::Horizontal, false),
+            TestCase(3, 0, Orientation::Horizontal, true),
+            TestCase(3, 0, Orientation::Horizontal, false),
         ];
 
         let mut grid = Grid::new();
 
         tests.iter().for_each(|t| {
-            let t = t.clone();
             let result =
                 grid.place_block(Position { x: t.0, y: t.1 }, t.2.clone());
             assert_eq!(t.3, result);
@@ -302,18 +311,18 @@ mod tests {
     }
     #[test]
     fn get_reachable_neighbour_tiles() {
-        struct test_case(usize, usize, usize);
+        struct TestCase(usize, usize, usize);
         let tests = vec![
-            test_case(0, 0, 2),
-            test_case(1, 1, 4),
-            test_case(GRID_SIZE - 1, GRID_SIZE - 1, 2),
-            test_case(0, GRID_SIZE - 1, 2),
-            test_case(GRID_SIZE - 1, 0, 2),
-            test_case(GRID_SIZE - 3, GRID_SIZE - 3, 4),
-            test_case(GRID_SIZE - 2, 0, 3),
-            test_case(0, GRID_SIZE - 2, 3),
-            test_case(GRID_SIZE - 1, GRID_SIZE - 2, 3),
-            test_case(GRID_SIZE - 2, GRID_SIZE - 1, 3),
+            TestCase(0, 0, 2),
+            TestCase(1, 1, 4),
+            TestCase(GRID_SIZE - 1, GRID_SIZE - 1, 2),
+            TestCase(0, GRID_SIZE - 1, 2),
+            TestCase(GRID_SIZE - 1, 0, 2),
+            TestCase(GRID_SIZE - 3, GRID_SIZE - 3, 4),
+            TestCase(GRID_SIZE - 2, 0, 3),
+            TestCase(0, GRID_SIZE - 2, 3),
+            TestCase(GRID_SIZE - 1, GRID_SIZE - 2, 3),
+            TestCase(GRID_SIZE - 2, GRID_SIZE - 1, 3),
         ];
 
         tests.iter().for_each(|t| {
@@ -334,4 +343,23 @@ mod tests {
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
     }
+
+    #[test]
+    fn get_reachable_neighbour_tiles_assert() {
+        let mut g = Grid::new();
+        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0].position.x, 0);
+        assert_eq!(result[0].position.y, 1);
+
+        assert_eq!(result[1].position.x, 1);
+        assert_eq!(result[1].position.y, 0);
+    }
+
+    // #[test]
+    // fn is_grid_traversible() {
+    //     let mut g = Grid::new();
+    //     let result = g.is_grid_traversible();
+    //     assert_eq!(result, true);
+    // }
 }
