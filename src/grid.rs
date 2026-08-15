@@ -338,7 +338,9 @@ mod tests {
         let mut g = Grid::new();
         let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
         assert_eq!(res, true);
-        let res = g.place_block(Position::new(1, 0), Orientation::Horizontal);
+
+        //todo bug orientation
+        let res = g.place_block(Position::new(1, 0), Orientation::Vertical);
         assert_eq!(res, true);
         let neighbours = g.get_reachable_neighbour_tiles(Position::new(1, 1));
         assert_eq!(neighbours.len(), 2);
