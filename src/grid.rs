@@ -193,8 +193,6 @@ impl Grid {
                         return false;
                     }
 
-                    // TODO(dio): add a check here for the validity of the block placement
-                    // can't be allowed if it divides the board in two
                     return true;
                 }
             }
@@ -205,8 +203,12 @@ impl Grid {
                     self.vertical_blocks[p.y][p.x].occupy();
                     self.vertical_blocks[p.y + 1][p.x].occupy();
 
-                    // TODO(dio): add a check here for the validity of the block placement
-                    // can't be allowed if it divides the board in two
+                    if !self.is_grid_traversable() {
+                        self.vertical_blocks[p.y][p.x].free();
+                        self.vertical_blocks[p.y + 1][p.x].free();
+                        return false;
+                    }
+
                     return true;
                 }
             }
@@ -339,18 +341,13 @@ mod tests {
     }
 
     #[test]
-    fn is_grid_traversable_illegal_blocks() {
-        // illegal block placement, but
+    fn can_not_place_illegal_blocks() {
         let mut g = Grid::new();
         let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
         assert_eq!(res, true);
 
         //todo bug orientation
         let res = g.place_block(Position::new(1, 0), Orientation::Vertical);
-        assert_eq!(res, true);
-        let neighbours = g.get_reachable_neighbour_tiles(Position::new(1, 1));
-        assert_eq!(neighbours.len(), 2);
-        let result = g.is_grid_traversable();
-        assert_eq!(result, false);
+        assert_eq!(res, false);
     }
 }
