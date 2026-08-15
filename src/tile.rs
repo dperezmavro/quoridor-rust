@@ -35,6 +35,10 @@ impl Tile {
         self.state == TileState::Free
     }
 
+    pub fn free(&mut self) {
+        self.state = TileState::Free
+    }
+
     pub fn get_print_char(&self) -> char {
         match self.tile_type {
             TileType::BlockPosition => 'b',

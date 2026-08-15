@@ -187,6 +187,12 @@ impl Grid {
                     self.horizontal_blocks[p.y][p.x].occupy();
                     self.horizontal_blocks[p.y][p.x + 1].occupy();
 
+                    if !self.is_grid_traversable() {
+                        self.horizontal_blocks[p.y][p.x].free();
+                        self.horizontal_blocks[p.y][p.x + 1].free();
+                        return false;
+                    }
+
                     // TODO(dio): add a check here for the validity of the block placement
                     // can't be allowed if it divides the board in two
                     return true;
