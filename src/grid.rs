@@ -356,10 +356,15 @@ mod tests {
         assert_eq!(result[1].position.y, 0);
     }
 
-    // #[test]
-    // fn is_grid_traversible() {
-    //     let mut g = Grid::new();
-    //     let result = g.is_grid_traversible();
-    //     assert_eq!(result, true);
-    // }
+    #[test]
+    fn is_grid_traversible() {
+        let g = Grid::new();
+        let result = g.is_grid_traversible();
+        assert_eq!(result, true);
+
+        let mut g = Grid::new();
+        g.place_block(Position::new(0, 1), Orientation::Horizontal);
+        let result = g.is_grid_traversible();
+        assert_eq!(result, true);
+    }
 }
