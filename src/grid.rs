@@ -115,14 +115,11 @@ impl Grid {
         //top
         if p.y > 0 {
             if self.horizontal_blocks[p.y - 1][p.x].is_free() {
-                println!("Adding top tile");
                 available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
             }
         }
         //bottom
         if p.y < GRID_SIZE - 1 {
-            println!("Adding bottom tile");
-
             if self.horizontal_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
@@ -130,16 +127,12 @@ impl Grid {
 
         //left
         if p.x > 0 {
-            println!("Adding left tile");
-
             if self.vertical_blocks[p.y][p.x - 1].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
             }
         }
         // right
         if p.x < GRID_SIZE - 1 {
-            println!("Adding right tile");
-
             if self.vertical_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
             }
