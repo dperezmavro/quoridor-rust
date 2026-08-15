@@ -383,15 +383,17 @@ mod tests {
         assert_eq!(result, true);
     }
 
-    // #[test]
-    // fn is_grid_traversable_illegal_blocks() {
-    //     // illegal block placement, but
-    //     let mut g = Grid::new();
-    //     let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
-    //     assert_eq!(res, true);
-    //     let res = g.place_block(Position::new(1, 0), Orientation::Horizontal);
-    //     assert_eq!(res, true);
-    //     let result = g.is_grid_traversible();
-    //     assert_eq!(result, false);
-    // }
+    #[test]
+    fn is_grid_traversable_illegal_blocks() {
+        // illegal block placement, but
+        let mut g = Grid::new();
+        let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
+        assert_eq!(res, true);
+        let res = g.place_block(Position::new(1, 0), Orientation::Horizontal);
+        assert_eq!(res, true);
+        let neighbours = g.get_reachable_neighbour_tiles(Position::new(1, 1));
+        assert_eq!(neighbours.len(), 2);
+        // let result = g.is_grid_traversable();
+        // assert_eq!(result, false);
+    }
 }
