@@ -23,11 +23,7 @@ impl Block {
     }
 
     pub fn default() -> Self {
-        Self {
-            orientation: Orientation::Horizontal,
-            position: Position::new(0, 0),
-            is_placed: false,
-        }
+        self::Block::new(Position::new(0, 0), Orientation::Horizontal)
     }
 
     pub fn set_position(&mut self, position: Position) {

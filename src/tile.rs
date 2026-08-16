@@ -20,11 +20,7 @@ impl Tile {
         }
     }
     pub fn default() -> Self {
-        Self {
-            state: TileState::Free,
-            tile_type: TileType::Playable,
-            position: Position { x: 0, y: 0 },
-        }
+        Self::new(TileType::Playable, TileState::Free, Position::new(0, 0))
     }
 
     pub fn occupy(&mut self) {
