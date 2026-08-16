@@ -227,7 +227,7 @@ mod tests {
         let mut grid = Grid::new();
         let success =
             grid.place_block(Position::new(8, 0), Orientation::Horizontal);
-        assert_eq!(success, false);
+        assert!(!success);
     }
 
     #[test]
@@ -236,25 +236,23 @@ mod tests {
         let mut grid = Grid::new();
         let success =
             grid.place_block(Position::new(0, 8), Orientation::Vertical);
-        assert_eq!(success, false);
+        assert!(!success);
     }
 
     #[test]
     fn place_block() {
         struct TestCase(usize, usize, Orientation, bool);
 
-        let tests = vec![
-            TestCase(0, 0, Orientation::Horizontal, true),
+        let tests = [TestCase(0, 0, Orientation::Horizontal, true),
             TestCase(1, 0, Orientation::Horizontal, false),
             TestCase(3, 0, Orientation::Horizontal, true),
-            TestCase(3, 0, Orientation::Horizontal, false),
-        ];
+            TestCase(3, 0, Orientation::Horizontal, false)];
 
         let mut grid = Grid::new();
 
         tests.iter().for_each(|t| {
             let result =
-                grid.place_block(Position { x: t.0, y: t.1 }, t.2.clone());
+                grid.place_block(Position { x: t.0, y: t.1 }, t.2);
             assert_eq!(t.3, result);
         });
     }
@@ -289,7 +287,7 @@ mod tests {
         assert_eq!(result.len(), 2);
         let placed =
             g.place_block(Position::new(0, 0), Orientation::Horizontal);
-        assert_eq!(placed, true);
+        assert!(placed);
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].position, Position::new(1, 0));
@@ -297,7 +295,7 @@ mod tests {
         // place vertical block
         let mut g = Grid::new();
         let placed = g.place_block(Position::new(0, 0), Orientation::Vertical);
-        assert_eq!(placed, true);
+        assert!(placed);
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].position, Position::new(0, 1));
@@ -320,23 +318,23 @@ mod tests {
         // empty board
         let g = Grid::new();
         let result = g.is_grid_traversable();
-        assert_eq!(result, true);
+        assert!(result);
 
         // single block
         let mut g = Grid::new();
         g.place_block(Position::new(0, 1), Orientation::Horizontal);
         let result = g.is_grid_traversable();
-        assert_eq!(result, true);
+        assert!(result);
     }
 
     #[test]
     fn can_not_place_illegal_blocks() {
         let mut g = Grid::new();
         let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
-        assert_eq!(res, true);
+        assert!(res);
 
         //todo bug orientation
         let res = g.place_block(Position::new(1, 0), Orientation::Vertical);
-        assert_eq!(res, false);
+        assert!(!res);
     }
 }
