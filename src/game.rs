@@ -20,8 +20,8 @@ impl Game {
         let g = Grid::new();
         Self {
             g,
-            p1: p1,
-            p2: p2,
+            p1,
+            p2,
             _id,
         }
     }
@@ -37,7 +37,7 @@ impl Game {
             for tile in row.iter() {
                 print!("{}", tile.get_print_char());
             }
-            println!("");
+            println!();
         }
     }
 }

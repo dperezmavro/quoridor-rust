@@ -51,9 +51,9 @@ impl Grid {
             },
         );
         let mut first_row = generate_row(0);
-        first_row[GRID_SIZE / 2] = player_1_tile.clone();
+        first_row[GRID_SIZE / 2] = player_1_tile;
         let mut last_row = generate_row(GRID_SIZE - 1);
-        last_row[GRID_SIZE / 2] = player_2_tile.clone();
+        last_row[GRID_SIZE / 2] = player_2_tile;
 
         let player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]> =
             Box::new([
@@ -103,40 +103,36 @@ impl Grid {
 
         Self {
             player_tiles,
-            horizontal_blocks: horizontal_blocks,
-            vertical_blocks: vertical_blocks,
+            horizontal_blocks,
+            vertical_blocks,
         }
     }
 
     pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<&Tile> {
-        assert_eq!(true, p.x < GRID_SIZE && p.y < GRID_SIZE);
+        assert!(p.x < GRID_SIZE && p.y < GRID_SIZE);
 
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
-        if p.y > 0 {
-            if self.horizontal_blocks[p.y - 1][p.x].is_free() {
+        if p.y > 0
+            && self.horizontal_blocks[p.y - 1][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
             }
-        }
         //bottom
-        if p.y < GRID_SIZE - 1 {
-            if self.horizontal_blocks[p.y][p.x].is_free() {
+        if p.y < GRID_SIZE - 1
+            && self.horizontal_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
-        }
 
         //left
-        if p.x > 0 {
-            if self.vertical_blocks[p.y][p.x - 1].is_free() {
+        if p.x > 0
+            && self.vertical_blocks[p.y][p.x - 1].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
             }
-        }
         // right
-        if p.x < GRID_SIZE - 1 {
-            if self.vertical_blocks[p.y][p.x].is_free() {
+        if p.x < GRID_SIZE - 1
+            && self.vertical_blocks[p.y][p.x].is_free() {
                 available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
             }
-        }
 
         available_tiles
     }
@@ -149,7 +145,7 @@ impl Grid {
             tile_type: TileType::Playable,
         });
         let mut visited: HashSet<&Tile> = HashSet::new();
-        while left_to_explore.len() > 0 {
+        while !left_to_explore.is_empty() {
             let t_v = Vec::from_iter(left_to_explore.iter().cloned());
             let t = t_v[0];
             visited.insert(t);
@@ -170,7 +166,7 @@ impl Grid {
         p: Position,
         orientation: Orientation,
     ) -> bool {
-        assert_eq!(true, p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
+        assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
         match orientation {
             Orientation::Horizontal => {
