@@ -113,26 +113,22 @@ impl Grid {
 
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
-        if p.y > 0
-            && self.horizontal_blocks[p.y - 1][p.x].is_free() {
-                available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
-            }
+        if p.y > 0 && self.horizontal_blocks[p.y - 1][p.x].is_free() {
+            available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
+        }
         //bottom
-        if p.y < GRID_SIZE - 1
-            && self.horizontal_blocks[p.y][p.x].is_free() {
-                available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
-            }
+        if p.y < GRID_SIZE - 1 && self.horizontal_blocks[p.y][p.x].is_free() {
+            available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
+        }
 
         //left
-        if p.x > 0
-            && self.vertical_blocks[p.y][p.x - 1].is_free() {
-                available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
-            }
+        if p.x > 0 && self.vertical_blocks[p.y][p.x - 1].is_free() {
+            available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
+        }
         // right
-        if p.x < GRID_SIZE - 1
-            && self.vertical_blocks[p.y][p.x].is_free() {
-                available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
-            }
+        if p.x < GRID_SIZE - 1 && self.vertical_blocks[p.y][p.x].is_free() {
+            available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
+        }
 
         available_tiles
     }
@@ -210,6 +206,7 @@ impl Grid {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::block::Block;
 
     #[test]
     fn test_get_available_tiles() {
@@ -243,16 +240,17 @@ mod tests {
     fn place_block() {
         struct TestCase(usize, usize, Orientation, bool);
 
-        let tests = [TestCase(0, 0, Orientation::Horizontal, true),
+        let tests = [
+            TestCase(0, 0, Orientation::Horizontal, true),
             TestCase(1, 0, Orientation::Horizontal, false),
             TestCase(3, 0, Orientation::Horizontal, true),
-            TestCase(3, 0, Orientation::Horizontal, false)];
+            TestCase(3, 0, Orientation::Horizontal, false),
+        ];
 
         let mut grid = Grid::new();
 
         tests.iter().for_each(|t| {
-            let result =
-                grid.place_block(Position { x: t.0, y: t.1 }, t.2);
+            let result = grid.place_block(Position { x: t.0, y: t.1 }, t.2);
             assert_eq!(t.3, result);
         });
     }
@@ -336,5 +334,29 @@ mod tests {
         //todo bug orientation
         let res = g.place_block(Position::new(1, 0), Orientation::Vertical);
         assert!(!res);
+    }
+
+    #[test]
+    fn place_illegal_blocks() {
+        struct test_case(Block, Block);
+
+        let tests = vec![test_case(
+            Block {
+                orientation: Orientation::Horizontal,
+                is_placed: true,
+                position: Position { x: 0, y: 0 },
+            },
+            Block {
+                orientation: Orientation::Horizontal,
+                is_placed: true,
+                position: Position { x: 0, y: 0 },
+            },
+        )];
+
+        tests.iter().for_each(|t| {
+            let mut grid = Grid::new();
+            assert!(grid.place_block(t.0.position, t.0.orientation));
+            assert_eq!(grid.place_block(t.1.position, t.1.orientation), false);
+        })
     }
 }
