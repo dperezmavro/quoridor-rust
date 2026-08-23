@@ -135,11 +135,7 @@ impl Grid {
 
     pub fn is_grid_traversable(&self) -> bool {
         let mut left_to_explore: HashSet<&Tile> = HashSet::new();
-        left_to_explore.insert(&Tile {
-            position: Position { x: 0, y: 0 },
-            state: TileState::Free,
-            tile_type: TileType::Playable,
-        });
+        left_to_explore.insert(&self.player_tiles[0][0]);
         let mut visited: HashSet<&Tile> = HashSet::new();
         while !left_to_explore.is_empty() {
             let t_v = Vec::from_iter(left_to_explore.iter().cloned());
