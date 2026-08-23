@@ -109,7 +109,7 @@ impl Grid {
         }
     }
 
-    pub fn get_reachable_neighbour_tiles(&self, p: Position) -> Vec<&Tile> {
+    pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         assert!(p.x < GRID_SIZE && p.y < GRID_SIZE);
 
         let mut available_tiles: Vec<&Tile> = Vec::new();
@@ -140,34 +140,36 @@ impl Grid {
             StartingPosition::Bottom => 0,
         };
 
-        let mut visited: HashSet<&Tile> = HashSet::new();
-        let mut tiles_for_exploring: HashSet<&Tile> = HashSet::new();
+        let mut visited: HashSet<&Position> = HashSet::new();
+        let mut tiles_for_exploring: HashSet<&Position> = HashSet::new();
 
-        tiles_for_exploring
-            .insert(&self.player_tiles[p.position.y][p.position.x]);
+        tiles_for_exploring.insert(&p.position);
 
         while !tiles_for_exploring.is_empty() {
             // let neighbours = self.get_reachable_neighbour_tiles(p.position);
-            let curr_tile = tiles_for_exploring.iter().cloned().next().unwrap();
-            if visited.contains(curr_tile) {
+            let curr_pos = tiles_for_exploring.iter().cloned().next().unwrap();
+            if visited.contains(curr_pos) {
                 continue;
             }
 
-            visited.insert(curr_tile);
-            let neighbors =
-                self.get_reachable_neighbour_tiles(curr_tile.position);
+            visited.insert(curr_pos);
+            let neighbors = self.get_reachable_neighbour_tiles(curr_pos);
 
             for t in neighbors {
                 if t.position.y == goal_y {
+                    println!(
+                        "Found neighbour {:?} for {:?}",
+                        t.position, p.position
+                    );
                     return true;
                 }
 
-                if !visited.contains(&t) {
-                    tiles_for_exploring.insert(t);
+                if !visited.contains(&t.position) {
+                    tiles_for_exploring.insert(&t.position);
                 }
             }
 
-            tiles_for_exploring.remove(curr_tile);
+            tiles_for_exploring.remove(curr_pos);
         }
 
         false
@@ -180,7 +182,7 @@ impl Grid {
             let t_v = Vec::from_iter(left_to_explore.iter().cloned());
             let t = t_v[0];
             visited.insert(t);
-            let neighbours = self.get_reachable_neighbour_tiles(t.position);
+            let neighbours = self.get_reachable_neighbour_tiles(&t.position);
             for tt in neighbours {
                 if !visited.contains(&tt) {
                     left_to_explore.insert(tt);
@@ -345,8 +347,8 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let grid = Grid::new();
-            let result =
-                grid.get_reachable_neighbour_tiles(Position { x: t.0, y: t.1 });
+            let result = grid
+                .get_reachable_neighbour_tiles(&Position { x: t.0, y: t.1 });
             assert_eq!(t.2, result.len());
         });
     }
@@ -355,14 +357,14 @@ mod tests {
     fn get_reachable_neighbour_tiles_with_blocks() {
         // place horizontal block
         let mut g = Grid::new();
-        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
         let placed = g.place_block(&Block::new(
             Position::new(0, 0),
             Orientation::Horizontal,
         ));
         assert!(placed);
-        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].position, Position::new(1, 0));
 
@@ -373,7 +375,7 @@ mod tests {
             Orientation::Vertical,
         ));
         assert!(placed);
-        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].position, Position::new(0, 1));
     }
@@ -381,7 +383,7 @@ mod tests {
     #[test]
     fn get_reachable_neighbour_tiles_assert() {
         let g = Grid::new();
-        let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
         assert_eq!(result[0].position.x, 0);
         assert_eq!(result[0].position.y, 1);
@@ -444,6 +446,31 @@ mod tests {
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
                 false,
             ),
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                ],
+                Player {
+                    position: Position::new(3, 4),
+                    name: String::new(),
+                    id: String::new(),
+                    blocks: [Block::default(); 10],
+                    starting_position: StartingPosition::Top,
+                },
+                Player {
+                    position: Position::new(4, 4),
+                    name: String::new(),
+                    id: String::new(),
+                    blocks: [Block::default(); 10],
+                    starting_position: StartingPosition::Bottom,
+                },
+                true,
+            ),
         ];
 
         tests.iter().for_each(|t| {
@@ -459,6 +486,12 @@ mod tests {
                             state: TileState::Occupied,
                             tile_type: TileType::BlockPosition,
                         };
+                        g.horizontal_blocks[block.position.y]
+                            [block.position.x + 1] = Tile {
+                            position: block.position,
+                            state: TileState::Occupied,
+                            tile_type: TileType::BlockPosition,
+                        };
                     }
                     Orientation::Vertical => {
                         g.vertical_blocks[block.position.y][block.position.x] =
@@ -467,6 +500,12 @@ mod tests {
                                 state: TileState::Occupied,
                                 tile_type: TileType::BlockPosition,
                             };
+                        g.vertical_blocks[block.position.y + 1]
+                            [block.position.x] = Tile {
+                            position: block.position,
+                            state: TileState::Occupied,
+                            tile_type: TileType::BlockPosition,
+                        };
                     }
                 }
             });
