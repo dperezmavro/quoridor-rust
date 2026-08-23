@@ -400,6 +400,19 @@ mod tests {
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
                 true,
             ),
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                ],
+                Player::new(String::from("top"), StartingPosition::Top),
+                Player::new(String::from("bottom"), StartingPosition::Bottom),
+                false,
+            ),
         ];
 
         tests.iter().for_each(|t| {
