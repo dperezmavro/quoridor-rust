@@ -3,6 +3,8 @@ use crate::grid::GRID_SIZE;
 use crate::position::Position;
 use uuid::Uuid;
 
+const NUM_BLOCKS: usize = 10;
+
 pub enum Colour {
     White,
     Black,
@@ -15,8 +17,6 @@ pub struct Player {
     pub position: Position,
     pub blocks: [Block; NUM_BLOCKS],
 }
-
-const NUM_BLOCKS: usize = 10;
 
 impl Player {
     pub fn new(name: String, colour: Colour) -> Self {
