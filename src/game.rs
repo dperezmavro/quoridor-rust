@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::player::{Colour, Player};
 
-use crate::grid::{GRID_SIZE, Grid};
+use crate::grid::Grid;
 
 pub struct Game {
     _id: String,
@@ -15,15 +15,10 @@ pub struct Game {
 impl Game {
     pub fn new(n1: String, n2: String) -> Self {
         let _id = Uuid::new_v4().to_string();
-        let p1 = Player::new(n1, Colour::White, GRID_SIZE);
-        let p2 = Player::new(n2, Colour::Black, GRID_SIZE);
+        let p1 = Player::new(n1, Colour::White);
+        let p2 = Player::new(n2, Colour::Black);
         let g = Grid::new();
-        Self {
-            g,
-            p1,
-            p2,
-            _id,
-        }
+        Self { g, p1, p2, _id }
     }
 
     pub fn start(&mut self) {
@@ -45,6 +40,7 @@ impl Game {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::grid::GRID_SIZE;
     #[test]
     fn simple_game() {
         let g = Game::new(String::from("a"), String::from("a"));

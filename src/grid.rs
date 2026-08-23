@@ -340,18 +340,32 @@ mod tests {
     fn place_illegal_blocks() {
         struct test_case(Block, Block);
 
-        let tests = vec![test_case(
-            Block {
-                orientation: Orientation::Horizontal,
-                is_placed: true,
-                position: Position { x: 0, y: 0 },
-            },
-            Block {
-                orientation: Orientation::Horizontal,
-                is_placed: true,
-                position: Position { x: 0, y: 0 },
-            },
-        )];
+        let tests = vec![
+            test_case(
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+            ),
+            test_case(
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 1, y: 1 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 1, y: 1 },
+                },
+            ),
+        ];
 
         tests.iter().for_each(|t| {
             let mut grid = Grid::new();

@@ -1,4 +1,5 @@
 use crate::block::Block;
+use crate::grid::GRID_SIZE;
 use crate::position::Position;
 use uuid::Uuid;
 
@@ -12,24 +13,24 @@ pub struct Player {
     pub name: String,
     pub id: String,
     pub position: Position,
-    pub blocks: [Block; 10],
+    pub blocks: [Block; NUM_BLOCKS],
 }
 
 const NUM_BLOCKS: usize = 10;
 
 impl Player {
-    pub fn new(name: String, colour: Colour, grid_size: usize) -> Self {
+    pub fn new(name: String, colour: Colour) -> Self {
         let id = Uuid::new_v4().to_string();
         let p_x = match colour {
             Colour::White => 0,
-            Colour::Black => grid_size - 1,
+            Colour::Black => GRID_SIZE - 1,
         };
         let blocks: [Block; NUM_BLOCKS] = [Block::default(); NUM_BLOCKS];
         Self {
             name,
             colour,
             id,
-            position: Position::new(grid_size / 2, p_x), // multi-dimensional array, x and y are flipped around
+            position: Position::new(GRID_SIZE / 2, p_x), // multi-dimensional array, x and y are flipped around
             blocks,
         }
     }
@@ -45,21 +46,21 @@ mod tests {
 
     #[test]
     fn test_player_white() {
-        let p = Player::new("DUMMY".to_string(), Colour::White, 99);
-        assert_eq!(p.position.x, 49);
+        let p = Player::new("DUMMY".to_string(), Colour::White);
+        assert_eq!(p.position.x, GRID_SIZE / 2);
         assert_eq!(p.position.y, 0);
     }
 
     #[test]
     fn test_player_black() {
-        let p = Player::new("DUMMY".to_string(), Colour::Black, 99);
-        assert_eq!(p.position.x, 49);
-        assert_eq!(p.position.y, 98);
+        let p = Player::new("DUMMY".to_string(), Colour::Black);
+        assert_eq!(p.position.x, GRID_SIZE / 2);
+        assert_eq!(p.position.y, GRID_SIZE - 1);
     }
 
     #[test]
     fn test_player_blocks() {
-        let p = Player::new("DUMMY".to_string(), Colour::Black, 99);
+        let p = Player::new("DUMMY".to_string(), Colour::Black);
         assert_eq!(p.blocks.len(), NUM_BLOCKS);
     }
 }
