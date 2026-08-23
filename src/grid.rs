@@ -471,31 +471,31 @@ mod tests {
                 },
                 true,
             ),
-            // TestCase(
-            //     vec![
-            //         Block::new(Position::new(0, 3), Orientation::Horizontal),
-            //         Block::new(Position::new(2, 3), Orientation::Horizontal),
-            //         Block::new(Position::new(4, 3), Orientation::Horizontal),
-            //         Block::new(Position::new(6, 3), Orientation::Horizontal),
-            //         Block::new(Position::new(7, 5), Orientation::Horizontal),
-            //         Block::new(Position::new(6, 4), Orientation::Vertical),
-            //     ],
-            //     Player {
-            //         position: Position::new(4, 3),
-            //         name: String::new(),
-            //         id: String::new(),
-            //         blocks: [Block::default(); 10],
-            //         starting_position: StartingPosition::Top,
-            //     },
-            //     Player {
-            //         position: Position::new(4, 6),
-            //         name: String::new(),
-            //         id: String::new(),
-            //         blocks: [Block::default(); 10],
-            //         starting_position: StartingPosition::Bottom,
-            //     },
-            //     false,
-            // ),
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                ],
+                Player {
+                    position: Position::new(4, 3),
+                    name: String::new(),
+                    id: String::new(),
+                    blocks: [Block::default(); 10],
+                    starting_position: StartingPosition::Top,
+                },
+                Player {
+                    position: Position::new(4, 6),
+                    name: String::new(),
+                    id: String::new(),
+                    blocks: [Block::default(); 10],
+                    starting_position: StartingPosition::Bottom,
+                },
+                false,
+            ),
         ];
 
         tests.iter().for_each(|t| {
