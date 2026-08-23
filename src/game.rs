@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::player::{Colour, Player};
+use crate::player::{Player, StartingPosition};
 
 use crate::grid::Grid;
 
@@ -16,8 +16,8 @@ pub struct Game {
 impl Game {
     pub fn new(n1: String, n2: String) -> Self {
         let _id = Uuid::new_v4().to_string();
-        let _p1 = Player::new(n1, Colour::White);
-        let _p2 = Player::new(n2, Colour::Black);
+        let _p1 = Player::new(n1, StartingPosition::Top);
+        let _p2 = Player::new(n2, StartingPosition::Bottom);
         let g = Grid::new();
         Self { g, _p1, _p2, _id }
     }

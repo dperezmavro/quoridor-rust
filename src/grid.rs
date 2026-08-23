@@ -1,8 +1,8 @@
-use crate::block::Orientation;
+use crate::block::{Block, Orientation};
+use crate::player::{Player, StartingPosition};
 use crate::position::Position;
-use std::collections::HashSet;
-
 use crate::tile::{Tile, TileState, TileType};
+use std::collections::HashSet;
 
 pub const GRID_SIZE: usize = 9;
 const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
@@ -134,6 +134,44 @@ impl Grid {
         available_tiles
     }
 
+    pub fn can_player_reach_goal(&self, p: &Player) -> bool {
+        let goal_y = match p.starting_position {
+            StartingPosition::Top => GRID_SIZE - 1,
+            StartingPosition::Bottom => 0,
+        };
+
+        let mut visited: HashSet<&Tile> = HashSet::new();
+        let mut tiles_for_exploring: HashSet<&Tile> = HashSet::new();
+
+        tiles_for_exploring
+            .insert(&self.player_tiles[p.position.y][p.position.x]);
+
+        while !tiles_for_exploring.is_empty() {
+            // let neighbours = self.get_reachable_neighbour_tiles(p.position);
+            let curr_tile = tiles_for_exploring.iter().cloned().next().unwrap();
+            if visited.contains(curr_tile) {
+                continue;
+            }
+
+            visited.insert(curr_tile);
+            let neighbors =
+                self.get_reachable_neighbour_tiles(curr_tile.position);
+
+            for t in neighbors {
+                if t.position.y == goal_y {
+                    return true;
+                }
+
+                if !visited.contains(&t) {
+                    tiles_for_exploring.insert(t);
+                }
+            }
+
+            tiles_for_exploring.remove(curr_tile);
+        }
+
+        false
+    }
     pub fn is_grid_traversable(&self) -> bool {
         let mut left_to_explore: HashSet<&Tile> = HashSet::new();
         left_to_explore.insert(&self.player_tiles[0][0]);
@@ -154,11 +192,10 @@ impl Grid {
         visited.len() == GRID_SIZE * GRID_SIZE
     }
 
-    pub fn place_block(
-        &mut self,
-        p: Position,
-        orientation: Orientation,
-    ) -> bool {
+    pub fn place_block(&mut self, b: &Block) -> bool {
+        let orientation = b.orientation;
+        let p = b.position;
+
         assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
         match orientation {
@@ -204,6 +241,7 @@ impl Grid {
 mod tests {
     use super::*;
     use crate::block::Block;
+    use crate::player::Player;
 
     #[test]
     fn test_get_available_tiles() {
@@ -220,8 +258,10 @@ mod tests {
     #[should_panic]
     fn test_place_block_illegal_horizontal() {
         let mut grid = Grid::new();
-        let success =
-            grid.place_block(Position::new(8, 0), Orientation::Horizontal);
+        let success = grid.place_block(&Block::new(
+            Position::new(8, 0),
+            Orientation::Horizontal,
+        ));
         assert!(!success);
     }
 
@@ -229,8 +269,10 @@ mod tests {
     #[should_panic]
     fn test_place_block_illegal_vertical() {
         let mut grid = Grid::new();
-        let success =
-            grid.place_block(Position::new(0, 8), Orientation::Vertical);
+        let success = grid.place_block(&Block::new(
+            Position::new(0, 8),
+            Orientation::Vertical,
+        ));
         assert!(!success);
     }
 
@@ -248,10 +290,12 @@ mod tests {
         let mut grid = Grid::new();
 
         tests.iter().for_each(|t| {
-            let result = grid.place_block(Position { x: t.0, y: t.1 }, t.2);
+            let result =
+                grid.place_block(&Block::new(Position { x: t.0, y: t.1 }, t.2));
             assert_eq!(t.3, result);
         });
     }
+
     #[test]
     fn get_reachable_neighbour_tiles() {
         struct TestCase(usize, usize, usize);
@@ -275,14 +319,17 @@ mod tests {
             assert_eq!(t.2, result.len());
         });
     }
+
     #[test]
     fn get_reachable_neighbour_tiles_with_blocks() {
         // place horizontal block
         let mut g = Grid::new();
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 2);
-        let placed =
-            g.place_block(Position::new(0, 0), Orientation::Horizontal);
+        let placed = g.place_block(&Block::new(
+            Position::new(0, 0),
+            Orientation::Horizontal,
+        ));
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
@@ -290,7 +337,10 @@ mod tests {
 
         // place vertical block
         let mut g = Grid::new();
-        let placed = g.place_block(Position::new(0, 0), Orientation::Vertical);
+        let placed = g.place_block(&Block::new(
+            Position::new(0, 0),
+            Orientation::Vertical,
+        ));
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(Position::new(0, 0));
         assert_eq!(result.len(), 1);
@@ -311,27 +361,58 @@ mod tests {
 
     #[test]
     fn is_grid_traversable() {
-        // empty board
-        let g = Grid::new();
-        let result = g.is_grid_traversable();
-        assert!(result);
+        struct TestCase(Vec<Block>, bool);
 
-        // single block
-        let mut g = Grid::new();
-        g.place_block(Position::new(0, 1), Orientation::Horizontal);
-        let result = g.is_grid_traversable();
-        assert!(result);
+        let tests = [
+            TestCase(vec![], true),
+            TestCase(vec![Block::default()], true),
+        ];
+
+        tests.iter().for_each(|t| {
+            let mut g = Grid::new();
+            t.0.iter().for_each(|block| {
+                g.place_block(block);
+            });
+            assert_eq!(g.is_grid_traversable(), t.1);
+        });
     }
 
     #[test]
-    fn can_not_place_illegal_blocks() {
-        let mut g = Grid::new();
-        let res = g.place_block(Position::new(0, 1), Orientation::Horizontal);
-        assert!(res);
+    fn can_player_reach_goal() {
+        struct TestCase(Vec<Block>, Player, Player, bool);
 
-        //todo bug orientation
-        let res = g.place_block(Position::new(1, 0), Orientation::Vertical);
-        assert!(!res);
+        let tests = [
+            TestCase(
+                vec![],
+                Player::new(String::from("top"), StartingPosition::Top),
+                Player::new(String::from("bottom"), StartingPosition::Bottom),
+                true,
+            ),
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                ],
+                Player::new(String::from("top"), StartingPosition::Top),
+                Player::new(String::from("bottom"), StartingPosition::Bottom),
+                true,
+            ),
+        ];
+
+        tests.iter().for_each(|t| {
+            let mut g = Grid::new();
+            t.0.iter().for_each(|block| {
+                assert!(g.place_block(&Block::new(
+                    block.position,
+                    block.orientation
+                )));
+            });
+            assert_eq!(g.can_player_reach_goal(&t.1), t.3);
+            assert_eq!(g.can_player_reach_goal(&t.2), t.3);
+        });
     }
 
     #[test]
@@ -348,8 +429,26 @@ mod tests {
         assert!(!g.is_grid_traversable());
     }
 
+    // TODO (dio) illegal block tests
     #[test]
-    fn place_illegal_blocks() {
+    fn can_not_place_illegal_blocks() {
+        let mut g = Grid::new();
+        let res = g.place_block(&Block::new(
+            Position::new(0, 1),
+            Orientation::Horizontal,
+        ));
+        assert!(res);
+
+        //todo bug orientation
+        let res = g.place_block(&Block::new(
+            Position::new(1, 0),
+            Orientation::Vertical,
+        ));
+        assert!(!res);
+    }
+
+    #[test]
+    fn test_wall_crossing() {
         struct TestCase(Block, Block);
 
         let tests = [
@@ -393,7 +492,7 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let mut grid = Grid::new();
-            assert!(grid.place_block(t.0.position, t.0.orientation));
+            assert!(grid.place_block(&t.0));
             // TODO: fix this
             // assert_eq!(grid.place_block(t.1.position, t.1.orientation), false);
         })

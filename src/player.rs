@@ -6,14 +6,14 @@ use uuid::Uuid;
 const NUM_BLOCKS: usize = 10;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
-pub enum Colour {
-    White,
-    Black,
+pub enum StartingPosition {
+    Top,
+    Bottom,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Player {
-    pub colour: Colour,
+    pub starting_position: StartingPosition,
     pub name: String,
     pub id: String,
     pub position: Position,
@@ -21,16 +21,16 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(name: String, colour: Colour) -> Self {
+    pub fn new(name: String, sp: StartingPosition) -> Self {
         let id = Uuid::new_v4().to_string();
-        let p_y = match colour {
-            Colour::White => 0,
-            Colour::Black => GRID_SIZE - 1,
+        let p_y = match sp {
+            StartingPosition::Top => 0,
+            StartingPosition::Bottom => GRID_SIZE - 1,
         };
         let blocks: [Block; NUM_BLOCKS] = [Block::default(); NUM_BLOCKS];
         Self {
             name,
-            colour,
+            starting_position: sp,
             id,
             position: Position::new(GRID_SIZE / 2, p_y),
             blocks,
@@ -48,21 +48,21 @@ mod tests {
 
     #[test]
     fn test_player_white() {
-        let p = Player::new("DUMMY".to_string(), Colour::White);
+        let p = Player::new("DUMMY".to_string(), StartingPosition::Top);
         assert_eq!(p.position.x, GRID_SIZE / 2);
         assert_eq!(p.position.y, 0);
     }
 
     #[test]
     fn test_player_black() {
-        let p = Player::new("DUMMY".to_string(), Colour::Black);
+        let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.position.x, GRID_SIZE / 2);
         assert_eq!(p.position.y, GRID_SIZE - 1);
     }
 
     #[test]
     fn test_player_blocks() {
-        let p = Player::new("DUMMY".to_string(), Colour::Black);
+        let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.blocks.len(), NUM_BLOCKS);
     }
 }
