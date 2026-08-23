@@ -1,12 +1,13 @@
 use crate::position::Position;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Orientation {
+    #[default]
     Horizontal,
     Vertical,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Block {
     pub orientation: Orientation,
     pub position: Position,
@@ -22,11 +23,7 @@ impl Block {
         }
     }
 
-    pub fn default() -> Self {
-        self::Block::new(Position::new(0, 0), Orientation::Horizontal)
-    }
-
-    pub fn set_position(&mut self, position: Position) {
-        self.position = position;
+    pub fn set_position(&mut self, p: Position) {
+        self.position = p;
     }
 }

@@ -1,6 +1,6 @@
 use crate::position::Position;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Tile {
     pub tile_type: TileType,
     pub state: TileState,
@@ -18,9 +18,6 @@ impl Tile {
             state,
             position,
         }
-    }
-    pub fn default() -> Self {
-        Self::new(TileType::Playable, TileState::Free, Position::new(0, 0))
     }
 
     pub fn occupy(&mut self) {
@@ -46,14 +43,16 @@ impl Tile {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub enum TileType {
     BlockPosition,
+    #[default]
     Playable,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub enum TileState {
+    #[default]
     Occupied,
     Free,
 }

@@ -350,10 +350,10 @@ mod tests {
 
     #[test]
     fn place_illegal_blocks() {
-        struct test_case(Block, Block);
+        struct TestCase(Block, Block);
 
-        let tests = vec![
-            test_case(
+        let tests = [
+            TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
@@ -365,7 +365,7 @@ mod tests {
                     position: Position { x: 0, y: 0 },
                 },
             ),
-            test_case(
+            TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
@@ -377,7 +377,7 @@ mod tests {
                     position: Position { x: 1, y: 1 },
                 },
             ),
-            test_case(
+            TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
