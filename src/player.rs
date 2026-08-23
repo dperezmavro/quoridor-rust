@@ -21,7 +21,7 @@ pub struct Player {
 impl Player {
     pub fn new(name: String, colour: Colour) -> Self {
         let id = Uuid::new_v4().to_string();
-        let p_x = match colour {
+        let p_y = match colour {
             Colour::White => 0,
             Colour::Black => GRID_SIZE - 1,
         };
@@ -30,7 +30,7 @@ impl Player {
             name,
             colour,
             id,
-            position: Position::new(GRID_SIZE / 2, p_x), // multi-dimensional array, x and y are flipped around
+            position: Position::new(GRID_SIZE / 2, p_y),
             blocks,
         }
     }
