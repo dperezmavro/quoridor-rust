@@ -320,7 +320,7 @@ mod tests {
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
             let mut result: bool = true;
-            for b in t.0.iter().cloned() {
+            for b in t.0.iter() {
                 result &= g.place_block(&b);
             }
             assert_eq!(t.1, result);
