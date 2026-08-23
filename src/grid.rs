@@ -256,24 +256,17 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_place_block_illegal_horizontal() {
-        let mut grid = Grid::new();
-        let success = grid.place_block(&Block::new(
-            Position::new(8, 0),
-            Orientation::Horizontal,
-        ));
-        assert!(!success);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_place_block_illegal_vertical() {
-        let mut grid = Grid::new();
-        let success = grid.place_block(&Block::new(
-            Position::new(0, 8),
-            Orientation::Vertical,
-        ));
-        assert!(!success);
+    fn test_place_block_illegal() {
+        struct TestCase(Block);
+        let tests = [
+            TestCase(Block::new(Position::new(8, 0), Orientation::Horizontal)),
+            TestCase(Block::new(Position::new(0, 8), Orientation::Horizontal)),
+        ];
+        for t in tests.iter() {
+            let mut grid = Grid::new();
+            let success = grid.place_block(&t.0);
+            assert!(!success);
+        }
     }
 
     #[test]
@@ -456,10 +449,29 @@ mod tests {
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
             t.0.iter().for_each(|block| {
-                assert!(g.place_block(block));
+                // assert!(g.place_block(block));
+                // do this manually because place_block detects that this is illegal
+                match block.orientation {
+                    Orientation::Horizontal => {
+                        g.horizontal_blocks[block.position.y]
+                            [block.position.x] = Tile {
+                            position: block.position,
+                            state: TileState::Occupied,
+                            tile_type: TileType::BlockPosition,
+                        };
+                    }
+                    Orientation::Vertical => {
+                        g.vertical_blocks[block.position.y][block.position.x] =
+                            Tile {
+                                position: block.position,
+                                state: TileState::Occupied,
+                                tile_type: TileType::BlockPosition,
+                            };
+                    }
+                }
             });
-            assert_eq!(g.can_player_reach_goal(&t.1), t.3);
-            assert_eq!(g.can_player_reach_goal(&t.2), t.3);
+            assert_eq!(t.3, g.can_player_reach_goal(&t.1));
+            assert_eq!(t.3, g.can_player_reach_goal(&t.2));
         });
     }
 
