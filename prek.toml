@@ -6,4 +6,7 @@ hooks = [
     { id = "end-of-file-fixer" },
     { id = "trailing-whitespace" },
     { id = "check-toml" },
+    { id = "check-json" },
+    { id = "check-yaml" },
+    { id = "check-added-large-files" },
 ]
