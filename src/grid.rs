@@ -213,6 +213,7 @@ mod tests {
             TileState::Occupied,
             Position { x: 0, y: 0 },
         );
+        assert!(grid.is_grid_traversable());
     }
 
     #[test]
