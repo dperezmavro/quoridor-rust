@@ -456,14 +456,14 @@ mod tests {
                     Block::new(Position::new(6, 4), Orientation::Vertical),
                 ],
                 Player {
-                    position: Position::new(3, 4),
+                    position: Position::new(4, 4),
                     name: String::new(),
                     id: String::new(),
                     blocks: [Block::default(); 10],
                     starting_position: StartingPosition::Top,
                 },
                 Player {
-                    position: Position::new(4, 4),
+                    position: Position::new(4, 3),
                     name: String::new(),
                     id: String::new(),
                     blocks: [Block::default(); 10],
@@ -471,6 +471,31 @@ mod tests {
                 },
                 true,
             ),
+            // TestCase(
+            //     vec![
+            //         Block::new(Position::new(0, 3), Orientation::Horizontal),
+            //         Block::new(Position::new(2, 3), Orientation::Horizontal),
+            //         Block::new(Position::new(4, 3), Orientation::Horizontal),
+            //         Block::new(Position::new(6, 3), Orientation::Horizontal),
+            //         Block::new(Position::new(7, 5), Orientation::Horizontal),
+            //         Block::new(Position::new(6, 4), Orientation::Vertical),
+            //     ],
+            //     Player {
+            //         position: Position::new(4, 3),
+            //         name: String::new(),
+            //         id: String::new(),
+            //         blocks: [Block::default(); 10],
+            //         starting_position: StartingPosition::Top,
+            //     },
+            //     Player {
+            //         position: Position::new(4, 6),
+            //         name: String::new(),
+            //         id: String::new(),
+            //         blocks: [Block::default(); 10],
+            //         starting_position: StartingPosition::Bottom,
+            //     },
+            //     false,
+            // ),
         ];
 
         tests.iter().for_each(|t| {
@@ -593,7 +618,7 @@ mod tests {
             let mut grid = Grid::new();
             assert!(grid.place_block(&t.0));
             // TODO: fix this
-            // assert_eq!(grid.place_block(t.1.position, t.1.orientation), false);
+            assert_eq!(grid.place_block(&t.1), false);
         })
     }
 }
