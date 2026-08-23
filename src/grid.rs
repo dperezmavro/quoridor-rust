@@ -277,7 +277,7 @@ mod tests {
     }
 
     #[test]
-    fn place_block() {
+    fn place_block_explicit() {
         struct TestCase(usize, usize, Orientation, bool);
 
         let tests = [
@@ -293,6 +293,44 @@ mod tests {
             let result =
                 grid.place_block(&Block::new(Position { x: t.0, y: t.1 }, t.2));
             assert_eq!(t.3, result);
+        });
+    }
+
+    #[test]
+    fn test_place_blocks_bulk() {
+        struct TestCase(Vec<Block>, bool);
+
+        let tests = [
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                ],
+                true,
+            ),
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                ],
+                false,
+            ),
+        ];
+
+        tests.iter().for_each(|t| {
+            let mut g = Grid::new();
+            let mut result: bool = true;
+            for b in t.0.iter().cloned() {
+                result &= g.place_block(&b);
+            }
+            assert_eq!(t.1, result);
         });
     }
 
@@ -418,10 +456,7 @@ mod tests {
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
             t.0.iter().for_each(|block| {
-                assert!(g.place_block(&Block::new(
-                    block.position,
-                    block.orientation
-                )));
+                assert!(g.place_block(block));
             });
             assert_eq!(g.can_player_reach_goal(&t.1), t.3);
             assert_eq!(g.can_player_reach_goal(&t.2), t.3);
