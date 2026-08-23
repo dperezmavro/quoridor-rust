@@ -334,6 +334,20 @@ mod tests {
     }
 
     #[test]
+    fn is_grid_traversable_with_pawn_on_origin() {
+        // Regression for issue #3: BFS was seeded with a fabricated Free tile,
+        // so an Occupied (0,0) was counted twice (82 != 81) -> false.
+        let mut g = Grid::new();
+        g.player_tiles[0][0].occupy();
+        assert!(g.is_grid_traversable());
+
+        // false branch survives: wall the occupied corner off
+        g.horizontal_blocks[0][0].occupy();
+        g.vertical_blocks[0][0].occupy();
+        assert!(!g.is_grid_traversable());
+    }
+
+    #[test]
     fn place_illegal_blocks() {
         struct test_case(Block, Block);
 
