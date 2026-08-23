@@ -5,11 +5,13 @@ use uuid::Uuid;
 
 const NUM_BLOCKS: usize = 10;
 
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum Colour {
     White,
     Black,
 }
 
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Player {
     pub colour: Colour,
     pub name: String,

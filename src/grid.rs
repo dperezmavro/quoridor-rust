@@ -11,6 +11,7 @@ const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
+#[derive(Debug)]
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
     horizontal_blocks:
