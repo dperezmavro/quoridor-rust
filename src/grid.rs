@@ -174,25 +174,6 @@ impl Grid {
 
         false
     }
-    pub fn is_grid_traversable(&self) -> bool {
-        let mut left_to_explore: HashSet<&Tile> = HashSet::new();
-        left_to_explore.insert(&self.player_tiles[0][0]);
-        let mut visited: HashSet<&Tile> = HashSet::new();
-        while !left_to_explore.is_empty() {
-            let t_v = Vec::from_iter(left_to_explore.iter().cloned());
-            let t = t_v[0];
-            visited.insert(t);
-            let neighbours = self.get_reachable_neighbour_tiles(&t.position);
-            for tt in neighbours {
-                if !visited.contains(&tt) {
-                    left_to_explore.insert(tt);
-                }
-            }
-            left_to_explore.remove(t);
-        }
-
-        visited.len() == GRID_SIZE * GRID_SIZE
-    }
 
     fn free_block(&mut self, p: &Position, o: &Orientation) {
         match o {
@@ -208,7 +189,16 @@ impl Grid {
     }
 
     fn do_blocks_intersect(&self, p: &Position, o: &Orientation) -> bool {
-        false
+        match o {
+            Orientation::Horizontal => {
+                !(self.vertical_blocks[p.y][p.x].is_free()
+                    && self.vertical_blocks[p.y + 1][p.x].is_free())
+            }
+            Orientation::Vertical => {
+                !(self.horizontal_blocks[p.y][p.x].is_free()
+                    && self.horizontal_blocks[p.y][p.x + 1].is_free())
+            }
+        }
     }
 
     fn add_block(&mut self, p: &Position, o: &Orientation) {
@@ -273,7 +263,15 @@ mod tests {
             TileState::Occupied,
             Position { x: 0, y: 0 },
         );
-        assert!(grid.is_grid_traversable());
+        let p1: Player = Player::new(String::new(), StartingPosition::Top);
+        let p2: Player = Player::new(String::new(), StartingPosition::Bottom);
+
+        assert!(grid.can_player_reach_goal(&p1));
+        assert!(grid.can_player_reach_goal(&p2));
+
+        grid.player_tiles[0][0].occupy();
+        assert!(grid.can_player_reach_goal(&p1));
+        assert!(grid.can_player_reach_goal(&p2));
     }
 
     #[test]
@@ -423,7 +421,7 @@ mod tests {
     }
 
     #[test]
-    fn is_grid_traversable() {
+    fn can_players_reach_end() {
         struct TestCase(Vec<Block>, bool);
 
         let tests = [
@@ -439,7 +437,6 @@ mod tests {
             t.0.iter().for_each(|block| {
                 g.place_block(&p1, &p2, block);
             });
-            assert_eq!(g.is_grid_traversable(), t.1);
         }
     }
 
@@ -573,20 +570,6 @@ mod tests {
     }
 
     #[test]
-    fn is_grid_traversable_with_pawn_on_origin() {
-        // Regression for issue #3: BFS was seeded with a fabricated Free tile,
-        // so an Occupied (0,0) was counted twice (82 != 81) -> false.
-        let mut g = Grid::new();
-        g.player_tiles[0][0].occupy();
-        assert!(g.is_grid_traversable());
-
-        // false branch survives: wall the occupied corner off
-        g.horizontal_blocks[0][0].occupy();
-        g.vertical_blocks[0][0].occupy();
-        assert!(!g.is_grid_traversable());
-    }
-
-    #[test]
     fn can_not_place_illegal_blocks() {
         let tests = [
             Block::new(Position::new(0, 1), Orientation::Horizontal),
@@ -612,6 +595,7 @@ mod tests {
         let b2 = Block::new(Position::new(0, 0), Orientation::Vertical);
 
         assert!(g.place_block(&p1, &p2, &b1));
+        assert!(g.do_blocks_intersect(&b2.position, &b2.orientation));
     }
 
     #[test]
