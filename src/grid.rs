@@ -604,6 +604,17 @@ mod tests {
     }
 
     #[test]
+    fn do_blocks_cross() {
+        let mut g = Grid::new();
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let b1 = Block::new(Position::new(0, 0), Orientation::Horizontal);
+        let b2 = Block::new(Position::new(0, 0), Orientation::Vertical);
+
+        assert!(g.place_block(&p1, &p2, &b1));
+    }
+
+    #[test]
     fn test_wall_crossing() {
         struct TestCase(Block, Block);
 
