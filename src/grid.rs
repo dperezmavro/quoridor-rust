@@ -194,46 +194,66 @@ impl Grid {
         visited.len() == GRID_SIZE * GRID_SIZE
     }
 
+    fn free_block(&mut self, p: &Position, o: &Orientation) {
+        match o {
+            Orientation::Horizontal => {
+                self.horizontal_blocks[p.y][p.x].free();
+                self.horizontal_blocks[p.y][p.x + 1].free();
+            }
+            Orientation::Vertical => {
+                self.vertical_blocks[p.y][p.x].free();
+                self.vertical_blocks[p.y + 1][p.x].free();
+            }
+        };
+    }
+
+    fn do_blocks_intersect(&self, p: &Position, o: &Orientation) -> bool {
+        false
+    }
+
+    fn add_block(&mut self, p: &Position, o: &Orientation) {
+        match o {
+            Orientation::Horizontal => {
+                self.horizontal_blocks[p.y][p.x].occupy();
+                self.horizontal_blocks[p.y][p.x + 1].occupy();
+            }
+            Orientation::Vertical => {
+                self.vertical_blocks[p.y][p.x].occupy();
+                self.vertical_blocks[p.y + 1][p.x].occupy();
+            }
+        }
+    }
+
+    fn is_block_position_free(&self, p: &Position, o: &Orientation) -> bool {
+        match o {
+            Orientation::Horizontal => {
+                self.horizontal_blocks[p.y][p.x].is_free()
+                    && self.horizontal_blocks[p.y][p.x + 1].is_free()
+            }
+            Orientation::Vertical => {
+                self.vertical_blocks[p.y][p.x].is_free()
+                    && self.vertical_blocks[p.y + 1][p.x].is_free()
+            }
+        }
+    }
+
     pub fn place_block(&mut self, b: &Block) -> bool {
-        let orientation = b.orientation;
+        let o = b.orientation;
         let p = b.position;
 
         assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
-        match orientation {
-            Orientation::Horizontal => {
-                if self.horizontal_blocks[p.y][p.x].is_free()
-                    && self.horizontal_blocks[p.y][p.x + 1].is_free()
-                {
-                    self.horizontal_blocks[p.y][p.x].occupy();
-                    self.horizontal_blocks[p.y][p.x + 1].occupy();
+        if self.is_block_position_free(&p, &o)
+            && !self.do_blocks_intersect(&p, &o)
+        {
+            self.add_block(&p, &o);
 
-                    if !self.is_grid_traversable() {
-                        self.horizontal_blocks[p.y][p.x].free();
-                        self.horizontal_blocks[p.y][p.x + 1].free();
-                        return false;
-                    }
-
-                    return true;
-                }
+            if !self.is_grid_traversable() {
+                self.free_block(&p, &o);
+                return false;
             }
-            Orientation::Vertical => {
-                if self.vertical_blocks[p.y][p.x].is_free()
-                    && self.vertical_blocks[p.y + 1][p.x].is_free()
-                {
-                    self.vertical_blocks[p.y][p.x].occupy();
-                    self.vertical_blocks[p.y + 1][p.x].occupy();
-
-                    if !self.is_grid_traversable() {
-                        self.vertical_blocks[p.y][p.x].free();
-                        self.vertical_blocks[p.y + 1][p.x].free();
-                        return false;
-                    }
-
-                    return true;
-                }
-            }
-        };
+            return true;
+        }
 
         false
     }
@@ -617,7 +637,6 @@ mod tests {
         tests.iter().for_each(|t| {
             let mut grid = Grid::new();
             assert!(grid.place_block(&t.0));
-            // TODO: fix this
             assert_eq!(grid.place_block(&t.1), false);
         })
     }
