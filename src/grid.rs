@@ -157,10 +157,6 @@ impl Grid {
 
             for t in neighbors {
                 if t.position.y == goal_y {
-                    println!(
-                        "Found neighbour {:?} for {:?}",
-                        t.position, p.position
-                    );
                     return true;
                 }
 
