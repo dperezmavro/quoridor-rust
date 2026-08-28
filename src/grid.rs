@@ -171,54 +171,58 @@ impl Grid {
         false
     }
 
-    fn free_block(&mut self, p: &Position, o: &Orientation) {
-        match o {
+    fn free_block(&mut self, b: &Block) {
+        match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[p.y][p.x].free();
-                self.horizontal_blocks[p.y][p.x + 1].free();
+                self.horizontal_blocks[b.position.y][b.position.x].free();
+                self.horizontal_blocks[b.position.y][b.position.x + 1].free();
             }
             Orientation::Vertical => {
-                self.vertical_blocks[p.y][p.x].free();
-                self.vertical_blocks[p.y + 1][p.x].free();
+                self.vertical_blocks[b.position.y][b.position.x].free();
+                self.vertical_blocks[b.position.y + 1][b.position.x].free();
             }
         };
     }
 
-    fn do_blocks_intersect(&self, p: &Position, o: &Orientation) -> bool {
-        match o {
+    fn do_blocks_intersect(&self, b: &Block) -> bool {
+        match b.orientation {
             Orientation::Horizontal => {
-                !(self.vertical_blocks[p.y][p.x].is_free()
-                    && self.vertical_blocks[p.y + 1][p.x].is_free())
+                !(self.vertical_blocks[b.position.y][b.position.x].is_free()
+                    && self.vertical_blocks[b.position.y + 1][b.position.x]
+                        .is_free())
             }
             Orientation::Vertical => {
-                !(self.horizontal_blocks[p.y][p.x].is_free()
-                    && self.horizontal_blocks[p.y][p.x + 1].is_free())
+                !(self.horizontal_blocks[b.position.y][b.position.x].is_free()
+                    && self.horizontal_blocks[b.position.y][b.position.x + 1]
+                        .is_free())
             }
         }
     }
 
-    fn add_block(&mut self, p: &Position, o: &Orientation) {
-        match o {
+    fn add_block(&mut self, b: &Block) {
+        match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[p.y][p.x].occupy();
-                self.horizontal_blocks[p.y][p.x + 1].occupy();
+                self.horizontal_blocks[b.position.y][b.position.x].occupy();
+                self.horizontal_blocks[b.position.y][b.position.x + 1].occupy();
             }
             Orientation::Vertical => {
-                self.vertical_blocks[p.y][p.x].occupy();
-                self.vertical_blocks[p.y + 1][p.x].occupy();
+                self.vertical_blocks[b.position.y][b.position.x].occupy();
+                self.vertical_blocks[b.position.y + 1][b.position.x].occupy();
             }
         }
     }
 
-    fn is_block_position_free(&self, p: &Position, o: &Orientation) -> bool {
-        match o {
+    fn is_block_position_free(&self, b: &Block) -> bool {
+        match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[p.y][p.x].is_free()
-                    && self.horizontal_blocks[p.y][p.x + 1].is_free()
+                self.horizontal_blocks[b.position.y][b.position.x].is_free()
+                    && self.horizontal_blocks[b.position.y][b.position.x + 1]
+                        .is_free()
             }
             Orientation::Vertical => {
-                self.vertical_blocks[p.y][p.x].is_free()
-                    && self.vertical_blocks[p.y + 1][p.x].is_free()
+                self.vertical_blocks[b.position.y][b.position.x].is_free()
+                    && self.vertical_blocks[b.position.y + 1][b.position.x]
+                        .is_free()
             }
         }
     }
@@ -229,15 +233,13 @@ impl Grid {
 
         assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
-        if self.is_block_position_free(&p, &o)
-            && !self.do_blocks_intersect(&p, &o)
-        {
-            self.add_block(&p, &o);
+        if self.is_block_position_free(b) && !self.do_blocks_intersect(&b) {
+            self.add_block(b);
 
             if !(self.can_player_reach_goal(&p1)
                 && self.can_player_reach_goal(&p2))
             {
-                self.free_block(&p, &o);
+                self.free_block(b);
                 return false;
             }
             return true;
@@ -579,7 +581,7 @@ mod tests {
         let b2 = Block::new(Position::new(0, 0), Orientation::Vertical);
 
         assert!(g.place_block(&p1, &p2, &b1));
-        assert!(g.do_blocks_intersect(&b2.position, &b2.orientation));
+        assert!(g.do_blocks_intersect(&b2));
     }
 
     #[test]
@@ -608,9 +610,9 @@ mod tests {
             position: Position { x: 5, y: 6 },
         };
         assert!(g.place_block(p1, p2, b1));
-        assert!(!g.do_blocks_intersect(&b2.position, &b2.orientation));
-        assert!(!g.do_blocks_intersect(&b3.position, &b3.orientation));
-        assert!(!g.do_blocks_intersect(&b4.position, &b3.orientation));
+        assert!(!g.do_blocks_intersect(&b2));
+        assert!(!g.do_blocks_intersect(&b3));
+        assert!(!g.do_blocks_intersect(&b4));
     }
 
     #[test]
