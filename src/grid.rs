@@ -197,8 +197,8 @@ impl Grid {
                     && self.vertical_blocks[y + 1][x].is_free())
             }
             Orientation::Vertical => {
-                !(self.horizontal_blocks[y][x].is_free()
-                    && self.horizontal_blocks[y][x + 1].is_free())
+                !(self.horizontal_blocks[x][y].is_free()
+                    && self.horizontal_blocks[x][y + 1].is_free())
             }
         }
     }
@@ -561,19 +561,16 @@ mod tests {
 
     #[test]
     fn can_not_place_illegal_blocks() {
-        let tests = [
-            Block::new(Position::new(0, 1), Orientation::Horizontal),
-            Block::new(Position::new(1, 0), Orientation::Vertical),
-            Block::new(Position::new(0, 0), Orientation::Vertical),
-        ];
+        let b1 = Block::new(Position::new(0, 1), Orientation::Horizontal);
+        let b2 = Block::new(Position::new(1, 0), Orientation::Vertical);
+        let b3 = Block::new(Position::new(0, 0), Orientation::Vertical);
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
-        for t in tests.iter() {
-            let res = g.place_block(&p1, &p2, &t);
-            assert!(res);
-        }
+        assert!(g.place_block(&p1, &p2, &b1));
+        assert!(g.place_block(&p1, &p2, &b2));
+        assert!(g.place_block(&p1, &p2, &b3));
     }
 
     #[test]
@@ -676,18 +673,18 @@ mod tests {
         struct TestCase(Block, Block);
 
         let tests = [
-            // TestCase(
-            //     Block {
-            //         orientation: Orientation::Horizontal,
-            //         is_placed: true,
-            //         position: Position { x: 0, y: 0 },
-            //     },
-            //     Block {
-            //         orientation: Orientation::Vertical,
-            //         is_placed: true,
-            //         position: Position { x: 0, y: 1 },
-            //     },
-            // ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 0, y: 1 },
+                },
+            ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
