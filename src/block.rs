@@ -22,8 +22,4 @@ impl Block {
             is_placed: false,
         }
     }
-
-    pub fn set_position(&mut self, p: Position) {
-        self.position = p;
-    }
 }

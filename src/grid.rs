@@ -242,7 +242,6 @@ impl Grid {
             }
             return true;
         }
-
         false
     }
 }
@@ -418,22 +417,11 @@ mod tests {
 
     #[test]
     fn can_players_reach_end() {
-        struct TestCase(Vec<Block>, bool);
-
-        let tests = [
-            TestCase(vec![], true),
-            TestCase(vec![Block::default()], true),
-        ];
-
-        for t in tests.iter() {
-            let mut g = Grid::new();
-            let p1 = Player::new(String::new(), StartingPosition::Top);
-            let p2 = Player::new(String::new(), StartingPosition::Bottom);
-
-            t.0.iter().for_each(|block| {
-                g.place_block(&p1, &p2, block);
-            });
-        }
+        let mut g = Grid::new();
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let block = &Block::default();
+        g.place_block(&p1, &p2, block);
     }
 
     #[test]
@@ -595,7 +583,38 @@ mod tests {
     }
 
     #[test]
-    fn test_wall_crossing() {
+    fn test_do_blocks_intersect() {
+        let mut g = Grid::new();
+        let p1 = &Player::new(String::new(), StartingPosition::Top);
+        let p2 = &Player::new(String::new(), StartingPosition::Bottom);
+        let b1 = &Block {
+            orientation: Orientation::Vertical,
+            is_placed: true,
+            position: Position { x: 7, y: 7 },
+        };
+        let b2 = Block {
+            orientation: Orientation::Horizontal,
+            is_placed: true,
+            position: Position { x: 5, y: 7 },
+        };
+        let b3 = &Block {
+            orientation: Orientation::Horizontal,
+            is_placed: true,
+            position: Position { x: 5, y: 7 },
+        };
+        let b4 = &Block {
+            orientation: Orientation::Horizontal,
+            is_placed: true,
+            position: Position { x: 5, y: 6 },
+        };
+        assert!(g.place_block(p1, p2, b1));
+        assert!(!g.do_blocks_intersect(&b2.position, &b2.orientation));
+        assert!(!g.do_blocks_intersect(&b3.position, &b3.orientation));
+        assert!(!g.do_blocks_intersect(&b4.position, &b3.orientation));
+    }
+
+    #[test]
+    fn verify_cant_place_crossing_blocks() {
         struct TestCase(Block, Block);
 
         let tests = [
@@ -643,6 +662,82 @@ mod tests {
             let mut grid = Grid::new();
             assert!(grid.place_block(&p1, &p2, &t.0));
             assert_eq!(grid.place_block(&p1, &p2, &t.1), false);
+        }
+    }
+
+    #[test]
+    fn verify_can_place_t_junctions() {
+        struct TestCase(Block, Block);
+
+        let tests = [
+            TestCase(
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 0, y: 1 },
+                },
+            ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 1, y: 0 },
+                },
+            ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 7, y: 7 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 5, y: 6 },
+                },
+            ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 7, y: 7 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 5, y: 7 },
+                },
+            ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 7, y: 7 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 7, y: 6 },
+                },
+            ),
+        ];
+
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        for t in tests {
+            let mut grid = Grid::new();
+            assert!(grid.place_block(&p1, &p2, &t.0));
+            assert!(grid.place_block(&p1, &p2, &t.1));
         }
     }
 }

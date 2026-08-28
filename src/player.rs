@@ -36,10 +36,6 @@ impl Player {
             blocks,
         }
     }
-
-    pub fn set_position(&mut self, p: Position) {
-        self.position = p
-    }
 }
 
 #[cfg(test)]
