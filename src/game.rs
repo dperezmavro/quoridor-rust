@@ -5,15 +5,15 @@ use crate::player::{Player, StartingPosition};
 use crate::grid::Grid;
 
 #[derive(Debug)]
-pub struct Game {
+pub struct Game<'a> {
     _id: String,
     _p1: Player,
     _p2: Player,
-    pub g: Grid,
+    pub g: Grid<'a>,
     // TODO dio : other stuff like date started etc
 }
 
-impl Game {
+impl Game<'_> {
     pub fn new(n1: String, n2: String) -> Self {
         let _id = Uuid::new_v4().to_string();
         let _p1 = Player::new(n1, StartingPosition::Top);

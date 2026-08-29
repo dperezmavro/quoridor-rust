@@ -12,9 +12,10 @@ const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
 const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
 #[derive(Debug)]
-pub struct Grid {
+pub struct Grid<'a> {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
-
+    horizontal_blocks: Vec<&'a Block>,
+    vertical_blocks: Vec<&'a Block>,
     horizontal_grid:
         Box<[[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y]>,
     vertical_grid:
@@ -34,7 +35,7 @@ fn generate_row(y: usize) -> Box<[Tile; GRID_SIZE]> {
     res
 }
 
-impl Grid {
+impl<'a> Grid<'a> {
     pub fn new() -> Self {
         let player_1_tile = Tile::new(
             TileType::Playable,
@@ -105,6 +106,8 @@ impl Grid {
 
         Self {
             player_tiles,
+            horizontal_blocks: Vec::new(),
+            vertical_blocks: Vec::new(),
             horizontal_grid,
             vertical_grid,
         }
@@ -194,12 +197,20 @@ impl Grid {
         let y = b.position.x;
         match b.orientation {
             Orientation::Horizontal => {
-                !(self.vertical_grid[y][x].is_free()
-                    && self.vertical_grid[y + 1][x].is_free())
+                // !(self.vertical_grid[y][x].is_free()
+                //     && self.vertical_grid[y + 1][x].is_free())
+                self.vertical_blocks
+                    .iter()
+                    .map(|x1| x1.position.x == b.position.y)
+                    .fold(false, |b1, b2| b1 && b2)
             }
             Orientation::Vertical => {
-                !(self.horizontal_grid[y][x].is_free()
-                    && self.horizontal_grid[y][x + 1].is_free())
+                // !(self.horizontal_grid[y][x].is_free()
+                //     && self.horizontal_grid[y][x + 1].is_free())
+                self.horizontal_blocks
+                    .iter()
+                    .map(|x1| x1.position.x == b.position.y)
+                    .fold(false, |b1, b2| b1 && b2)
             }
         }
     }
@@ -234,7 +245,12 @@ impl Grid {
         }
     }
 
-    pub fn place_block(&mut self, p1: &Player, p2: &Player, b: &Block) -> bool {
+    pub fn place_block(
+        &mut self,
+        p1: &Player,
+        p2: &Player,
+        b: &'a Block,
+    ) -> bool {
         let p = b.position;
         assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
@@ -246,6 +262,11 @@ impl Grid {
             {
                 self.free_block(b);
                 return false;
+            }
+
+            match b.orientation {
+                Orientation::Horizontal => self.horizontal_blocks.push(b),
+                Orientation::Vertical => self.vertical_blocks.push(b),
             }
             return true;
         }
@@ -278,22 +299,33 @@ mod tests {
 
     #[test]
     fn place_block_explicit() {
-        struct TestCase(usize, usize, Orientation, bool);
+        struct TestCase(Block, bool);
 
         let tests = [
-            TestCase(0, 0, Orientation::Horizontal, true),
-            TestCase(1, 0, Orientation::Horizontal, false),
-            TestCase(3, 0, Orientation::Horizontal, true),
-            TestCase(3, 0, Orientation::Horizontal, false),
+            TestCase(
+                Block::new(Position { x: 0, y: 0 }, Orientation::Horizontal),
+                true,
+            ),
+            TestCase(
+                Block::new(Position { x: 1, y: 0 }, Orientation::Horizontal),
+                false,
+            ),
+            TestCase(
+                Block::new(Position { x: 3, y: 0 }, Orientation::Horizontal),
+                true,
+            ),
+            TestCase(
+                Block::new(Position { x: 3, y: 0 }, Orientation::Horizontal),
+                false,
+            ),
         ];
 
         let mut grid = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         for t in tests.iter() {
-            let b = &Block::new(Position { x: t.0, y: t.1 }, t.2);
-            let result = grid.place_block(&p1, &p2, b);
-            assert_eq!(t.3, result);
+            let result = grid.place_block(&p1, &p2, &t.0);
+            assert_eq!(t.1, result);
         }
     }
 
@@ -378,11 +410,8 @@ mod tests {
         let mut g = Grid::new();
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
-        let placed = g.place_block(
-            &p1,
-            &p2,
-            &Block::new(Position::new(0, 0), Orientation::Horizontal),
-        );
+        let b = Block::new(Position::new(0, 0), Orientation::Horizontal);
+        let placed = g.place_block(&p1, &p2, &b);
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 1);
@@ -390,11 +419,8 @@ mod tests {
 
         // place vertical block
         let mut g = Grid::new();
-        let placed = g.place_block(
-            &p1,
-            &p2,
-            &Block::new(Position::new(0, 0), Orientation::Vertical),
-        );
+        let b = Block::new(Position::new(0, 0), Orientation::Vertical);
+        let placed = g.place_block(&p1, &p2, &b);
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 1);
