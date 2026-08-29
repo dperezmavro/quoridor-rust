@@ -192,37 +192,27 @@ impl<'a> Grid<'a> {
     }
 
     fn does_intersect_existing_blocks(&self, incoming_block: &Block) -> bool {
-        // mirroring happens because we want to change for an existing
-        // block of the opposite orientation
-        // let x = b.position.y;
-        // let y = b.position.x;
         match incoming_block.orientation {
-            Orientation::Horizontal => {
-                // !(self.vertical_grid[lane][tile].is_free()
-                //     && self.vertical_grid[lane + 1][tile].is_free())
-                self.vertical_blocks
-                    .iter()
-                    .map(|x1| {
-                        x1.placement.tile == incoming_block.placement.lane
-                    })
-                    .fold(false, |b1, b2| b1 || b2)
-            }
+            Orientation::Horizontal => self
+                .vertical_blocks
+                .iter()
+                .map(|x1| x1.placement.tile == incoming_block.placement.lane)
+                .fold(false, |b1, b2| b1 || b2),
             Orientation::Vertical => {
-                // !(self.horizontal_grid[lane][tile].is_free()
-                //     && self.horizontal_grid[lane][tile + 1].is_free())
                 println!(
                     "existing blocks \n    {}\n    {:?}\n    incoming: {:?}",
                     self.horizontal_blocks.len(),
                     self.horizontal_blocks.clone(),
                     incoming_block
                 );
-                let res = self.horizontal_blocks.iter().map(|x1| {
-                    incoming_block.placement.tile == x1.placement.lane
+                let res = self.horizontal_blocks.iter().map(|b| {
+                    incoming_block.placement.lane == b.placement.tile
+                        && incoming_block.placement.tile + 1 > b.placement.lane
                 });
 
                 println!("res: {:?}", res.clone().collect::<Vec<bool>>());
 
-                let res2 = res.fold(false, |b1, b2| b1 || b2);
+                let res2 = res.reduce(|b1, b2| b1 || b2).unwrap();
                 println!("folding: {}", res2,);
 
                 res2
@@ -246,18 +236,18 @@ impl<'a> Grid<'a> {
     }
 
     fn is_block_position_free(&self, b: &Block) -> bool {
-        let tile = b.placement.tile;
-        let lane = b.placement.lane;
-        match b.orientation {
-            Orientation::Horizontal => {
-                self.horizontal_grid[lane][tile].is_free()
-                    && self.horizontal_grid[lane][tile + 1].is_free()
-            }
-            Orientation::Vertical => {
-                self.vertical_grid[lane][tile].is_free()
-                    && self.vertical_grid[lane + 1][tile].is_free()
-            }
-        }
+        let target_list = match b.orientation {
+            Orientation::Horizontal => &self.horizontal_blocks,
+            Orientation::Vertical => &self.vertical_blocks,
+        };
+        target_list
+            .iter()
+            .filter(|t| {
+                t.placement.lane == b.placement.lane
+                    && b.placement.tile.abs_diff(t.placement.tile) <= 1
+            })
+            .count()
+            == 0
     }
 
     pub fn place_block(
@@ -269,8 +259,8 @@ impl<'a> Grid<'a> {
         let p = b.placement;
         assert!(p.lane < GRID_SIZE - 1 && p.tile < GRID_SIZE - 1);
 
-        if self.is_block_position_free(b)
-            && !self.does_intersect_existing_blocks(b)
+        if !self.does_intersect_existing_blocks(b)
+            && self.is_block_position_free(b)
         {
             self.add_block(b);
 
@@ -281,6 +271,7 @@ impl<'a> Grid<'a> {
                 return false;
             }
 
+            // add the block to the individual block tracking lists
             match b.orientation {
                 Orientation::Horizontal => self.horizontal_blocks.push(b),
                 Orientation::Vertical => self.vertical_blocks.push(b),
@@ -634,16 +625,19 @@ mod tests {
     //         place_block
     /********************************************/
     #[test]
-    fn can_not_place_illegal_blocks() {
+    fn can_place_weird_blocks() {
         let b1 = Block::new(Placement::new(0, 1), Orientation::Horizontal);
-        let b2 = Block::new(Placement::new(1, 0), Orientation::Vertical);
+        let b2 = Block::new(Placement::new(0, 1), Orientation::Vertical);
         let b3 = Block::new(Placement::new(0, 0), Orientation::Vertical);
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
+        assert!(!g.does_intersect_existing_blocks(&b1));
         assert!(g.place_block(&p1, &p2, &b1));
+        assert!(!g.does_intersect_existing_blocks(&b2));
         assert!(g.place_block(&p1, &p2, &b2));
+        assert!(!g.does_intersect_existing_blocks(&b3));
         assert!(g.place_block(&p1, &p2, &b3));
     }
 
