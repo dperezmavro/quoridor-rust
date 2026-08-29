@@ -1,5 +1,4 @@
 use crate::block::{Block, Orientation};
-use crate::placement::Placement;
 use crate::player::{Player, StartingPosition};
 use crate::position::Position;
 use crate::tile::{Tile, TileState, TileType};
@@ -203,7 +202,8 @@ impl<'a> Grid<'a> {
         // testing for an existing horizontal block
         let ver_clos = |x1: &&&Block| -> bool {
             x1.placement.tile == incoming_block.placement.lane
-                && incoming_block.placement.tile + 1 > x1.placement.lane
+                && x1.placement.lane.abs_diff(incoming_block.placement.tile)
+                    == 0
         };
         match incoming_block.orientation {
             Orientation::Horizontal => {
@@ -259,8 +259,8 @@ impl<'a> Grid<'a> {
         {
             self.add_block(b);
 
-            if !(self.can_player_reach_goal(&p1)
-                && self.can_player_reach_goal(&p2))
+            if !(self.can_player_reach_goal(p1)
+                && self.can_player_reach_goal(p2))
             {
                 self.free_block(b);
                 return false;
@@ -273,13 +273,14 @@ impl<'a> Grid<'a> {
             }
             return true;
         }
-        return false;
+        false
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::placement::Placement;
 
     /********************************************/
     //         place_block
@@ -295,7 +296,7 @@ mod tests {
             let mut grid = Grid::new();
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            let success = grid.place_block(&p1, &p2, &b);
+            let success = grid.place_block(&p1, &p2, b);
             assert!(!success);
         }
     }
@@ -332,10 +333,7 @@ mod tests {
             let mut g = Grid::new();
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            let results: bool = t
-                .iter()
-                .map(|b| g.place_block(&p1, &p2, b))
-                .fold(true, |b1, x| b1 && x);
+            let results: bool = t.iter().all(|b| g.place_block(&p1, &p2, b));
             assert!(!results);
         }
     }
@@ -354,16 +352,13 @@ mod tests {
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
-            let results: bool = t
-                .iter()
-                .map(|b| g.place_block(&p1, &p2, b))
-                .fold(true, |b1, x| b1 && x);
+            let results: bool = t.iter().all(|b| g.place_block(&p1, &p2, b));
             assert!(results);
         }
     }
 
     /********************************************/
-    //         can_player_reach_goal
+    //         get_reachable_neighbour_tiles
     /********************************************/
     #[test]
     fn get_reachable_neighbour_tiles() {
@@ -469,7 +464,7 @@ mod tests {
                     Block::new(Placement::new(4, 3), Orientation::Horizontal),
                     Block::new(Placement::new(6, 3), Orientation::Horizontal),
                     Block::new(Placement::new(7, 5), Orientation::Horizontal),
-                    Block::new(Placement::new(6, 4), Orientation::Vertical),
+                    Block::new(Placement::new(4, 6), Orientation::Vertical),
                 ],
                 Player {
                     position: Position::new(4, 4),
@@ -490,15 +485,15 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
-            t.0.iter().for_each(|block| {
-                assert!(g.place_block(&t.1, &t.2, block));
-            });
-
             g.player_tiles[t.1.position.y][t.1.position.x].occupy();
             g.player_tiles[t.2.position.y][t.2.position.x].occupy();
 
-            assert!(g.can_player_reach_goal(&t.1));
-            assert!(g.can_player_reach_goal(&t.2));
+            t.0.iter().for_each(|block| {
+                assert!(g.place_block(&t.1, &t.2, block), "{:?}", block);
+            });
+
+            assert!(g.can_player_reach_goal(&t.1), "player 1 {:?}", t.1);
+            assert!(g.can_player_reach_goal(&t.2), "player 2 {:?}", t.2);
         });
     }
 
@@ -662,7 +657,7 @@ mod tests {
             is_placed: true,
             placement: Placement::new(7, 7),
         };
-        let b2 = Block {
+        let b2 = &Block {
             orientation: Orientation::Horizontal,
             is_placed: true,
             placement: Placement::new(5, 7),
@@ -678,9 +673,9 @@ mod tests {
             placement: Placement::new(5, 6),
         };
         assert!(g.place_block(p1, p2, b1));
-        assert!(!g.does_intersect_existing_blocks(&b2));
-        assert!(!g.does_intersect_existing_blocks(&b3));
-        assert!(!g.does_intersect_existing_blocks(&b4));
+        assert!(!g.does_intersect_existing_blocks(b2));
+        assert!(!g.does_intersect_existing_blocks(b3));
+        assert!(!g.does_intersect_existing_blocks(b4));
     }
 
     #[test]
@@ -800,6 +795,10 @@ mod tests {
                     placement: Placement::new(7, 6),
                 },
             ),
+            TestCase(
+                Block::new(Placement::new(6, 3), Orientation::Horizontal),
+                Block::new(Placement::new(4, 6), Orientation::Vertical),
+            ),
         ];
 
         let p1 = Player::new(String::new(), StartingPosition::Top);
@@ -807,7 +806,12 @@ mod tests {
         for t in tests {
             let mut grid = Grid::new();
             assert!(grid.place_block(&p1, &p2, &t.0));
-            assert!(grid.place_block(&p1, &p2, &t.1));
+            assert!(
+                grid.place_block(&p1, &p2, &t.1),
+                "existing {:?} and new {:?} intersect",
+                t.0,
+                t.1,
+            );
         }
     }
 }
