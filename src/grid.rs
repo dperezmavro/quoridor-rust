@@ -190,27 +190,40 @@ impl<'a> Grid<'a> {
         };
     }
 
-    fn do_blocks_intersect(&self, b: &Block) -> bool {
+    fn does_intersect_existing_blocks(&self, incoming_block: &Block) -> bool {
         // mirroring happens because we want to change for an existing
         // block of the opposite orientation
-        let x = b.position.y;
-        let y = b.position.x;
-        match b.orientation {
+        // let x = b.position.y;
+        // let y = b.position.x;
+        match incoming_block.orientation {
             Orientation::Horizontal => {
                 // !(self.vertical_grid[y][x].is_free()
                 //     && self.vertical_grid[y + 1][x].is_free())
                 self.vertical_blocks
                     .iter()
-                    .map(|x1| x1.position.x == b.position.y)
-                    .fold(false, |b1, b2| b1 && b2)
+                    .map(|x1| x1.position.x == incoming_block.position.y)
+                    .fold(false, |b1, b2| b1 || b2)
             }
             Orientation::Vertical => {
                 // !(self.horizontal_grid[y][x].is_free()
                 //     && self.horizontal_grid[y][x + 1].is_free())
-                self.horizontal_blocks
+                println!(
+                    "existing blocks {}: {:?}: {:?}",
+                    self.horizontal_blocks.len(),
+                    self.horizontal_blocks.clone(),
+                    incoming_block
+                );
+                let res = self
+                    .horizontal_blocks
                     .iter()
-                    .map(|x1| x1.position.x == b.position.y)
-                    .fold(false, |b1, b2| b1 && b2)
+                    .map(|x1| incoming_block.position.x == x1.position.y);
+
+                println!("res: {:?}", res.clone().collect::<Vec<bool>>());
+
+                let res2 = res.fold(false, |b1, b2| b1 || b2);
+                println!("folding: {}", res2,);
+
+                res2
             }
         }
     }
@@ -254,7 +267,9 @@ impl<'a> Grid<'a> {
         let p = b.position;
         assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
 
-        if self.is_block_position_free(b) && !self.do_blocks_intersect(&b) {
+        if self.is_block_position_free(b)
+            && !self.does_intersect_existing_blocks(b)
+        {
             self.add_block(b);
 
             if !(self.can_player_reach_goal(&p1)
@@ -619,18 +634,34 @@ mod tests {
     }
 
     /********************************************/
-    //         do_blocks_intersect
+    //         does_intersect_existing_blocks
     /********************************************/
     #[test]
-    fn verify_blocks_intersect() {
-        let mut g = Grid::new();
+    fn verify_does_intersect_existing_blocks() {
+        // setup
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
+
+        let mut g = Grid::new();
+        let b1 = Block::new(Position::new(4, 3), Orientation::Horizontal);
+        let b2 = Block::new(Position::new(3, 4), Orientation::Vertical);
+        assert!(g.place_block(&p1, &p2, &b1));
+        assert!(g.does_intersect_existing_blocks(&b2));
+        assert!(!g.place_block(&p1, &p2, &b2));
+
+        let mut g = Grid::new();
+        let b1 = Block::new(Position::new(3, 4), Orientation::Vertical);
+        let b2 = Block::new(Position::new(4, 3), Orientation::Horizontal);
+        assert!(g.place_block(&p1, &p2, &b1));
+        assert!(g.does_intersect_existing_blocks(&b2));
+        assert!(!g.place_block(&p1, &p2, &b2));
+
+        let mut g = Grid::new();
         let b1 = Block::new(Position::new(0, 0), Orientation::Horizontal);
         let b2 = Block::new(Position::new(0, 0), Orientation::Vertical);
-
         assert!(g.place_block(&p1, &p2, &b1));
-        assert!(g.do_blocks_intersect(&b2));
+        assert!(g.does_intersect_existing_blocks(&b2));
+        assert!(!g.place_block(&p1, &p2, &b2));
     }
 
     #[test]
@@ -659,9 +690,9 @@ mod tests {
             position: Position { x: 5, y: 6 },
         };
         assert!(g.place_block(p1, p2, b1));
-        assert!(!g.do_blocks_intersect(&b2));
-        assert!(!g.do_blocks_intersect(&b3));
-        assert!(!g.do_blocks_intersect(&b4));
+        assert!(!g.does_intersect_existing_blocks(&b2));
+        assert!(!g.does_intersect_existing_blocks(&b3));
+        assert!(!g.does_intersect_existing_blocks(&b4));
     }
 
     #[test]
