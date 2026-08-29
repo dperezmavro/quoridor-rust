@@ -562,6 +562,9 @@ mod tests {
         });
     }
 
+    /********************************************/
+    //         place_block
+    /********************************************/
     #[test]
     fn can_not_place_illegal_blocks() {
         let b1 = Block::new(Position::new(0, 1), Orientation::Horizontal);
@@ -576,8 +579,11 @@ mod tests {
         assert!(g.place_block(&p1, &p2, &b3));
     }
 
+    /********************************************/
+    //         do_blocks_intersect
+    /********************************************/
     #[test]
-    fn do_blocks_cross() {
+    fn verify_blocks_intersect() {
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
@@ -589,7 +595,7 @@ mod tests {
     }
 
     #[test]
-    fn test_do_blocks_intersect() {
+    fn verify_blocks_do_not_intersect() {
         let mut g = Grid::new();
         let p1 = &Player::new(String::new(), StartingPosition::Top);
         let p2 = &Player::new(String::new(), StartingPosition::Bottom);
@@ -667,7 +673,7 @@ mod tests {
         for t in tests.iter() {
             let mut grid = Grid::new();
             assert!(grid.place_block(&p1, &p2, &t.0));
-            assert_eq!(grid.place_block(&p1, &p2, &t.1), false);
+            assert!(!grid.place_block(&p1, &p2, &t.1));
         }
     }
 
