@@ -256,19 +256,21 @@ impl Grid {
 mod tests {
     use super::*;
 
+    /********************************************/
+    //         place_block
+    /********************************************/
     #[test]
     #[should_panic]
-    fn test_place_block_illegal() {
-        struct TestCase(Block);
+    fn test_place_block_out_of_bounds() {
         let tests = [
-            TestCase(Block::new(Position::new(8, 0), Orientation::Horizontal)),
-            TestCase(Block::new(Position::new(0, 8), Orientation::Horizontal)),
+            Block::new(Position::new(8, 0), Orientation::Horizontal),
+            Block::new(Position::new(0, 8), Orientation::Horizontal),
         ];
-        for t in tests.iter() {
+        for b in tests.iter() {
             let mut grid = Grid::new();
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            let success = grid.place_block(&p1, &p2, &t.0);
+            let success = grid.place_block(&p1, &p2, &b);
             assert!(!success);
         }
     }
@@ -295,45 +297,53 @@ mod tests {
     }
 
     #[test]
-    fn test_place_blocks_bulk() {
-        struct TestCase(Vec<Block>, bool);
-
-        let tests = [
-            TestCase(
-                vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                ],
-                true,
-            ),
-            TestCase(
-                vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                    Block::new(Position::new(6, 4), Orientation::Vertical),
-                ],
-                false,
-            ),
-        ];
+    fn test_bulk_place_blocks_illegal() {
+        let tests = [vec![
+            Block::new(Position::new(0, 3), Orientation::Horizontal),
+            Block::new(Position::new(2, 3), Orientation::Horizontal),
+            Block::new(Position::new(4, 3), Orientation::Horizontal),
+            Block::new(Position::new(6, 3), Orientation::Horizontal),
+            Block::new(Position::new(7, 5), Orientation::Horizontal),
+            Block::new(Position::new(6, 4), Orientation::Vertical),
+        ]];
 
         for t in tests.iter() {
             let mut g = Grid::new();
-            let mut result: bool = true;
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            for b in t.0.iter() {
-                result &= g.place_block(&p1, &p2, b);
-            }
-            assert_eq!(t.1, result);
+            let results: bool = t
+                .iter()
+                .map(|b| g.place_block(&p1, &p2, b))
+                .fold(true, |b1, x| b1 && x);
+            assert!(!results);
+        }
+    }
+    #[test]
+    fn test_bulk_place_blocks_legal() {
+        let tests = [vec![
+            Block::new(Position::new(0, 3), Orientation::Horizontal),
+            Block::new(Position::new(2, 3), Orientation::Horizontal),
+            Block::new(Position::new(4, 3), Orientation::Horizontal),
+            Block::new(Position::new(6, 3), Orientation::Horizontal),
+            Block::new(Position::new(7, 5), Orientation::Horizontal),
+        ]];
+
+        for t in tests.iter() {
+            let mut g = Grid::new();
+            let p1 = Player::new(String::new(), StartingPosition::Top);
+            let p2 = Player::new(String::new(), StartingPosition::Bottom);
+
+            let results: bool = t
+                .iter()
+                .map(|b| g.place_block(&p1, &p2, b))
+                .fold(true, |b1, x| b1 && x);
+            assert!(results);
         }
     }
 
+    /********************************************/
+    //         can_player_reach_goal
+    /********************************************/
     #[test]
     fn get_reachable_neighbour_tiles() {
         struct TestCase(usize, usize, usize);
@@ -402,18 +412,20 @@ mod tests {
         assert_eq!(result[1].position.y, 0);
     }
 
+    /********************************************/
+    //         can_player_reach_goal
+    /********************************************/
     #[test]
     fn can_players_reach_end() {
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         let block = &Block::default();
-        g.place_block(&p1, &p2, block);
+        assert!(g.place_block(&p1, &p2, block));
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
     }
 
-    /********************************************/
-    //         can_player_reach_goal
-    /********************************************/
     #[test]
     fn test_can_player_reach_goal_normal() {
         struct TestCase(Vec<Block>, Player, Player);
