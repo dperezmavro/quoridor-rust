@@ -257,25 +257,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_available_tiles() {
-        let mut grid = Grid::new();
-        grid.horizontal_blocks[0][0] = Tile::new(
-            TileType::BlockPosition,
-            TileState::Occupied,
-            Position { x: 0, y: 0 },
-        );
-        let p1: Player = Player::new(String::new(), StartingPosition::Top);
-        let p2: Player = Player::new(String::new(), StartingPosition::Bottom);
-
-        assert!(grid.can_player_reach_goal(&p1));
-        assert!(grid.can_player_reach_goal(&p2));
-
-        grid.player_tiles[0][0].occupy();
-        assert!(grid.can_player_reach_goal(&p1));
-        assert!(grid.can_player_reach_goal(&p2));
-    }
-
-    #[test]
     #[should_panic]
     fn test_place_block_illegal() {
         struct TestCase(Block);
@@ -430,16 +411,18 @@ mod tests {
         g.place_block(&p1, &p2, block);
     }
 
+    /********************************************/
+    //         can_player_reach_goal
+    /********************************************/
     #[test]
-    fn can_player_reach_goal() {
-        struct TestCase(Vec<Block>, Player, Player, bool);
+    fn test_can_player_reach_goal_normal() {
+        struct TestCase(Vec<Block>, Player, Player);
 
         let tests = [
             TestCase(
                 vec![],
                 Player::new(String::from("top"), StartingPosition::Top),
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
-                true,
             ),
             TestCase(
                 vec![
@@ -451,20 +434,6 @@ mod tests {
                 ],
                 Player::new(String::from("top"), StartingPosition::Top),
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
-                true,
-            ),
-            TestCase(
-                vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                    Block::new(Position::new(6, 4), Orientation::Vertical),
-                ],
-                Player::new(String::from("top"), StartingPosition::Top),
-                Player::new(String::from("bottom"), StartingPosition::Bottom),
-                false,
             ),
             TestCase(
                 vec![
@@ -489,7 +458,39 @@ mod tests {
                     blocks: [Block::default(); 10],
                     starting_position: StartingPosition::Bottom,
                 },
-                true,
+            ),
+        ];
+
+        tests.iter().for_each(|t| {
+            let mut g = Grid::new();
+            t.0.iter().for_each(|block| {
+                assert!(g.place_block(&t.1, &t.2, block));
+            });
+
+            g.player_tiles[t.1.position.y][t.1.position.x].occupy();
+            g.player_tiles[t.2.position.y][t.2.position.x].occupy();
+
+            assert!(g.can_player_reach_goal(&t.1));
+            assert!(g.can_player_reach_goal(&t.2));
+        });
+    }
+
+    #[test]
+    fn test_can_player_reach_goal_disallowed_block_formations() {
+        struct TestCase(Vec<Block>, Player, Player);
+
+        let tests = [
+            TestCase(
+                vec![
+                    Block::new(Position::new(0, 3), Orientation::Horizontal),
+                    Block::new(Position::new(2, 3), Orientation::Horizontal),
+                    Block::new(Position::new(4, 3), Orientation::Horizontal),
+                    Block::new(Position::new(6, 3), Orientation::Horizontal),
+                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                ],
+                Player::new(String::from("top"), StartingPosition::Top),
+                Player::new(String::from("bottom"), StartingPosition::Bottom),
             ),
             TestCase(
                 vec![
@@ -514,7 +515,6 @@ mod tests {
                     blocks: [Block::default(); 10],
                     starting_position: StartingPosition::Bottom,
                 },
-                false,
             ),
         ];
 
@@ -554,8 +554,11 @@ mod tests {
                     }
                 }
             });
-            assert_eq!(t.3, g.can_player_reach_goal(&t.1));
-            assert_eq!(t.3, g.can_player_reach_goal(&t.2));
+            g.player_tiles[t.1.position.y][t.1.position.x].occupy();
+            g.player_tiles[t.2.position.y][t.2.position.x].occupy();
+
+            assert!(!g.can_player_reach_goal(&t.1));
+            assert!(!g.can_player_reach_goal(&t.2));
         });
     }
 
@@ -685,18 +688,18 @@ mod tests {
                     position: Position { x: 0, y: 1 },
                 },
             ),
-            // TestCase(
-            //     Block {
-            //         orientation: Orientation::Vertical,
-            //         is_placed: true,
-            //         position: Position { x: 0, y: 0 },
-            //     },
-            //     Block {
-            //         orientation: Orientation::Horizontal,
-            //         is_placed: true,
-            //         position: Position { x: 1, y: 0 },
-            //     },
-            // ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 1, y: 0 },
+                },
+            ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
