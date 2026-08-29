@@ -14,9 +14,10 @@ const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 #[derive(Debug)]
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
-    horizontal_blocks:
+
+    horizontal_grid:
         Box<[[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y]>,
-    vertical_blocks:
+    vertical_grid:
         Box<[[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y]>,
 }
 
@@ -69,7 +70,7 @@ impl Grid {
                 last_row,
             ]);
 
-        let mut horizontal_blocks: Box<
+        let mut horizontal_grid: Box<
             [[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y],
         > = Box::new(
             [[Tile::default(); HORIZONTAL_BLOCK_MATRIX_X];
@@ -77,7 +78,7 @@ impl Grid {
         );
         for y in 0..HORIZONTAL_BLOCK_MATRIX_Y {
             for x in 0..HORIZONTAL_BLOCK_MATRIX_X {
-                horizontal_blocks[y][x] = Tile::new(
+                horizontal_grid[y][x] = Tile::new(
                     TileType::BlockPosition,
                     TileState::Free,
                     Position { y, x },
@@ -85,7 +86,7 @@ impl Grid {
             }
         }
 
-        let mut vertical_blocks: Box<
+        let mut vertical_grid: Box<
             [[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y],
         > = Box::new(
             [[Tile::default(); VERTICAL_BLOCK_MATRIX_X];
@@ -94,7 +95,7 @@ impl Grid {
 
         for y in 0..VERTICAL_BLOCK_MATRIX_Y {
             for x in 0..VERTICAL_BLOCK_MATRIX_X {
-                vertical_blocks[y][x] = Tile::new(
+                vertical_grid[y][x] = Tile::new(
                     TileType::BlockPosition,
                     TileState::Free,
                     Position { y, x },
@@ -104,8 +105,8 @@ impl Grid {
 
         Self {
             player_tiles,
-            horizontal_blocks,
-            vertical_blocks,
+            horizontal_grid,
+            vertical_grid,
         }
     }
 
@@ -114,20 +115,20 @@ impl Grid {
 
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
-        if p.y > 0 && self.horizontal_blocks[p.y - 1][p.x].is_free() {
+        if p.y > 0 && self.horizontal_grid[p.y - 1][p.x].is_free() {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
         }
         //bottom
-        if p.y < GRID_SIZE - 1 && self.horizontal_blocks[p.y][p.x].is_free() {
+        if p.y < GRID_SIZE - 1 && self.horizontal_grid[p.y][p.x].is_free() {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
         }
 
         //left
-        if p.x > 0 && self.vertical_blocks[p.y][p.x - 1].is_free() {
+        if p.x > 0 && self.vertical_grid[p.y][p.x - 1].is_free() {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
-        if p.x < GRID_SIZE - 1 && self.vertical_blocks[p.y][p.x].is_free() {
+        if p.x < GRID_SIZE - 1 && self.vertical_grid[p.y][p.x].is_free() {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
         }
 
@@ -176,12 +177,12 @@ impl Grid {
         let x = b.position.x;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[y][x].free();
-                self.horizontal_blocks[y][x + 1].free();
+                self.horizontal_grid[y][x].free();
+                self.horizontal_grid[y][x + 1].free();
             }
             Orientation::Vertical => {
-                self.vertical_blocks[y][x].free();
-                self.vertical_blocks[y + 1][x].free();
+                self.vertical_grid[y][x].free();
+                self.vertical_grid[y + 1][x].free();
             }
         };
     }
@@ -193,12 +194,12 @@ impl Grid {
         let y = b.position.x;
         match b.orientation {
             Orientation::Horizontal => {
-                !(self.vertical_blocks[y][x].is_free()
-                    && self.vertical_blocks[y + 1][x].is_free())
+                !(self.vertical_grid[y][x].is_free()
+                    && self.vertical_grid[y + 1][x].is_free())
             }
             Orientation::Vertical => {
-                !(self.horizontal_blocks[x][y].is_free()
-                    && self.horizontal_blocks[x][y + 1].is_free())
+                !(self.horizontal_grid[y][x].is_free()
+                    && self.horizontal_grid[y][x + 1].is_free())
             }
         }
     }
@@ -208,12 +209,12 @@ impl Grid {
         let x = b.position.x;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[y][x].occupy();
-                self.horizontal_blocks[y][x + 1].occupy();
+                self.horizontal_grid[y][x].occupy();
+                self.horizontal_grid[y][x + 1].occupy();
             }
             Orientation::Vertical => {
-                self.vertical_blocks[y][x].occupy();
-                self.vertical_blocks[y + 1][x].occupy();
+                self.vertical_grid[y][x].occupy();
+                self.vertical_grid[y + 1][x].occupy();
             }
         }
     }
@@ -223,12 +224,12 @@ impl Grid {
         let y = b.position.y;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks[y][x].is_free()
-                    && self.horizontal_blocks[y][x + 1].is_free()
+                self.horizontal_grid[y][x].is_free()
+                    && self.horizontal_grid[y][x + 1].is_free()
             }
             Orientation::Vertical => {
-                self.vertical_blocks[y][x].is_free()
-                    && self.vertical_blocks[y + 1][x].is_free()
+                self.vertical_grid[y][x].is_free()
+                    && self.vertical_grid[y + 1][x].is_free()
             }
         }
     }
@@ -537,13 +538,13 @@ mod tests {
                 // do this manually because place_block detects that this is illegal
                 match block.orientation {
                     Orientation::Horizontal => {
-                        g.horizontal_blocks[block.position.y]
-                            [block.position.x] = Tile {
-                            position: block.position,
-                            state: TileState::Occupied,
-                            tile_type: TileType::BlockPosition,
-                        };
-                        g.horizontal_blocks[block.position.y]
+                        g.horizontal_grid[block.position.y][block.position.x] =
+                            Tile {
+                                position: block.position,
+                                state: TileState::Occupied,
+                                tile_type: TileType::BlockPosition,
+                            };
+                        g.horizontal_grid[block.position.y]
                             [block.position.x + 1] = Tile {
                             position: block.position,
                             state: TileState::Occupied,
@@ -551,13 +552,13 @@ mod tests {
                         };
                     }
                     Orientation::Vertical => {
-                        g.vertical_blocks[block.position.y][block.position.x] =
+                        g.vertical_grid[block.position.y][block.position.x] =
                             Tile {
                                 position: block.position,
                                 state: TileState::Occupied,
                                 tile_type: TileType::BlockPosition,
                             };
-                        g.vertical_blocks[block.position.y + 1]
+                        g.vertical_grid[block.position.y + 1]
                             [block.position.x] = Tile {
                             position: block.position,
                             state: TileState::Occupied,
@@ -706,18 +707,18 @@ mod tests {
                     position: Position { x: 0, y: 1 },
                 },
             ),
-            // TestCase(
-            //     Block {
-            //         orientation: Orientation::Vertical,
-            //         is_placed: true,
-            //         position: Position { x: 0, y: 0 },
-            //     },
-            //     Block {
-            //         orientation: Orientation::Horizontal,
-            //         is_placed: true,
-            //         position: Position { x: 1, y: 0 },
-            //     },
-            // ),
+            TestCase(
+                Block {
+                    orientation: Orientation::Vertical,
+                    is_placed: true,
+                    position: Position { x: 0, y: 0 },
+                },
+                Block {
+                    orientation: Orientation::Horizontal,
+                    is_placed: true,
+                    position: Position { x: 1, y: 0 },
+                },
+            ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
