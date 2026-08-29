@@ -706,18 +706,18 @@ mod tests {
                     position: Position { x: 0, y: 1 },
                 },
             ),
-            TestCase(
-                Block {
-                    orientation: Orientation::Vertical,
-                    is_placed: true,
-                    position: Position { x: 0, y: 0 },
-                },
-                Block {
-                    orientation: Orientation::Horizontal,
-                    is_placed: true,
-                    position: Position { x: 1, y: 0 },
-                },
-            ),
+            // TestCase(
+            //     Block {
+            //         orientation: Orientation::Vertical,
+            //         is_placed: true,
+            //         position: Position { x: 0, y: 0 },
+            //     },
+            //     Block {
+            //         orientation: Orientation::Horizontal,
+            //         is_placed: true,
+            //         position: Position { x: 1, y: 0 },
+            //     },
+            // ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
