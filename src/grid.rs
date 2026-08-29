@@ -204,25 +204,15 @@ impl<'a> Grid<'a> {
                     .count()
                     != 0
             }
-            Orientation::Vertical => {
-                println!(
-                    "existing blocks \n    {}\n    {:?}\n    incoming: {:?}",
-                    self.horizontal_blocks.len(),
-                    self.horizontal_blocks.clone(),
-                    incoming_block
-                );
-                let res = self.horizontal_blocks.iter().map(|b| {
+            Orientation::Vertical => self
+                .horizontal_blocks
+                .iter()
+                .map(|b| {
                     incoming_block.placement.lane == b.placement.tile
                         && incoming_block.placement.tile + 1 > b.placement.lane
-                });
-
-                println!("res: {:?}", res.clone().collect::<Vec<bool>>());
-
-                let res2 = res.reduce(|b1, b2| b1 || b2).unwrap_or(false);
-                println!("folding: {}", res2,);
-
-                res2
-            }
+                })
+                .reduce(|b1, b2| b1 || b2)
+                .unwrap_or(false),
         }
     }
 
