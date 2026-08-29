@@ -193,11 +193,17 @@ impl<'a> Grid<'a> {
 
     fn does_intersect_existing_blocks(&self, incoming_block: &Block) -> bool {
         match incoming_block.orientation {
-            Orientation::Horizontal => self
-                .vertical_blocks
-                .iter()
-                .map(|x1| x1.placement.tile == incoming_block.placement.lane)
-                .fold(false, |b1, b2| b1 || b2),
+            Orientation::Horizontal => {
+                self.vertical_blocks
+                    .iter()
+                    .filter(|x1| {
+                        x1.placement.tile == incoming_block.placement.lane
+                            && x1.placement.lane
+                                == incoming_block.placement.tile
+                    })
+                    .count()
+                    != 0
+            }
             Orientation::Vertical => {
                 println!(
                     "existing blocks \n    {}\n    {:?}\n    incoming: {:?}",
@@ -307,34 +313,19 @@ mod tests {
 
     #[test]
     fn place_block_explicit() {
-        struct TestCase(Block, bool);
-
-        let tests = [
-            TestCase(
-                Block::new(Placement::new(0, 0), Orientation::Horizontal),
-                true,
-            ),
-            TestCase(
-                Block::new(Placement::new(1, 0), Orientation::Horizontal),
-                false,
-            ),
-            TestCase(
-                Block::new(Placement::new(3, 0), Orientation::Horizontal),
-                true,
-            ),
-            TestCase(
-                Block::new(Placement::new(3, 0), Orientation::Horizontal),
-                false,
-            ),
-        ];
-
         let mut grid = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
-        for t in tests.iter() {
-            let result = grid.place_block(&p1, &p2, &t.0);
-            assert_eq!(t.1, result);
-        }
+
+        let b1 = Block::new(Placement::new(0, 0), Orientation::Horizontal);
+        assert!(grid.place_block(&p1, &p2, &b1));
+
+        let b2 = Block::new(Placement::new(1, 0), Orientation::Horizontal);
+        assert!(!grid.place_block(&p1, &p2, &b2));
+
+        let b3 = Block::new(Placement::new(3, 0), Orientation::Horizontal);
+        assert!(grid.place_block(&p1, &p2, &b3));
+        assert!(!grid.place_block(&p1, &p2, &b3));
     }
 
     #[test]
