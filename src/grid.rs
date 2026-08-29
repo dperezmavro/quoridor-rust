@@ -212,7 +212,7 @@ impl<'a> Grid<'a> {
 
                 println!("res: {:?}", res.clone().collect::<Vec<bool>>());
 
-                let res2 = res.reduce(|b1, b2| b1 || b2).unwrap();
+                let res2 = res.reduce(|b1, b2| b1 || b2).unwrap_or(false);
                 println!("folding: {}", res2,);
 
                 res2
