@@ -204,15 +204,17 @@ impl<'a> Grid<'a> {
                     .count()
                     != 0
             }
-            Orientation::Vertical => self
-                .horizontal_blocks
-                .iter()
-                .map(|b| {
-                    incoming_block.placement.lane == b.placement.tile
-                        && incoming_block.placement.tile + 1 > b.placement.lane
-                })
-                .reduce(|b1, b2| b1 || b2)
-                .unwrap_or(false),
+            Orientation::Vertical => {
+                self.horizontal_blocks
+                    .iter()
+                    .filter(|x1| {
+                        incoming_block.placement.lane == x1.placement.tile
+                            && incoming_block.placement.tile + 1
+                                > x1.placement.lane
+                    })
+                    .count()
+                    != 0
+            }
         }
     }
 
