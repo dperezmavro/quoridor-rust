@@ -1,4 +1,4 @@
-use crate::position::Position;
+use crate::placement::Placement;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Orientation {
@@ -10,15 +10,15 @@ pub enum Orientation {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Block {
     pub orientation: Orientation,
-    pub position: Position,
+    pub placement: Placement,
     pub is_placed: bool,
 }
 
 impl Block {
-    pub fn new(position: Position, orientation: Orientation) -> Self {
+    pub fn new(placement: Placement, orientation: Orientation) -> Self {
         Self {
             orientation,
-            position,
+            placement,
             is_placed: false,
         }
     }

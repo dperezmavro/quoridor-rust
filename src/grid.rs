@@ -1,4 +1,5 @@
 use crate::block::{Block, Orientation};
+use crate::placement::Placement;
 use crate::player::{Player, StartingPosition};
 use crate::position::Position;
 use crate::tile::{Tile, TileState, TileType};
@@ -77,12 +78,12 @@ impl<'a> Grid<'a> {
             [[Tile::default(); HORIZONTAL_BLOCK_MATRIX_X];
                 HORIZONTAL_BLOCK_MATRIX_Y],
         );
-        for y in 0..HORIZONTAL_BLOCK_MATRIX_Y {
-            for x in 0..HORIZONTAL_BLOCK_MATRIX_X {
-                horizontal_grid[y][x] = Tile::new(
+        for lane in 0..HORIZONTAL_BLOCK_MATRIX_Y {
+            for tile in 0..HORIZONTAL_BLOCK_MATRIX_X {
+                horizontal_grid[lane][tile] = Tile::new(
                     TileType::BlockPosition,
                     TileState::Free,
-                    Position { y, x },
+                    Position { y: lane, x: tile },
                 );
             }
         }
@@ -94,12 +95,12 @@ impl<'a> Grid<'a> {
                 VERTICAL_BLOCK_MATRIX_Y],
         );
 
-        for y in 0..VERTICAL_BLOCK_MATRIX_Y {
-            for x in 0..VERTICAL_BLOCK_MATRIX_X {
-                vertical_grid[y][x] = Tile::new(
+        for lane in 0..VERTICAL_BLOCK_MATRIX_Y {
+            for tile in 0..VERTICAL_BLOCK_MATRIX_X {
+                vertical_grid[lane][tile] = Tile::new(
                     TileType::BlockPosition,
                     TileState::Free,
-                    Position { y, x },
+                    Position { y: lane, x: tile },
                 );
             }
         }
@@ -176,16 +177,16 @@ impl<'a> Grid<'a> {
     }
 
     fn free_block(&mut self, b: &Block) {
-        let y = b.position.y;
-        let x = b.position.x;
+        let lane = b.placement.lane;
+        let tile = b.placement.tile;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_grid[y][x].free();
-                self.horizontal_grid[y][x + 1].free();
+                self.horizontal_grid[lane][tile].free();
+                self.horizontal_grid[lane][tile + 1].free();
             }
             Orientation::Vertical => {
-                self.vertical_grid[y][x].free();
-                self.vertical_grid[y + 1][x].free();
+                self.vertical_grid[lane][tile].free();
+                self.vertical_grid[lane + 1][tile].free();
             }
         };
     }
@@ -197,26 +198,27 @@ impl<'a> Grid<'a> {
         // let y = b.position.x;
         match incoming_block.orientation {
             Orientation::Horizontal => {
-                // !(self.vertical_grid[y][x].is_free()
-                //     && self.vertical_grid[y + 1][x].is_free())
+                // !(self.vertical_grid[lane][tile].is_free()
+                //     && self.vertical_grid[lane + 1][tile].is_free())
                 self.vertical_blocks
                     .iter()
-                    .map(|x1| x1.position.x == incoming_block.position.y)
+                    .map(|x1| {
+                        x1.placement.tile == incoming_block.placement.lane
+                    })
                     .fold(false, |b1, b2| b1 || b2)
             }
             Orientation::Vertical => {
-                // !(self.horizontal_grid[y][x].is_free()
-                //     && self.horizontal_grid[y][x + 1].is_free())
+                // !(self.horizontal_grid[lane][tile].is_free()
+                //     && self.horizontal_grid[lane][tile + 1].is_free())
                 println!(
-                    "existing blocks {}: {:?}: {:?}",
+                    "existing blocks \n    {}\n    {:?}\n    incoming: {:?}",
                     self.horizontal_blocks.len(),
                     self.horizontal_blocks.clone(),
                     incoming_block
                 );
-                let res = self
-                    .horizontal_blocks
-                    .iter()
-                    .map(|x1| incoming_block.position.x == x1.position.y);
+                let res = self.horizontal_blocks.iter().map(|x1| {
+                    incoming_block.placement.tile == x1.placement.lane
+                });
 
                 println!("res: {:?}", res.clone().collect::<Vec<bool>>());
 
@@ -229,31 +231,31 @@ impl<'a> Grid<'a> {
     }
 
     fn add_block(&mut self, b: &Block) {
-        let y = b.position.y;
-        let x = b.position.x;
+        let tile = b.placement.tile;
+        let lane = b.placement.lane;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_grid[y][x].occupy();
-                self.horizontal_grid[y][x + 1].occupy();
+                self.horizontal_grid[lane][tile].occupy();
+                self.horizontal_grid[lane][tile + 1].occupy();
             }
             Orientation::Vertical => {
-                self.vertical_grid[y][x].occupy();
-                self.vertical_grid[y + 1][x].occupy();
+                self.vertical_grid[lane][tile].occupy();
+                self.vertical_grid[lane + 1][tile].occupy();
             }
         }
     }
 
     fn is_block_position_free(&self, b: &Block) -> bool {
-        let x = b.position.x;
-        let y = b.position.y;
+        let tile = b.placement.tile;
+        let lane = b.placement.lane;
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_grid[y][x].is_free()
-                    && self.horizontal_grid[y][x + 1].is_free()
+                self.horizontal_grid[lane][tile].is_free()
+                    && self.horizontal_grid[lane][tile + 1].is_free()
             }
             Orientation::Vertical => {
-                self.vertical_grid[y][x].is_free()
-                    && self.vertical_grid[y + 1][x].is_free()
+                self.vertical_grid[lane][tile].is_free()
+                    && self.vertical_grid[lane + 1][tile].is_free()
             }
         }
     }
@@ -264,8 +266,8 @@ impl<'a> Grid<'a> {
         p2: &Player,
         b: &'a Block,
     ) -> bool {
-        let p = b.position;
-        assert!(p.x < GRID_SIZE - 1 && p.y < GRID_SIZE - 1);
+        let p = b.placement;
+        assert!(p.lane < GRID_SIZE - 1 && p.tile < GRID_SIZE - 1);
 
         if self.is_block_position_free(b)
             && !self.does_intersect_existing_blocks(b)
@@ -300,8 +302,8 @@ mod tests {
     #[should_panic]
     fn test_place_block_out_of_bounds() {
         let tests = [
-            Block::new(Position::new(8, 0), Orientation::Horizontal),
-            Block::new(Position::new(0, 8), Orientation::Horizontal),
+            Block::new(Placement::new(8, 0), Orientation::Horizontal),
+            Block::new(Placement::new(0, 8), Orientation::Horizontal),
         ];
         for b in tests.iter() {
             let mut grid = Grid::new();
@@ -318,19 +320,19 @@ mod tests {
 
         let tests = [
             TestCase(
-                Block::new(Position { x: 0, y: 0 }, Orientation::Horizontal),
+                Block::new(Placement::new(0, 0), Orientation::Horizontal),
                 true,
             ),
             TestCase(
-                Block::new(Position { x: 1, y: 0 }, Orientation::Horizontal),
+                Block::new(Placement::new(1, 0), Orientation::Horizontal),
                 false,
             ),
             TestCase(
-                Block::new(Position { x: 3, y: 0 }, Orientation::Horizontal),
+                Block::new(Placement::new(3, 0), Orientation::Horizontal),
                 true,
             ),
             TestCase(
-                Block::new(Position { x: 3, y: 0 }, Orientation::Horizontal),
+                Block::new(Placement::new(3, 0), Orientation::Horizontal),
                 false,
             ),
         ];
@@ -347,12 +349,12 @@ mod tests {
     #[test]
     fn test_bulk_place_blocks_illegal() {
         let tests = [vec![
-            Block::new(Position::new(0, 3), Orientation::Horizontal),
-            Block::new(Position::new(2, 3), Orientation::Horizontal),
-            Block::new(Position::new(4, 3), Orientation::Horizontal),
-            Block::new(Position::new(6, 3), Orientation::Horizontal),
-            Block::new(Position::new(7, 5), Orientation::Horizontal),
-            Block::new(Position::new(6, 4), Orientation::Vertical),
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+            Block::new(Placement::new(6, 4), Orientation::Vertical),
         ]];
 
         for t in tests.iter() {
@@ -369,11 +371,11 @@ mod tests {
     #[test]
     fn test_bulk_place_blocks_legal() {
         let tests = [vec![
-            Block::new(Position::new(0, 3), Orientation::Horizontal),
-            Block::new(Position::new(2, 3), Orientation::Horizontal),
-            Block::new(Position::new(4, 3), Orientation::Horizontal),
-            Block::new(Position::new(6, 3), Orientation::Horizontal),
-            Block::new(Position::new(7, 5), Orientation::Horizontal),
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
         ]];
 
         for t in tests.iter() {
@@ -425,7 +427,7 @@ mod tests {
         let mut g = Grid::new();
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
-        let b = Block::new(Position::new(0, 0), Orientation::Horizontal);
+        let b = Block::new(Placement::new(0, 0), Orientation::Horizontal);
         let placed = g.place_block(&p1, &p2, &b);
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
@@ -434,7 +436,7 @@ mod tests {
 
         // place vertical block
         let mut g = Grid::new();
-        let b = Block::new(Position::new(0, 0), Orientation::Vertical);
+        let b = Block::new(Placement::new(0, 0), Orientation::Vertical);
         let placed = g.place_block(&p1, &p2, &b);
         assert!(placed);
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
@@ -480,23 +482,23 @@ mod tests {
             ),
             TestCase(
                 vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
+                    Block::new(Placement::new(0, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(2, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(4, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(7, 5), Orientation::Horizontal),
                 ],
                 Player::new(String::from("top"), StartingPosition::Top),
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
             ),
             TestCase(
                 vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                    Block::new(Placement::new(0, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(2, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(4, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(7, 5), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 4), Orientation::Vertical),
                 ],
                 Player {
                     position: Position::new(4, 4),
@@ -536,24 +538,24 @@ mod tests {
         let tests = [
             TestCase(
                 vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                    Block::new(Placement::new(0, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(2, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(4, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(7, 5), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 4), Orientation::Vertical),
                 ],
                 Player::new(String::from("top"), StartingPosition::Top),
                 Player::new(String::from("bottom"), StartingPosition::Bottom),
             ),
             TestCase(
                 vec![
-                    Block::new(Position::new(0, 3), Orientation::Horizontal),
-                    Block::new(Position::new(2, 3), Orientation::Horizontal),
-                    Block::new(Position::new(4, 3), Orientation::Horizontal),
-                    Block::new(Position::new(6, 3), Orientation::Horizontal),
-                    Block::new(Position::new(7, 5), Orientation::Horizontal),
-                    Block::new(Position::new(6, 4), Orientation::Vertical),
+                    Block::new(Placement::new(0, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(2, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(4, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 3), Orientation::Horizontal),
+                    Block::new(Placement::new(7, 5), Orientation::Horizontal),
+                    Block::new(Placement::new(6, 4), Orientation::Vertical),
                 ],
                 Player {
                     position: Position::new(4, 3),
@@ -579,29 +581,41 @@ mod tests {
                 // do this manually because place_block detects that this is illegal
                 match block.orientation {
                     Orientation::Horizontal => {
-                        g.horizontal_grid[block.position.y][block.position.x] =
-                            Tile {
-                                position: block.position,
-                                state: TileState::Occupied,
-                                tile_type: TileType::BlockPosition,
-                            };
-                        g.horizontal_grid[block.position.y]
-                            [block.position.x + 1] = Tile {
-                            position: block.position,
+                        g.horizontal_grid[block.placement.lane]
+                            [block.placement.tile] = Tile {
+                            position: Position::new(
+                                block.placement.tile,
+                                block.placement.lane,
+                            ),
+                            state: TileState::Occupied,
+                            tile_type: TileType::BlockPosition,
+                        };
+                        g.horizontal_grid[block.placement.lane]
+                            [block.placement.tile + 1] = Tile {
+                            position: Position::new(
+                                block.placement.tile,
+                                block.placement.lane,
+                            ),
                             state: TileState::Occupied,
                             tile_type: TileType::BlockPosition,
                         };
                     }
                     Orientation::Vertical => {
-                        g.vertical_grid[block.position.y][block.position.x] =
-                            Tile {
-                                position: block.position,
-                                state: TileState::Occupied,
-                                tile_type: TileType::BlockPosition,
-                            };
-                        g.vertical_grid[block.position.y + 1]
-                            [block.position.x] = Tile {
-                            position: block.position,
+                        g.vertical_grid[block.placement.lane]
+                            [block.placement.tile] = Tile {
+                            position: Position::new(
+                                block.placement.tile,
+                                block.placement.lane,
+                            ),
+                            state: TileState::Occupied,
+                            tile_type: TileType::BlockPosition,
+                        };
+                        g.vertical_grid[block.placement.lane + 1]
+                            [block.placement.tile] = Tile {
+                            position: Position::new(
+                                block.placement.tile,
+                                block.placement.lane,
+                            ),
                             state: TileState::Occupied,
                             tile_type: TileType::BlockPosition,
                         };
@@ -621,9 +635,9 @@ mod tests {
     /********************************************/
     #[test]
     fn can_not_place_illegal_blocks() {
-        let b1 = Block::new(Position::new(0, 1), Orientation::Horizontal);
-        let b2 = Block::new(Position::new(1, 0), Orientation::Vertical);
-        let b3 = Block::new(Position::new(0, 0), Orientation::Vertical);
+        let b1 = Block::new(Placement::new(0, 1), Orientation::Horizontal);
+        let b2 = Block::new(Placement::new(1, 0), Orientation::Vertical);
+        let b3 = Block::new(Placement::new(0, 0), Orientation::Vertical);
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
@@ -643,22 +657,22 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
         let mut g = Grid::new();
-        let b1 = Block::new(Position::new(4, 3), Orientation::Horizontal);
-        let b2 = Block::new(Position::new(3, 4), Orientation::Vertical);
+        let b1 = Block::new(Placement::new(4, 3), Orientation::Horizontal);
+        let b2 = Block::new(Placement::new(3, 4), Orientation::Vertical);
         assert!(g.place_block(&p1, &p2, &b1));
         assert!(g.does_intersect_existing_blocks(&b2));
         assert!(!g.place_block(&p1, &p2, &b2));
 
         let mut g = Grid::new();
-        let b1 = Block::new(Position::new(3, 4), Orientation::Vertical);
-        let b2 = Block::new(Position::new(4, 3), Orientation::Horizontal);
+        let b1 = Block::new(Placement::new(3, 4), Orientation::Vertical);
+        let b2 = Block::new(Placement::new(4, 3), Orientation::Horizontal);
         assert!(g.place_block(&p1, &p2, &b1));
         assert!(g.does_intersect_existing_blocks(&b2));
         assert!(!g.place_block(&p1, &p2, &b2));
 
         let mut g = Grid::new();
-        let b1 = Block::new(Position::new(0, 0), Orientation::Horizontal);
-        let b2 = Block::new(Position::new(0, 0), Orientation::Vertical);
+        let b1 = Block::new(Placement::new(0, 0), Orientation::Horizontal);
+        let b2 = Block::new(Placement::new(0, 0), Orientation::Vertical);
         assert!(g.place_block(&p1, &p2, &b1));
         assert!(g.does_intersect_existing_blocks(&b2));
         assert!(!g.place_block(&p1, &p2, &b2));
@@ -672,22 +686,22 @@ mod tests {
         let b1 = &Block {
             orientation: Orientation::Vertical,
             is_placed: true,
-            position: Position { x: 7, y: 7 },
+            placement: Placement::new(7, 7),
         };
         let b2 = Block {
             orientation: Orientation::Horizontal,
             is_placed: true,
-            position: Position { x: 5, y: 7 },
+            placement: Placement::new(5, 7),
         };
         let b3 = &Block {
             orientation: Orientation::Horizontal,
             is_placed: true,
-            position: Position { x: 5, y: 7 },
+            placement: Placement::new(5, 7),
         };
         let b4 = &Block {
             orientation: Orientation::Horizontal,
             is_placed: true,
-            position: Position { x: 5, y: 6 },
+            placement: Placement::new(5, 6),
         };
         assert!(g.place_block(p1, p2, b1));
         assert!(!g.does_intersect_existing_blocks(&b2));
@@ -704,36 +718,36 @@ mod tests {
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 0, y: 0 },
+                    placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 0, y: 0 },
+                    placement: Placement::new(0, 0),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 1, y: 1 },
+                    placement: Placement::new(1, 1),
                 },
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 1, y: 1 },
+                    placement: Placement::new(1, 1),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 3, y: 3 },
+                    placement: Placement::new(3, 3),
                 },
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 3, y: 3 },
+                    placement: Placement::new(3, 3),
                 },
             ),
         ];
@@ -756,60 +770,60 @@ mod tests {
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 0, y: 0 },
+                    placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 0, y: 1 },
+                    placement: Placement::new(0, 1),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 0, y: 0 },
+                    placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 1, y: 0 },
+                    placement: Placement::new(1, 0),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 7, y: 7 },
+                    placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 5, y: 6 },
+                    placement: Placement::new(5, 6),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 7, y: 7 },
+                    placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 5, y: 7 },
+                    placement: Placement::new(5, 7),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
                     is_placed: true,
-                    position: Position { x: 7, y: 7 },
+                    placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
                     is_placed: true,
-                    position: Position { x: 7, y: 6 },
+                    placement: Placement::new(7, 6),
                 },
             ),
         ];

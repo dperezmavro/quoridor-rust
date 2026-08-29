@@ -5,6 +5,8 @@ mod player;
 mod position;
 mod tile;
 
+mod placement;
+
 use game::Game;
 
 fn main() {
