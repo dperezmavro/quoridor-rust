@@ -3,7 +3,7 @@ use crate::grid::GRID_SIZE;
 use crate::position::Position;
 use uuid::Uuid;
 
-const NUM_BLOCKS: usize = 10;
+pub const NUM_BLOCKS: usize = 10;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum StartingPosition {

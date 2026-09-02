@@ -1,5 +1,5 @@
 use crate::block::{Block, Orientation};
-use crate::player::{Player, StartingPosition};
+use crate::player::{NUM_BLOCKS, Player, StartingPosition};
 use crate::position::Position;
 use crate::tile::{Tile, TileState, TileType};
 use std::collections::HashSet;
@@ -106,8 +106,8 @@ impl<'a> Grid<'a> {
 
         Self {
             player_tiles,
-            horizontal_blocks: Vec::new(),
-            vertical_blocks: Vec::new(),
+            horizontal_blocks: Vec::with_capacity(NUM_BLOCKS),
+            vertical_blocks: Vec::with_capacity(NUM_BLOCKS),
             horizontal_grid,
             vertical_grid,
         }
@@ -182,10 +182,12 @@ impl<'a> Grid<'a> {
             Orientation::Horizontal => {
                 self.horizontal_grid[lane][tile].free();
                 self.horizontal_grid[lane][tile + 1].free();
+                self.horizontal_blocks.pop().unwrap();
             }
             Orientation::Vertical => {
                 self.vertical_grid[lane][tile].free();
                 self.vertical_grid[lane + 1][tile].free();
+                self.vertical_blocks.pop().unwrap();
             }
         };
     }
@@ -215,17 +217,19 @@ impl<'a> Grid<'a> {
         }
     }
 
-    fn add_block(&mut self, b: &Block) {
+    fn add_block(&mut self, b: &'a Block) {
         let tile = b.placement.tile;
         let lane = b.placement.lane;
         match b.orientation {
             Orientation::Horizontal => {
                 self.horizontal_grid[lane][tile].occupy();
                 self.horizontal_grid[lane][tile + 1].occupy();
+                self.horizontal_blocks.push(b);
             }
             Orientation::Vertical => {
                 self.vertical_grid[lane][tile].occupy();
                 self.vertical_grid[lane + 1][tile].occupy();
+                self.vertical_blocks.push(b);
             }
         }
     }
@@ -264,12 +268,6 @@ impl<'a> Grid<'a> {
             {
                 self.free_block(b);
                 return false;
-            }
-
-            // add the block to the individual block tracking lists
-            match b.orientation {
-                Orientation::Horizontal => self.horizontal_blocks.push(b),
-                Orientation::Vertical => self.vertical_blocks.push(b),
             }
             return true;
         }
