@@ -36,6 +36,13 @@ impl Player {
             blocks,
         }
     }
+
+    pub fn get_y_goal(&self) -> usize {
+        match self.starting_position {
+            StartingPosition::Top => GRID_SIZE - 1,
+            StartingPosition::Bottom => 0,
+        }
+    }
 }
 
 #[cfg(test)]

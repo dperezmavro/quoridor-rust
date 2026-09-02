@@ -139,11 +139,6 @@ impl<'a> Grid<'a> {
     }
 
     pub fn can_player_reach_goal(&self, p: &Player) -> bool {
-        let goal_y = match p.starting_position {
-            StartingPosition::Top => GRID_SIZE - 1,
-            StartingPosition::Bottom => 0,
-        };
-
         let mut visited: HashSet<&Position> = HashSet::new();
         let mut tiles_for_exploring: HashSet<&Position> = HashSet::new();
 
@@ -160,7 +155,7 @@ impl<'a> Grid<'a> {
             let neighbors = self.get_reachable_neighbour_tiles(curr_pos);
 
             for t in neighbors {
-                if t.position.y == goal_y {
+                if t.position.y == p.get_y_goal() {
                     return true;
                 }
 
