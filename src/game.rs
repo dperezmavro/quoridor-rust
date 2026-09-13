@@ -27,7 +27,5 @@ impl Game {
 
     pub fn add_block(&mut self, b: Block) -> bool {
         self.g.place_block(&self._p1, &self._p2, b)
-        // self.g.place_block(&self._p1, &self._p2, b)
-        // false
     }
 }
