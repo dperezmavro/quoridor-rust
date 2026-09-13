@@ -17,11 +17,6 @@ const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
 
 use crate::block::Orientation;
 
-// struct BlockPosition{
-//     orientation: Orientation,
-//     tile: u16,
-//     lane: u16
-// }
 #[derive(Debug)]
 pub enum MouseState {
     RowCol {
@@ -149,7 +144,7 @@ pub fn get_mouse_pointer_state() -> MouseState {
     let mut in_vertical_block_pos = false;
 
     for y in 0..NUM_TILES {
-        let mut tile_base =
+        let tile_base =
             PADDING + (y as f32 * TILE_SIZE) + (y as f32 * GRID_LINE_WIDTH);
 
         if mouse_position.0 >= tile_base {

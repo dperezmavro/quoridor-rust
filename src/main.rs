@@ -34,7 +34,7 @@ async fn main() {
     let mut blocks: Vec<Block> = Vec::with_capacity(20);
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
-    let mut grid = grid::Grid::new();
+    let grid = grid::Grid::new();
     let mut g = Game::new(String::from("d"), String::from("k"), grid);
     // currently noop
     g.start();
