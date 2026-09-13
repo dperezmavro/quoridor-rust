@@ -15,11 +15,7 @@ const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
 // Used for determining if the mouse is in the board area
 const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
 
-#[derive(Debug, Copy, Clone)]
-pub enum Orientation {
-    Horizontal,
-    Vertical,
-}
+use crate::block::Orientation;
 
 // struct BlockPosition{
 //     orientation: Orientation,

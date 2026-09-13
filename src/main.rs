@@ -80,16 +80,8 @@ async fn main() {
                     tile,
                     lane,
                 } => {
-                    let or_translator = match orientation {
-                        ui::ui::Orientation::Horizontal => {
-                            block::Orientation::Horizontal
-                        }
-                        ui::ui::Orientation::Vertical => {
-                            block::Orientation::Vertical
-                        }
-                    };
                     let tmp_block = block::Block {
-                        orientation: or_translator,
+                        orientation: orientation.clone(),
                         placement: placement::Placement {
                             tile: *tile as usize,
                             lane: *lane as usize,
