@@ -16,6 +16,7 @@ use ui::ui::{
 };
 
 use macroquad::prelude::*;
+use player::{Player, StartingPosition};
 
 fn window_conf() -> Conf {
     Conf {
@@ -34,7 +35,10 @@ async fn main() {
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
-    let mut game = Game::new(String::from("d"), String::from("k"), grid);
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+
+    let mut game = Game::new(grid, p1, p2);
 
     loop {
         clear_background(GRAY);
