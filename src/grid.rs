@@ -1,4 +1,5 @@
-use crate::block::{Block, Orientation};
+use crate::block::Block;
+use crate::orientation::Orientation;
 use crate::player::{NUM_BLOCKS, Player};
 use crate::position::Position;
 use crate::tile::{Tile, TileState, TileType};

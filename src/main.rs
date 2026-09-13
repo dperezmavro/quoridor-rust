@@ -1,15 +1,14 @@
 mod block;
 mod game;
 mod grid;
+mod orientation;
+mod placement;
 mod player;
 mod position;
 mod tile;
-
-use game::Game;
-
-mod placement;
 mod ui;
 
+use game::Game;
 use ui::ui::{
     GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
     draw_base_board, draw_block, draw_player, get_mouse_pointer_state,
