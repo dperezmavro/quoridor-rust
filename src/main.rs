@@ -11,7 +11,7 @@ mod placement;
 mod ui;
 
 use ui::ui::{
-    Block, GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
+    GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
     draw_base_board, draw_block, get_mouse_pointer_state,
     pre_computed_grid_lines,
 };
@@ -31,11 +31,11 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut blocks: Vec<Block> = Vec::with_capacity(20);
+    let mut blocks: Vec<block::Block> = Vec::with_capacity(20);
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
-    let mut g = Game::new(String::from("d"), String::from("k"), grid);
+    let mut game = Game::new(String::from("d"), String::from("k"), grid);
 
     loop {
         clear_background(GRAY);
@@ -44,10 +44,16 @@ async fn main() {
         draw_base_board(&pre_computed_grid_lines);
 
         for b in &blocks {
-            draw_block(&b.orientation, &b.tile, &b.lane, BLACK);
+            draw_block(
+                &b.orientation,
+                &(b.placement.tile as u16),
+                &(b.placement.lane as u16),
+                BLACK,
+            );
         }
 
-        // d
+        //
+        // draw_player(g)
 
         let res = get_mouse_pointer_state();
         match &res {
@@ -58,7 +64,7 @@ async fn main() {
                 lane,
             } => {
                 // hovering above a block position
-                if g.can_add_block(block::Block {
+                if game.can_add_block(block::Block {
                     orientation: *orientation,
                     placement: placement::Placement {
                         tile: *tile as usize,
@@ -97,12 +103,8 @@ async fn main() {
                             lane: *lane as usize,
                         },
                     };
-                    if g.add_block(block) {
-                        blocks.push(Block {
-                            orientation: *orientation,
-                            tile: *tile,
-                            lane: *lane,
-                        });
+                    if game.add_block(block) {
+                        blocks.push(block);
                     }
                 }
                 // only care about the block kind

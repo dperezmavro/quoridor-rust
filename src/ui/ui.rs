@@ -32,12 +32,6 @@ pub enum MouseState {
     NotInsideBoard,
 }
 
-pub struct Block {
-    pub orientation: Orientation,
-    pub tile: u16,
-    pub lane: u16,
-}
-
 pub fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .map(|x| {
