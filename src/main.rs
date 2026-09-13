@@ -46,11 +46,23 @@ async fn main() {
 
         let res = get_mouse_pointer_state();
         match &res {
+            // hovering above a block position
             MouseState::BlockPosition {
                 orientation,
                 tile,
                 lane,
-            } => draw_block(orientation, tile, lane),
+            } => {
+                // hovering above a block position
+                if g.can_add_block(block::Block {
+                    orientation: *orientation,
+                    placement: placement::Placement {
+                        tile: *tile as usize,
+                        lane: *lane as usize,
+                    },
+                }) {
+                    draw_block(orientation, tile, lane, GREEN);
+                }
+            }
             MouseState::RowCol { row, col } => draw_rectangle(
                 PADDING
                     + (*col as f32 * TILE_SIZE)
@@ -94,7 +106,7 @@ async fn main() {
         }
 
         for b in &blocks {
-            draw_block(&b.orientation, &b.tile, &b.lane);
+            draw_block(&b.orientation, &b.tile, &b.lane, BLACK);
         }
 
         next_frame().await

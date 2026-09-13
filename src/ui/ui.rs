@@ -195,7 +195,7 @@ pub fn get_mouse_pointer_state() -> MouseState {
     }
 }
 
-pub fn draw_block(orientation: &Orientation, tile: &u16, lane: &u16) {
+pub fn draw_block(orientation: &Orientation, tile: &u16, lane: &u16, c: Color) {
     if *tile >= NUM_TILES as u16 - 1 {
         return;
     }
@@ -210,5 +210,5 @@ pub fn draw_block(orientation: &Orientation, tile: &u16, lane: &u16) {
         Orientation::Horizontal => (dim_1, dim_2, long_side, GRID_LINE_WIDTH),
         Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
     };
-    draw_rectangle(x, y, w, h, BLACK);
+    draw_rectangle(x, y, w, h, c);
 }

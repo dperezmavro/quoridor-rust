@@ -263,6 +263,29 @@ impl Grid {
         }
         false
     }
+
+    pub fn can_place_block(
+        &mut self,
+        p1: &Player,
+        p2: &Player,
+        b: Block,
+    ) -> bool {
+        if !self.does_intersect_existing_blocks(&b)
+            && self.is_block_position_free(&b)
+        {
+            self.add_block(b);
+
+            if !(self.can_player_reach_goal(p1)
+                && self.can_player_reach_goal(p2))
+            {
+                self.free_block(&b);
+                return false;
+            }
+            self.free_block(&b);
+            return true;
+        }
+        false
+    }
 }
 
 #[cfg(test)]
