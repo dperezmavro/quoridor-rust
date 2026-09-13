@@ -1,5 +1,5 @@
 use crate::block::{Block, Orientation};
-use crate::player::{NUM_BLOCKS, Player, StartingPosition};
+use crate::player::{NUM_BLOCKS, Player};
 use crate::position::Position;
 use crate::tile::{Tile, TileState, TileType};
 use std::collections::HashSet;
@@ -248,17 +248,8 @@ impl Grid {
         let p = b.placement;
         assert!(p.lane < GRID_SIZE - 1 && p.tile < GRID_SIZE - 1);
 
-        if !self.does_intersect_existing_blocks(&b)
-            && self.is_block_position_free(&b)
-        {
+        if self.can_place_block(p1, p2, b) {
             self.add_block(b);
-
-            if !(self.can_player_reach_goal(p1)
-                && self.can_player_reach_goal(p2))
-            {
-                self.free_block(&b);
-                return false;
-            }
             return true;
         }
         false
@@ -292,6 +283,7 @@ impl Grid {
 mod tests {
     use super::*;
     use crate::placement::Placement;
+    use crate::player::StartingPosition;
 
     /********************************************/
     //         place_block
@@ -824,5 +816,36 @@ mod tests {
                 t.1,
             );
         }
+    }
+
+    #[test]
+    fn test_can_place_block() {
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let mut grid = Grid::new();
+
+        assert!(grid.can_place_block(
+            &p1,
+            &p2,
+            Block::new(Placement { tile: 4, lane: 4 }, Orientation::Horizontal)
+        ));
+
+        assert!(grid.can_place_block(
+            &p1,
+            &p2,
+            Block::new(Placement { tile: 4, lane: 7 }, Orientation::Horizontal)
+        ));
+        //
+        // assert!(grid.can_place_block(
+        //     &p1,
+        //     &p2,
+        //     Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
+        // ));
+        //
+        // assert!(grid.can_place_block(
+        //     &p1,
+        //     &p2,
+        //     Block::new(Placement { tile: 8, lane: 4 }, Orientation::Horizontal)
+        // ));
     }
 }
