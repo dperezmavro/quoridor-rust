@@ -647,22 +647,22 @@ mod tests {
         let p2 = &Player::new(String::new(), StartingPosition::Bottom);
         let b1 = &Block {
             orientation: Orientation::Vertical,
-            is_placed: true,
+
             placement: Placement::new(7, 7),
         };
         let b2 = &Block {
             orientation: Orientation::Horizontal,
-            is_placed: true,
+
             placement: Placement::new(5, 7),
         };
         let b3 = &Block {
             orientation: Orientation::Horizontal,
-            is_placed: true,
+
             placement: Placement::new(5, 7),
         };
         let b4 = &Block {
             orientation: Orientation::Horizontal,
-            is_placed: true,
+
             placement: Placement::new(5, 6),
         };
         assert!(g.place_block(p1, p2, b1));
@@ -679,36 +679,36 @@ mod tests {
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(0, 0),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(1, 1),
                 },
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(1, 1),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(3, 3),
                 },
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(3, 3),
                 },
             ),
@@ -731,60 +731,60 @@ mod tests {
             TestCase(
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(0, 1),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(0, 0),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(1, 0),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(5, 6),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(5, 7),
                 },
             ),
             TestCase(
                 Block {
                     orientation: Orientation::Vertical,
-                    is_placed: true,
+
                     placement: Placement::new(7, 7),
                 },
                 Block {
                     orientation: Orientation::Horizontal,
-                    is_placed: true,
+
                     placement: Placement::new(7, 6),
                 },
             ),

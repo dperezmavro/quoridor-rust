@@ -41,7 +41,8 @@ async fn main() {
     let mut blocks: Vec<Block> = Vec::with_capacity(20);
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
-    let mut g = Game::new(String::from("d"), String::from("k"));
+    let mut grid: &mut grid::Grid = &mut grid::Grid::new();
+    let mut g = Game::new(String::from("d"), String::from("k"), grid);
     // currently noop
     g.start();
 
@@ -78,11 +79,30 @@ async fn main() {
                     orientation,
                     tile,
                     lane,
-                } => blocks.push(Block {
-                    orientation: *orientation,
-                    tile: *tile,
-                    lane: *lane,
-                }),
+                } => {
+                    let or_translator = match orientation {
+                        ui::ui::Orientation::Horizontal => {
+                            block::Orientation::Horizontal
+                        }
+                        ui::ui::Orientation::Vertical => {
+                            block::Orientation::Vertical
+                        }
+                    };
+                    let tmp_block = block::Block {
+                        orientation: or_translator,
+                        placement: placement::Placement {
+                            tile: *tile as usize,
+                            lane: *lane as usize,
+                        },
+                    };
+                    if g.add_block(tmp_block) {
+                        blocks.push(Block {
+                            orientation: *orientation,
+                            tile: *tile,
+                            lane: *lane,
+                        });
+                    }
+                }
                 // only care about the block kind
                 _ => {}
             }

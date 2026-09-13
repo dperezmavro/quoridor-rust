@@ -11,7 +11,6 @@ pub enum Orientation {
 pub struct Block {
     pub orientation: Orientation,
     pub placement: Placement,
-    pub is_placed: bool,
 }
 
 impl Block {
@@ -19,7 +18,6 @@ impl Block {
         Self {
             orientation,
             placement,
-            is_placed: false,
         }
     }
 }
