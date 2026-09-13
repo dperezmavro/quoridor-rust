@@ -46,6 +46,7 @@ async fn main() {
         // draws borders, grid, padding and
         draw_base_board(&pre_computed_grid_lines);
 
+        // draw blocks that have already been placed
         for b in &blocks {
             draw_block(
                 &b.orientation,
@@ -55,7 +56,7 @@ async fn main() {
             );
         }
 
-        //
+        // draw players
         draw_player(game.p1.position.x as u16, game.p1.position.y as u16, BLUE);
         draw_player(
             game.p2.position.x as u16,
@@ -71,14 +72,15 @@ async fn main() {
                 tile,
                 lane,
             } => {
-                // hovering above a block position
-                if game.can_add_block(block::Block {
+                let block_under_cursor = block::Block {
                     orientation: *orientation,
                     placement: placement::Placement {
                         tile: *tile as usize,
                         lane: *lane as usize,
                     },
-                }) {
+                };
+                // hovering above a block position
+                if game.can_add_block(block_under_cursor) {
                     draw_block(orientation, *tile, *lane, GREEN);
                 }
             }
@@ -91,11 +93,9 @@ async fn main() {
                 if is_grid_occupied_by_player {
                     draw_rectangle(
                         PADDING
-                            + (*col as f32 * TILE_SIZE)
-                            + (*col as f32 * GRID_LINE_WIDTH),
+                            + ((*col as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
                         PADDING
-                            + (*row as f32 * TILE_SIZE)
-                            + (*row as f32 * GRID_LINE_WIDTH),
+                            + ((*row as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
                         TILE_SIZE,
                         TILE_SIZE,
                         PURPLE,
