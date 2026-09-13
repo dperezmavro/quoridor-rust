@@ -1,9 +1,9 @@
 use uuid::Uuid;
 
-use crate::player::Player;
+use crate::core::player::Player;
 
-use crate::block::Block;
-use crate::grid::Grid;
+use crate::core::block::Block;
+use crate::core::grid::Grid;
 
 #[derive(Debug)]
 pub struct Game {

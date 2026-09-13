@@ -1,5 +1,5 @@
-use crate::orientation::Orientation;
-use crate::placement::Placement;
+use crate::core::orientation::Orientation;
+use crate::core::placement::Placement;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Block {
     pub orientation: Orientation,

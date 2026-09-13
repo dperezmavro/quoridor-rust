@@ -1,22 +1,16 @@
-mod block;
-mod game;
-mod grid;
-mod orientation;
-mod placement;
-mod player;
-mod position;
-mod tile;
+mod core;
 mod ui;
 
-use game::Game;
+use core::game::Game;
+use core::{block, grid, placement};
 use ui::ui::{
     GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
     draw_base_board, draw_block, draw_player, get_mouse_pointer_state,
     pre_computed_grid_lines,
 };
 
+use core::player::{Player, StartingPosition};
 use macroquad::prelude::*;
-use player::{Player, StartingPosition};
 
 fn window_conf() -> Conf {
     Conf {

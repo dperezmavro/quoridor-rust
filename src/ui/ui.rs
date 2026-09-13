@@ -18,7 +18,7 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 const PLAYER_PADDING: f32 = 3.0;
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
-use crate::orientation::Orientation;
+use crate::core::orientation::Orientation;
 
 #[derive(Debug)]
 pub enum MouseState {

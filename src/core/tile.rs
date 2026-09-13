@@ -1,4 +1,4 @@
-use crate::position::Position;
+use crate::core::position::Position;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Tile {

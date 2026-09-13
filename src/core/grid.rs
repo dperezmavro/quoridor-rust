@@ -1,8 +1,8 @@
-use crate::block::Block;
-use crate::orientation::Orientation;
-use crate::player::{NUM_BLOCKS, Player};
-use crate::position::Position;
-use crate::tile::{Tile, TileState, TileType};
+use crate::core::block::Block;
+use crate::core::orientation::Orientation;
+use crate::core::player::{NUM_BLOCKS, Player};
+use crate::core::position::Position;
+use crate::core::tile::{Tile, TileState, TileType};
 use std::collections::HashSet;
 
 pub const GRID_SIZE: usize = 9;
@@ -283,8 +283,8 @@ impl Grid {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::placement::Placement;
-    use crate::player::StartingPosition;
+    use crate::core::placement::Placement;
+    use crate::core::player::StartingPosition;
 
     /********************************************/
     //         place_block

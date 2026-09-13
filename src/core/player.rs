@@ -1,6 +1,6 @@
-use crate::block::Block;
-use crate::grid::GRID_SIZE;
-use crate::position::Position;
+use crate::core::block::Block;
+use crate::core::grid::GRID_SIZE;
+use crate::core::position::Position;
 use uuid::Uuid;
 
 pub const NUM_BLOCKS: usize = 10;
