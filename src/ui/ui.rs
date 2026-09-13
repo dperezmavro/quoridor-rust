@@ -189,15 +189,15 @@ pub fn get_mouse_pointer_state() -> MouseState {
     }
 }
 
-pub fn draw_block(orientation: &Orientation, tile: &u16, lane: &u16, c: Color) {
-    if *tile >= NUM_TILES as u16 - 1 {
+pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
+    if tile >= NUM_TILES as u16 - 1 {
         return;
     }
     let dim_1: f32 =
-        PADDING + (*tile as f32 * TILE_SIZE) + (*tile as f32 * GRID_LINE_WIDTH);
+        PADDING + (tile as f32 * TILE_SIZE) + (tile as f32 * GRID_LINE_WIDTH);
     let dim_2: f32 = PADDING
-        + ((*lane + 1) as f32 * TILE_SIZE)
-        + (*lane as f32 * GRID_LINE_WIDTH);
+        + ((lane + 1) as f32 * TILE_SIZE)
+        + (lane as f32 * GRID_LINE_WIDTH);
     let long_side: f32 = (TILE_SIZE * 2.0) + GRID_LINE_WIDTH;
 
     let (x, y, w, h) = match orientation {
@@ -205,4 +205,19 @@ pub fn draw_block(orientation: &Orientation, tile: &u16, lane: &u16, c: Color) {
         Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
     };
     draw_rectangle(x, y, w, h, c);
+}
+
+const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
+const PLAYER_PADDING: f32 = 3.0;
+const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
+
+pub fn draw_player(x: u16, y: u16, c: Color) {
+    let radius = (TILE_SIZE / 2.0);
+    let player_padding = 3.0;
+    draw_circle(
+        PADDING + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + radius,
+        PADDING + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + radius,
+        PLAYER_FINAL_SIZE,
+        c,
+    );
 }

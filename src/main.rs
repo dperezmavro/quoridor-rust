@@ -12,7 +12,7 @@ mod ui;
 
 use ui::ui::{
     GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
-    draw_base_board, draw_block, get_mouse_pointer_state,
+    draw_base_board, draw_block, draw_player, get_mouse_pointer_state,
     pre_computed_grid_lines,
 };
 
@@ -46,14 +46,19 @@ async fn main() {
         for b in &blocks {
             draw_block(
                 &b.orientation,
-                &(b.placement.tile as u16),
-                &(b.placement.lane as u16),
+                b.placement.tile as u16,
+                b.placement.lane as u16,
                 BLACK,
             );
         }
 
         //
-        // draw_player(g)
+        draw_player(game.p1.position.x as u16, game.p1.position.y as u16, BLUE);
+        draw_player(
+            game.p2.position.x as u16,
+            game.p2.position.y as u16,
+            YELLOW,
+        );
 
         let res = get_mouse_pointer_state();
         match &res {
@@ -71,7 +76,7 @@ async fn main() {
                         lane: *lane as usize,
                     },
                 }) {
-                    draw_block(orientation, tile, lane, GREEN);
+                    draw_block(orientation, *tile, *lane, GREEN);
                 }
             }
             MouseState::RowCol { row, col } => draw_rectangle(
