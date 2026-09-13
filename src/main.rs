@@ -36,13 +36,18 @@ async fn main() {
 
     let grid = grid::Grid::new();
     let mut g = Game::new(String::from("d"), String::from("k"), grid);
-    // currently noop
-    g.start();
 
     loop {
         clear_background(GRAY);
 
+        // draws borders, grid, padding and
         draw_base_board(&pre_computed_grid_lines);
+
+        for b in &blocks {
+            draw_block(&b.orientation, &b.tile, &b.lane, BLACK);
+        }
+
+        // d
 
         let res = get_mouse_pointer_state();
         match &res {
@@ -103,10 +108,6 @@ async fn main() {
                 // only care about the block kind
                 _ => {}
             }
-        }
-
-        for b in &blocks {
-            draw_block(&b.orientation, &b.tile, &b.lane, BLACK);
         }
 
         next_frame().await

@@ -23,8 +23,6 @@ impl Game {
         Self { g, _p1, _p2, _id }
     }
 
-    pub fn start(&mut self) {}
-
     pub fn can_add_block(&mut self, b: Block) -> bool {
         self.g.can_place_block(&self._p1, &self._p2, b)
     }
