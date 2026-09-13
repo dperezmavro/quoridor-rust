@@ -5,13 +5,15 @@ mod player;
 mod position;
 mod tile;
 
+use game::Game;
+
 mod placement;
 mod ui;
 
 use ui::ui::{
     Block, GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
-    draw_backdrop, draw_block, draw_bounds, draw_grid_precomputed,
-    get_mouse_pointer_state, pre_computed_grid_lines,
+    draw_base_board, draw_block, get_mouse_pointer_state,
+    pre_computed_grid_lines,
 };
 
 // fn main() {
@@ -38,12 +40,15 @@ fn window_conf() -> Conf {
 async fn main() {
     let mut blocks: Vec<Block> = Vec::with_capacity(20);
     let pre_computed_grid_lines = pre_computed_grid_lines();
+
+    let mut g = Game::new(String::from("d"), String::from("k"));
+    // currently noop
+    g.start();
+
     loop {
         clear_background(GRAY);
 
-        draw_backdrop();
-        draw_bounds();
-        draw_grid_precomputed(&pre_computed_grid_lines);
+        draw_base_board(&pre_computed_grid_lines);
 
         let res = get_mouse_pointer_state();
         match &res {

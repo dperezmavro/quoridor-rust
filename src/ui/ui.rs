@@ -73,17 +73,23 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
     grid_lines
 }
 
-pub fn draw_grid_precomputed(vec: &Vec<Rect>) {
+pub fn draw_base_board(vec: &Vec<Rect>) {
+    draw_backdrop();
+    draw_bounds();
+    draw_grid_precomputed(vec);
+}
+
+fn draw_grid_precomputed(vec: &Vec<Rect>) {
     for v in vec {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
 
-pub fn draw_backdrop() {
+fn draw_backdrop() {
     draw_rectangle(PADDING, PADDING, TOTAL_LEN, TOTAL_LEN, RED);
 }
 
-pub fn draw_bounds() {
+fn draw_bounds() {
     // left
     draw_rectangle(
         PADDING - BORDER_WIDTH,

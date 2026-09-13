@@ -22,20 +22,7 @@ impl Game<'_> {
         Self { g, _p1, _p2, _id }
     }
 
-    pub fn start(&mut self) {
-        self.render();
-    }
-
-    pub fn render(&self) {
-        println!("_________________________________");
-        for row in self.g.player_tiles.iter() {
-            // print!("|");
-            for tile in row.iter() {
-                print!("{}", tile.get_print_char());
-            }
-            println!();
-        }
-    }
+    pub fn start(&mut self) {}
 }
 
 #[cfg(test)]
