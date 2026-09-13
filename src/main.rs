@@ -16,13 +16,6 @@ use ui::ui::{
     pre_computed_grid_lines,
 };
 
-// fn main() {
-//     let mut g = Game::new(String::from("d"), String::from("k"));
-//     g.start();
-//
-//     loop {}
-// }
-
 use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
