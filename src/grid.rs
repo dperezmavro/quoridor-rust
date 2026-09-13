@@ -245,9 +245,6 @@ impl Grid {
     }
 
     pub fn place_block(&mut self, p1: &Player, p2: &Player, b: Block) -> bool {
-        let p = b.placement;
-        assert!(p.lane < GRID_SIZE - 1 && p.tile < GRID_SIZE - 1);
-
         if self.can_place_block(p1, p2, b) {
             self.add_block(b);
             return true;
@@ -261,6 +258,9 @@ impl Grid {
         p2: &Player,
         b: Block,
     ) -> bool {
+        if b.placement.tile == GRID_SIZE - 1 {
+            return false;
+        }
         if !self.does_intersect_existing_blocks(&b)
             && self.is_block_position_free(&b)
         {
@@ -842,10 +842,10 @@ mod tests {
         //     Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
         // ));
         //
-        // assert!(grid.can_place_block(
-        //     &p1,
-        //     &p2,
-        //     Block::new(Placement { tile: 8, lane: 4 }, Orientation::Horizontal)
-        // ));
+        assert!(!grid.can_place_block(
+            &p1,
+            &p2,
+            Block::new(Placement { tile: 8, lane: 4 }, Orientation::Horizontal)
+        ));
     }
 }
