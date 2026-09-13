@@ -14,6 +14,9 @@ const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
 
 // Used for determining if the mouse is in the board area
 const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
+const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
+const PLAYER_PADDING: f32 = 3.0;
+const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
 use crate::block::Orientation;
 
@@ -207,16 +210,10 @@ pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
     draw_rectangle(x, y, w, h, c);
 }
 
-const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
-const PLAYER_PADDING: f32 = 3.0;
-const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
-
 pub fn draw_player(x: u16, y: u16, c: Color) {
-    let radius = (TILE_SIZE / 2.0);
-    let player_padding = 3.0;
     draw_circle(
-        PADDING + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + radius,
-        PADDING + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + radius,
+        PADDING + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
+        PADDING + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
         PLAYER_FINAL_SIZE,
         c,
     );

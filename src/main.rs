@@ -79,17 +79,26 @@ async fn main() {
                     draw_block(orientation, *tile, *lane, GREEN);
                 }
             }
-            MouseState::RowCol { row, col } => draw_rectangle(
-                PADDING
-                    + (*col as f32 * TILE_SIZE)
-                    + (*col as f32 * GRID_LINE_WIDTH),
-                PADDING
-                    + (*row as f32 * TILE_SIZE)
-                    + (*row as f32 * GRID_LINE_WIDTH),
-                TILE_SIZE,
-                TILE_SIZE,
-                PURPLE,
-            ),
+            MouseState::RowCol { row, col } => {
+                let is_grid_occupied_by_player = !((game.p1.position.x
+                    == *col as usize
+                    && game.p1.position.y == *row as usize)
+                    || (game.p2.position.x == *col as usize
+                        && game.p2.position.y == *row as usize));
+                if is_grid_occupied_by_player {
+                    draw_rectangle(
+                        PADDING
+                            + (*col as f32 * TILE_SIZE)
+                            + (*col as f32 * GRID_LINE_WIDTH),
+                        PADDING
+                            + (*row as f32 * TILE_SIZE)
+                            + (*row as f32 * GRID_LINE_WIDTH),
+                        TILE_SIZE,
+                        TILE_SIZE,
+                        PURPLE,
+                    )
+                }
+            }
             // anything else isn't drawable
             _ => {}
         }
