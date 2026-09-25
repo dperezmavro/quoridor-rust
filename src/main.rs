@@ -14,7 +14,7 @@ use macroquad::prelude::*;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "quoridor-rust".to_owned(),
+        window_title: String::from("quoridor-rust"),
         window_width: SCREEN_WIDTH as i32,
         window_height: SCREEN_WIDTH as i32,
         window_resizable: false,

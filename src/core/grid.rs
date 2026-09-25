@@ -267,14 +267,10 @@ impl Grid {
         {
             self.add_block(b);
 
-            if !(self.can_player_reach_goal(p1)
-                && self.can_player_reach_goal(p2))
-            {
-                self.free_block(&b);
-                return false;
-            }
+            let res = !(self.can_player_reach_goal(p1)
+                && self.can_player_reach_goal(p2));
             self.free_block(&b);
-            return true;
+            return !res;
         }
         false
     }
@@ -474,15 +470,15 @@ mod tests {
                     position: Position::new(4, 4),
                     name: String::new(),
                     id: String::new(),
-                    blocks: [Block::default(); 10],
                     starting_position: StartingPosition::Top,
+                    remaining_blocks: NUM_BLOCKS,
                 },
                 Player {
                     position: Position::new(4, 3),
                     name: String::new(),
                     id: String::new(),
-                    blocks: [Block::default(); 10],
                     starting_position: StartingPosition::Bottom,
+                    remaining_blocks: NUM_BLOCKS,
                 },
             ),
         ];
@@ -531,14 +527,14 @@ mod tests {
                     position: Position::new(4, 3),
                     name: String::new(),
                     id: String::new(),
-                    blocks: [Block::default(); 10],
+                    remaining_blocks: NUM_BLOCKS,
                     starting_position: StartingPosition::Top,
                 },
                 Player {
                     position: Position::new(4, 6),
                     name: String::new(),
                     id: String::new(),
-                    blocks: [Block::default(); 10],
+                    remaining_blocks: NUM_BLOCKS,
                     starting_position: StartingPosition::Bottom,
                 },
             ),
