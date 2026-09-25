@@ -390,6 +390,35 @@ mod tests {
     }
 
     #[test]
+    fn get_reachable_neighbour_tiles_with_blocks_middle_of_the_board() {
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let mut p3 = Player::new(String::new(), StartingPosition::Bottom);
+        p3.position = Position { x: 4, y: 1 };
+        let b1 = Block::new(Placement::new(0, 3), Orientation::Vertical);
+        let b2 = Block::new(Placement::new(0, 4), Orientation::Vertical);
+
+        // place vertical block mid-grid
+        let mut g = Grid::new();
+        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_block(&p1, &p2, b2));
+        let result = g.get_reachable_neighbour_tiles(&p1.position);
+        assert_eq!(1, result.len());
+        // only bottom and right
+        assert_eq!(Position::new(4, 1), result[0].position);
+
+        let mut g = Grid::new();
+        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_block(&p1, &p2, b2));
+        let result = g.get_reachable_neighbour_tiles(&p3.position);
+        assert_eq!(2, result.len());
+        assert_eq!(
+            vec![Position::new(4, 0), Position::new(4, 2)],
+            result.iter().map(|t| t.position).collect::<Vec<Position>>()
+        );
+    }
+
+    #[test]
     fn get_reachable_neighbour_tiles_assert() {
         let g = Grid::new();
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
