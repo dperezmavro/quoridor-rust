@@ -92,39 +92,31 @@ mod test {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 5 },
         };
-        assert!(g.g.can_place_block(&g.p1, &g.p2, b1.clone()));
-        assert!(g.g.place_block(&g.p1, &g.p2, b1.clone()));
-        assert!(!g.g.can_place_block(&g.p1, &g.p2, b1.clone()));
 
-        assert!(g.g.can_place_block(&g.p1, &g.p2, b2.clone()));
-        assert!(g.g.place_block(&g.p1, &g.p2, b2.clone()));
-        assert!(!g.g.can_place_block(&g.p1, &g.p2, b2.clone()));
-
-        // assert!(g.add_block(b1));
-        // assert!(g.add_block(b2));
-        // assert!(!g.can_add_block(Block {
-        //     orientation: Orientation::Horizontal,
-        //     placement: Placement { tile: 4, lane: 0 },
-        // }));
-        // assert!(!g.add_block(Block {
-        //     orientation: Orientation::Horizontal,
-        //     placement: Placement { tile: 4, lane: 0 },
-        // }));
-
-        // fake block
+        // bad block
         let b3 = Block {
             orientation: Orientation::Horizontal,
             placement: Placement { tile: 4, lane: 0 },
         };
-        g.add_block(b3);
+
+        assert!(g.can_add_block(b1.clone()));
+        assert!(g.add_block(b1.clone()));
+        assert!(!g.can_add_block(b1.clone()));
+
+        assert!(g.can_add_block(b2.clone()));
+        assert!(g.add_block(b2.clone()));
+        assert!(!g.can_add_block(b2.clone()));
+
+        // this should fail
+        assert!(!g.can_add_block(b3));
+        assert!(!g.add_block(b3));
 
         let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
         assert_eq!(
-            1,
+            2,
             tile_vec.clone().iter().count(),
             "{:?}",
             tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
         );
-        assert!(!g.g.can_player_reach_goal(&g.p1));
     }
 }
