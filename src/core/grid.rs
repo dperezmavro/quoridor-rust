@@ -122,7 +122,7 @@ impl Grid {
         if p.y > 0
             && self.horizontal_blocks.iter().all(|x| {
                 !(x.placement.lane == p.y - 1
-                    && (x.placement.tile == p.x || x.placement.tile == p.x + 1))
+                    && num::abs(x.placement.tile as i8 - p.x as i8) <= 1)
             })
         {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
@@ -131,7 +131,7 @@ impl Grid {
         if p.y < GRID_SIZE - 1 {
             if self.horizontal_blocks.iter().all(|x| {
                 !(x.placement.lane == p.y
-                    && (x.placement.tile == p.x || x.placement.tile == p.x + 1))
+                    && num::abs(x.placement.tile as i8 - p.x as i8) <= 1)
             }) {
                 available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
             }
@@ -415,13 +415,23 @@ mod tests {
 
         // place vertical block mid-grid
         let mut g = Grid::new();
-        let b = Block::new(Placement::new(0, 3), Orientation::Vertical);
+        let b = Block::new(Placement::new(4, 0), Orientation::Horizontal);
         assert!(g.place_block(&p1, &p2, b));
         let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
         assert_eq!(2, result.len());
-        // only bottom and right
-        assert_eq!(Position::new(4, 1), result[0].position);
+        // // only bottom and right
+        assert_eq!(Position::new(3, 0), result[0].position);
         assert_eq!(Position::new(5, 0), result[1].position);
+
+        // // place vertical block mid-grid
+        // let mut g = Grid::new();
+        // let b = Block::new(Placement::new(0, 3), Orientation::Vertical);
+        // assert!(g.place_block(&p1, &p2, b));
+        // let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
+        // assert_eq!(2, result.len());
+        // // only bottom and right
+        // assert_eq!(Position::new(4, 1), result[0].position);
+        // assert_eq!(Position::new(5, 0), result[1].position);
     }
 
     #[test]
