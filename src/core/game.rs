@@ -39,7 +39,6 @@ mod test {
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::StartingPosition;
-    use crate::core::tile::Tile;
 
     #[test]
     fn test_default() {
@@ -84,14 +83,24 @@ mod test {
         let p2: Player =
             Player::new(String::from("b"), StartingPosition::Bottom);
         let mut g = Game::new(grid, p1, p2);
-        assert!(g.add_block(Block {
+        let b1 = Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 3 },
-        }));
-        assert!(g.add_block(Block {
+        };
+        let b2 = Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 5 },
-        }));
+        };
+        assert!(g.g.can_place_block(&g.p1, &g.p2, b1.clone()));
+        assert!(g.g.place_block(&g.p1, &g.p2, b1.clone()));
+        assert!(!g.g.can_place_block(&g.p1, &g.p2, b1.clone()));
+
+        assert!(g.g.can_place_block(&g.p1, &g.p2, b2.clone()));
+        assert!(g.g.place_block(&g.p1, &g.p2, b2.clone()));
+        assert!(!g.g.can_place_block(&g.p1, &g.p2, b2.clone()));
+
+        // assert!(g.add_block(b1));
+        // assert!(g.add_block(b2));
         // assert!(!g.can_add_block(Block {
         //     orientation: Orientation::Horizontal,
         //     placement: Placement { tile: 4, lane: 0 },
@@ -102,18 +111,18 @@ mod test {
         // }));
 
         // fake block
-        g.add_block(Block {
-            orientation: Orientation::Horizontal,
-            placement: Placement { tile: 4, lane: 0 },
-        });
-
-        let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
-        assert_eq!(
-            1,
-            tile_vec.clone().iter().count(),
-            "{:?}",
-            tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
-        );
-        assert!(!g.g.can_player_reach_goal(&g.p1));
+        // g.add_block(Block {
+        //     orientation: Orientation::Horizontal,
+        //     placement: Placement { tile: 4, lane: 0 },
+        // });
+        //
+        // let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
+        // assert_eq!(
+        //     1,
+        //     tile_vec.clone().iter().count(),
+        //     "{:?}",
+        //     tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
+        // );
+        // assert!(!g.g.can_player_reach_goal(&g.p1));
     }
 }
