@@ -235,14 +235,10 @@ impl Grid {
             Orientation::Horizontal => &self.horizontal_blocks,
             Orientation::Vertical => &self.vertical_blocks,
         };
-        target_list
-            .iter()
-            .filter(|t| {
-                t.placement.lane == b.placement.lane
-                    && b.placement.tile.abs_diff(t.placement.tile) <= 1
-            })
-            .count()
-            == 0
+        target_list.iter().all(|t| {
+            !(t.placement.lane == b.placement.lane
+                && b.placement.tile.abs_diff(t.placement.tile) <= 1)
+        })
     }
 
     pub fn place_block(&mut self, p1: &Player, p2: &Player, b: Block) -> bool {
@@ -267,10 +263,10 @@ impl Grid {
         {
             self.add_block(b);
 
-            let res = !(self.can_player_reach_goal(p1)
-                && self.can_player_reach_goal(p2));
+            let res = self.can_player_reach_goal(p1)
+                && self.can_player_reach_goal(p2);
             self.free_block(&b);
-            return !res;
+            return res;
         }
         false
     }
