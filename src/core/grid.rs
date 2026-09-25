@@ -295,7 +295,8 @@ mod tests {
         assert!(results);
 
         // block that makes the grid illegal
-        let b = Block::new(Placement::new(6, 4), Orientation::Vertical);
+        let b = Block::new(Placement::new(4, 6), Orientation::Vertical);
+        assert!(!g.can_place_block(&p1, &p2, b));
         assert!(!g.place_block(&p1, &p2, b));
     }
     #[test]
