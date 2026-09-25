@@ -39,6 +39,7 @@ mod test {
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::StartingPosition;
+    use crate::core::tile::Tile;
 
     #[test]
     fn test_default() {
@@ -111,18 +112,19 @@ mod test {
         // }));
 
         // fake block
-        // g.add_block(Block {
-        //     orientation: Orientation::Horizontal,
-        //     placement: Placement { tile: 4, lane: 0 },
-        // });
-        //
-        // let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
-        // assert_eq!(
-        //     1,
-        //     tile_vec.clone().iter().count(),
-        //     "{:?}",
-        //     tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
-        // );
-        // assert!(!g.g.can_player_reach_goal(&g.p1));
+        let b3 = Block {
+            orientation: Orientation::Horizontal,
+            placement: Placement { tile: 4, lane: 0 },
+        };
+        g.add_block(b3);
+
+        let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
+        assert_eq!(
+            1,
+            tile_vec.clone().iter().count(),
+            "{:?}",
+            tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
+        );
+        assert!(!g.g.can_player_reach_goal(&g.p1));
     }
 }

@@ -6,21 +6,12 @@ use crate::core::tile::{Tile, TileState, TileType};
 use std::collections::HashSet;
 
 pub const GRID_SIZE: usize = 9;
-const HORIZONTAL_BLOCK_MATRIX_Y: usize = GRID_SIZE - 1;
-const HORIZONTAL_BLOCK_MATRIX_X: usize = GRID_SIZE;
-
-const VERTICAL_BLOCK_MATRIX_Y: usize = GRID_SIZE;
-const VERTICAL_BLOCK_MATRIX_X: usize = GRID_SIZE - 1;
 
 #[derive(Debug)]
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
     horizontal_blocks: Vec<Block>,
     vertical_blocks: Vec<Block>,
-    // horizontal_grid:
-    //     Box<[[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y]>,
-    vertical_grid:
-        Box<[[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y]>,
 }
 
 fn generate_row(y: usize) -> Box<[Tile; GRID_SIZE]> {
@@ -72,45 +63,10 @@ impl Grid {
                 last_row,
             ]);
 
-        // let mut horizontal_grid: Box<
-        //     [[Tile; HORIZONTAL_BLOCK_MATRIX_X]; HORIZONTAL_BLOCK_MATRIX_Y],
-        // > = Box::new(
-        //     [[Tile::default(); HORIZONTAL_BLOCK_MATRIX_X];
-        //         HORIZONTAL_BLOCK_MATRIX_Y],
-        // );
-        // for lane in 0..HORIZONTAL_BLOCK_MATRIX_Y {
-        //     for tile in 0..HORIZONTAL_BLOCK_MATRIX_X {
-        //         horizontal_grid[lane][tile] = Tile::new(
-        //             TileType::BlockPosition,
-        //             TileState::Free,
-        //             Position { y: lane, x: tile },
-        //         );
-        //     }
-        // }
-
-        let mut vertical_grid: Box<
-            [[Tile; VERTICAL_BLOCK_MATRIX_X]; VERTICAL_BLOCK_MATRIX_Y],
-        > = Box::new(
-            [[Tile::default(); VERTICAL_BLOCK_MATRIX_X];
-                VERTICAL_BLOCK_MATRIX_Y],
-        );
-
-        for lane in 0..VERTICAL_BLOCK_MATRIX_Y {
-            for tile in 0..VERTICAL_BLOCK_MATRIX_X {
-                vertical_grid[lane][tile] = Tile::new(
-                    TileType::BlockPosition,
-                    TileState::Free,
-                    Position { y: lane, x: tile },
-                );
-            }
-        }
-
         Self {
             player_tiles,
             horizontal_blocks: Vec::with_capacity(NUM_BLOCKS),
             vertical_blocks: Vec::with_capacity(NUM_BLOCKS),
-            // horizontal_grid,
-            vertical_grid,
         }
     }
 
@@ -122,7 +78,7 @@ impl Grid {
         if p.y > 0
             && self.horizontal_blocks.iter().all(|x| {
                 !(x.placement.lane == p.y - 1
-                    && num::abs(x.placement.tile as i8 - p.x as i8) <= 1)
+                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
@@ -131,7 +87,7 @@ impl Grid {
         if p.y < GRID_SIZE - 1
             && self.horizontal_blocks.iter().all(|x| {
                 !(x.placement.lane == p.y
-                    && num::abs(x.placement.tile as i8 - p.x as i8) <= 1)
+                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
@@ -141,13 +97,18 @@ impl Grid {
         if p.x > 0
             && self.vertical_blocks.iter().all(|x| {
                 !(x.placement.lane == p.x - 1
-                    && num::abs(x.placement.tile as i8 - p.y as i8) <= 1)
+                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
             })
         {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
-        if p.x < GRID_SIZE - 1 && self.vertical_grid[p.y][p.x].is_free() {
+        if p.x < GRID_SIZE - 1
+            && self.vertical_blocks.iter().all(|x| {
+                !(x.placement.lane == p.x
+                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
+            })
+        {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
         }
 
@@ -187,17 +148,11 @@ impl Grid {
     }
 
     fn free_block(&mut self, b: &Block) {
-        let lane = b.placement.lane;
-        let tile = b.placement.tile;
         match b.orientation {
             Orientation::Horizontal => {
-                // self.horizontal_grid[lane][tile].free();
-                // self.horizontal_grid[lane][tile + 1].free();
                 self.horizontal_blocks.pop().unwrap();
             }
             Orientation::Vertical => {
-                self.vertical_grid[lane][tile].free();
-                self.vertical_grid[lane + 1][tile].free();
                 self.vertical_blocks.pop().unwrap();
             }
         };
@@ -229,17 +184,11 @@ impl Grid {
     }
 
     fn add_block(&mut self, b: Block) {
-        let tile = b.placement.tile;
-        let lane = b.placement.lane;
         match b.orientation {
             Orientation::Horizontal => {
-                // self.horizontal_grid[lane][tile].occupy();
-                // self.horizontal_grid[lane][tile + 1].occupy();
                 self.horizontal_blocks.push(b);
             }
             Orientation::Vertical => {
-                self.vertical_grid[lane][tile].occupy();
-                self.vertical_grid[lane + 1][tile].occupy();
                 self.vertical_blocks.push(b);
             }
         }
@@ -331,22 +280,23 @@ mod tests {
 
     #[test]
     fn test_bulk_place_blocks_illegal() {
-        let tests = [vec![
+        let tests = vec![
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
             Block::new(Placement::new(6, 3), Orientation::Horizontal),
             Block::new(Placement::new(7, 5), Orientation::Horizontal),
-            Block::new(Placement::new(6, 4), Orientation::Vertical),
-        ]];
+        ];
 
-        for t in tests.iter() {
-            let mut g = Grid::new();
-            let p1 = Player::new(String::new(), StartingPosition::Top);
-            let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            let results: bool = t.iter().all(|b| g.place_block(&p1, &p2, *b));
-            assert!(!results);
-        }
+        let mut g = Grid::new();
+        let p1 = Player::new(String::new(), StartingPosition::Top);
+        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let results: bool = tests.iter().all(|b| g.place_block(&p1, &p2, *b));
+        assert!(results);
+
+        // block that makes the grid illegal
+        let b = Block::new(Placement::new(6, 4), Orientation::Vertical);
+        assert!(!g.place_block(&p1, &p2, b));
     }
     #[test]
     fn test_bulk_place_blocks_legal() {
