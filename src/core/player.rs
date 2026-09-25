@@ -1,4 +1,3 @@
-use crate::core::block::Block;
 use crate::core::grid::GRID_SIZE;
 use crate::core::position::Position;
 use uuid::Uuid;
@@ -17,7 +16,7 @@ pub struct Player {
     pub name: String,
     pub id: String,
     pub position: Position,
-    pub blocks: [Block; NUM_BLOCKS],
+    pub remaining_blocks: usize,
 }
 
 impl Player {
@@ -27,13 +26,12 @@ impl Player {
             StartingPosition::Top => 0,
             StartingPosition::Bottom => GRID_SIZE - 1,
         };
-        let blocks: [Block; NUM_BLOCKS] = [Block::default(); NUM_BLOCKS];
         Self {
             name,
             starting_position: sp,
             id,
             position: Position::new(GRID_SIZE / 2, p_y),
-            blocks,
+            remaining_blocks: NUM_BLOCKS,
         }
     }
 
@@ -42,6 +40,10 @@ impl Player {
             StartingPosition::Top => GRID_SIZE - 1,
             StartingPosition::Bottom => 0,
         }
+    }
+
+    pub fn consume_block(&mut self) {
+        self.remaining_blocks -= 1;
     }
 }
 
@@ -66,6 +68,6 @@ mod tests {
     #[test]
     fn test_player_blocks() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
-        assert_eq!(p.blocks.len(), NUM_BLOCKS);
+        assert_eq!(p.remaining_blocks, NUM_BLOCKS);
     }
 }
