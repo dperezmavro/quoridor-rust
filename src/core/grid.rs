@@ -138,7 +138,12 @@ impl Grid {
         }
 
         //left
-        if p.x > 0 && self.vertical_grid[p.y][p.x - 1].is_free() {
+        if p.x > 0
+            && self.vertical_blocks.iter().all(|x| {
+                !(x.placement.lane == p.x - 1
+                    && num::abs(x.placement.tile as i8 - p.y as i8) <= 1)
+            })
+        {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
