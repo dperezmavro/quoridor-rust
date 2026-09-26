@@ -25,6 +25,15 @@ impl Game {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
+    pub fn is_position_occupied_by_player(
+        &self,
+        col: usize,
+        row: usize,
+    ) -> bool {
+        (self.p1.position.x == col && self.p1.position.y == row)
+            || (self.p2.position.x == col && self.p2.position.y == row)
+    }
+
     pub fn add_block(&mut self, b: Block) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
     }

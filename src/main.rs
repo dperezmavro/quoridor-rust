@@ -79,12 +79,12 @@ async fn main() {
                 }
             }
             MouseState::RowCol { row, col } => {
-                let is_grid_occupied_by_player = !((game.p1.position.x
-                    == *col as usize
-                    && game.p1.position.y == *row as usize)
-                    || (game.p2.position.x == *col as usize
-                        && game.p2.position.y == *row as usize));
-                if is_grid_occupied_by_player {
+                let is_grid_not_occupied_by_player = !game
+                    .is_position_occupied_by_player(
+                        *col as usize,
+                        *row as usize,
+                    );
+                if is_grid_not_occupied_by_player {
                     draw_rectangle(
                         PADDING
                             + ((*col as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
