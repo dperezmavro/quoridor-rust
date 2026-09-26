@@ -498,6 +498,7 @@ mod tests {
             g.player_tiles[t.2.position.y][t.2.position.x].occupy();
 
             t.0.iter().for_each(|block| {
+                assert!(g.can_place_block(&t.1, &t.2, *block), "{:?}", block);
                 assert!(g.place_block(&t.1, &t.2, *block), "{:?}", block);
             });
 
@@ -507,103 +508,99 @@ mod tests {
     }
 
     #[test]
-    // fn test_can_player_reach_goal_disallowed_block_formations() {
-    //     struct TestCase(Vec<Block>, Player, Player);
-    //
-    //     let tests = [
-    //         TestCase(
-    //             vec![
-    //                 Block::new(Placement::new(0, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(2, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(4, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(6, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(7, 5), Orientation::Horizontal),
-    //                 Block::new(Placement::new(6, 4), Orientation::Vertical),
-    //             ],
-    //             Player::new(String::from("top"), StartingPosition::Top),
-    //             Player::new(String::from("bottom"), StartingPosition::Bottom),
-    //         ),
-    //         TestCase(
-    //             vec![
-    //                 Block::new(Placement::new(0, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(2, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(4, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(6, 3), Orientation::Horizontal),
-    //                 Block::new(Placement::new(7, 5), Orientation::Horizontal),
-    //                 Block::new(Placement::new(6, 4), Orientation::Vertical),
-    //             ],
-    //             Player {
-    //                 position: Position::new(4, 3),
-    //                 name: String::new(),
-    //                 id: String::new(),
-    //                 remaining_blocks: NUM_BLOCKS,
-    //                 starting_position: StartingPosition::Top,
-    //             },
-    //             Player {
-    //                 position: Position::new(4, 6),
-    //                 name: String::new(),
-    //                 id: String::new(),
-    //                 remaining_blocks: NUM_BLOCKS,
-    //                 starting_position: StartingPosition::Bottom,
-    //             },
-    //         ),
-    //     ];
-    //
-    //     tests.iter().for_each(|t| {
-    //         let mut g = Grid::new();
-    //         t.0.iter().for_each(|block| {
-    //             // assert!(g.place_block(block));
-    //             // do this manually because place_block detects that this is illegal
-    //             match block.orientation {
-    //                 Orientation::Horizontal => {
-    //                     g.horizontal_grid[block.placement.lane]
-    //                         [block.placement.tile] = Tile {
-    //                         position: Position::new(
-    //                             block.placement.tile,
-    //                             block.placement.lane,
-    //                         ),
-    //                         state: TileState::Occupied,
-    //                         tile_type: TileType::BlockPosition,
-    //                     };
-    //                     g.horizontal_grid[block.placement.lane]
-    //                         [block.placement.tile + 1] = Tile {
-    //                         position: Position::new(
-    //                             block.placement.tile,
-    //                             block.placement.lane,
-    //                         ),
-    //                         state: TileState::Occupied,
-    //                         tile_type: TileType::BlockPosition,
-    //                     };
-    //                 }
-    //                 Orientation::Vertical => {
-    //                     g.vertical_grid[block.placement.lane]
-    //                         [block.placement.tile] = Tile {
-    //                         position: Position::new(
-    //                             block.placement.tile,
-    //                             block.placement.lane,
-    //                         ),
-    //                         state: TileState::Occupied,
-    //                         tile_type: TileType::BlockPosition,
-    //                     };
-    //                     g.vertical_grid[block.placement.lane + 1]
-    //                         [block.placement.tile] = Tile {
-    //                         position: Position::new(
-    //                             block.placement.tile,
-    //                             block.placement.lane,
-    //                         ),
-    //                         state: TileState::Occupied,
-    //                         tile_type: TileType::BlockPosition,
-    //                     };
-    //                 }
-    //             }
-    //         });
-    //         g.player_tiles[t.1.position.y][t.1.position.x].occupy();
-    //         g.player_tiles[t.2.position.y][t.2.position.x].occupy();
-    //
-    //         assert!(!g.can_player_reach_goal(&t.1));
-    //         assert!(!g.can_player_reach_goal(&t.2));
-    //     });
-    // }
+    fn test_can_player_reach_goal_disallowed_block_formations_from_correct_position()
+     {
+        struct TestCase(Player, Player);
+        let blocks = vec![
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+            Block::new(Placement::new(4, 6), Orientation::Vertical),
+        ];
+        let mut g = Grid::new();
+        blocks.iter().for_each(|block| match block.orientation {
+            Orientation::Horizontal => {
+                g.horizontal_blocks.push(block.clone());
+            }
+            Orientation::Vertical => {
+                g.vertical_blocks.push(block.clone());
+            }
+        });
+
+        // test players can reach from end
+        let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
+        p1.position = Position::new(4, 4);
+        let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+        p2.position = Position::new(4, 3);
+
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
+    }
+
+    #[test]
+    fn test_can_place_block_after_players_move() {
+        struct TestCase(Player, Player);
+        let blocks = vec![
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+        ];
+        let mut g = Grid::new();
+        let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
+        let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+
+        assert!(blocks.iter().all(|block| g.place_block(
+            &p1,
+            &p2,
+            block.clone()
+        )));
+
+        let block_dividing_board =
+            Block::new(Placement::new(4, 6), Orientation::Vertical);
+        assert!(!g.place_block(&p1, &p2, block_dividing_board));
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
+
+        p1.position = Position::new(4, 4);
+        p2.position = Position::new(4, 3);
+        assert!(g.place_block(&p1, &p2, block_dividing_board));
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
+    }
+
+    #[test]
+    fn test_can_not_player_reach_goal_disallowed_block_formations() {
+        struct TestCase(Player, Player);
+        let blocks = vec![
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+            Block::new(Placement::new(4, 6), Orientation::Vertical),
+        ];
+        let mut g = Grid::new();
+        blocks.iter().for_each(|block| match block.orientation {
+            Orientation::Horizontal => {
+                g.horizontal_blocks.push(block.clone());
+            }
+            Orientation::Vertical => {
+                g.vertical_blocks.push(block.clone());
+            }
+        });
+
+        // test players can't reach from start
+        let p1 = Player::new(String::from("t"), StartingPosition::Top);
+        let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+
+        let neighbours = g.get_reachable_neighbour_tiles(&p1.position);
+        assert!(!g.can_player_reach_goal(&p1));
+        assert!(!g.can_player_reach_goal(&p2));
+    }
 
     /********************************************/
     //         place_block

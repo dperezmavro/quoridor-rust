@@ -24,10 +24,6 @@ impl Tile {
         self.state = TileState::Occupied;
     }
 
-    pub fn is_free(&self) -> bool {
-        self.state == TileState::Free
-    }
-
     pub fn free(&mut self) {
         self.state = TileState::Free
     }
