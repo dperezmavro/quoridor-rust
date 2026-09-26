@@ -43,6 +43,7 @@ mod test {
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::StartingPosition;
+    use crate::core::position::Position;
     use crate::core::tile::Tile;
 
     #[test]
@@ -79,6 +80,20 @@ mod test {
         //verify duplicate add rejected
         assert!(!g.can_add_block(b.clone()));
         assert!(!g.add_block(b.clone()));
+    }
+
+    #[test]
+    fn test_is_position_occupied_by_player() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+
+        assert!(g.is_position_occupied_by_player(4, 0));
+
+        g.p1.position = Position { x: 1, y: 1 };
+        assert!(g.is_position_occupied_by_player(1, 1));
     }
 
     #[test]
