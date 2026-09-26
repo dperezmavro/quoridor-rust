@@ -516,7 +516,7 @@ mod tests {
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
             Block::new(Placement::new(6, 3), Orientation::Horizontal),
             Block::new(Placement::new(7, 5), Orientation::Horizontal),
-            Block::new(Placement::new(6, 4), Orientation::Vertical),
+            Block::new(Placement::new(4, 6), Orientation::Vertical),
         ];
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
@@ -547,7 +547,7 @@ mod tests {
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
             Block::new(Placement::new(6, 3), Orientation::Horizontal),
             Block::new(Placement::new(7, 5), Orientation::Horizontal),
-            Block::new(Placement::new(6, 4), Orientation::Vertical),
+            Block::new(Placement::new(4, 6), Orientation::Vertical),
         ];
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
@@ -563,6 +563,7 @@ mod tests {
         let p1 = Player::new(String::from("t"), StartingPosition::Top);
         let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
 
+        let neighbours = g.get_reachable_neighbour_tiles(&p1.position);
         assert!(!g.can_player_reach_goal(&p1));
         assert!(!g.can_player_reach_goal(&p2));
     }
