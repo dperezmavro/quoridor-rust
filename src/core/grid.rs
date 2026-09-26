@@ -528,13 +528,6 @@ mod tests {
             }
         });
 
-        // test players can't reach from start
-        let p1 = Player::new(String::from("t"), StartingPosition::Top);
-        let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
-
-        assert!(!g.can_player_reach_goal(&p1));
-        assert!(!g.can_player_reach_goal(&p2));
-
         // test players can reach from end
         let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
         p1.position = Position::new(4, 3);
@@ -543,6 +536,35 @@ mod tests {
 
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
+    }
+
+    #[test]
+    fn test_can_not_player_reach_goal_disallowed_block_formations() {
+        struct TestCase(Player, Player);
+        let blocks = vec![
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+            Block::new(Placement::new(6, 4), Orientation::Vertical),
+        ];
+        let mut g = Grid::new();
+        blocks.iter().for_each(|block| match block.orientation {
+            Orientation::Horizontal => {
+                g.horizontal_blocks.push(block.clone());
+            }
+            Orientation::Vertical => {
+                g.vertical_blocks.push(block.clone());
+            }
+        });
+
+        // test players can't reach from start
+        let p1 = Player::new(String::from("t"), StartingPosition::Top);
+        let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+
+        assert!(!g.can_player_reach_goal(&p1));
+        assert!(!g.can_player_reach_goal(&p2));
     }
 
     /********************************************/
