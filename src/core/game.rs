@@ -22,11 +22,7 @@ impl Game {
     }
 
     pub fn can_add_block(&mut self, b: Block) -> bool {
-        let res = self.g.can_place_block(&self.p1, &self.p2, b);
-        if res {
-            println!("can add block for {:?}: {:?}\n", self.p1, self.p2);
-        }
-        res
+        self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
     pub fn add_block(&mut self, b: Block) -> bool {
