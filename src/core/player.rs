@@ -1,6 +1,5 @@
 use crate::core::grid::GRID_SIZE;
 use crate::core::position::Position;
-use uuid::Uuid;
 
 pub const NUM_BLOCKS: usize = 10;
 
@@ -14,14 +13,12 @@ pub enum StartingPosition {
 pub struct Player {
     pub starting_position: StartingPosition,
     pub name: String,
-    pub id: String,
     pub position: Position,
     pub remaining_blocks: usize,
 }
 
 impl Player {
     pub fn new(name: String, sp: StartingPosition) -> Self {
-        let id = Uuid::new_v4().to_string();
         let p_y = match sp {
             StartingPosition::Top => 0,
             StartingPosition::Bottom => GRID_SIZE - 1,
@@ -29,7 +26,6 @@ impl Player {
         Self {
             name,
             starting_position: sp,
-            id,
             position: Position::new(GRID_SIZE / 2, p_y),
             remaining_blocks: NUM_BLOCKS,
         }

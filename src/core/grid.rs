@@ -477,14 +477,12 @@ mod tests {
                 Player {
                     position: Position::new(4, 4),
                     name: String::new(),
-                    id: String::new(),
                     starting_position: StartingPosition::Top,
                     remaining_blocks: NUM_BLOCKS,
                 },
                 Player {
                     position: Position::new(4, 3),
                     name: String::new(),
-                    id: String::new(),
                     starting_position: StartingPosition::Bottom,
                     remaining_blocks: NUM_BLOCKS,
                 },

@@ -1,5 +1,3 @@
-use uuid::Uuid;
-
 use crate::core::player::Player;
 
 use crate::core::block::Block;
@@ -7,7 +5,6 @@ use crate::core::grid::Grid;
 
 #[derive(Debug)]
 pub struct Game {
-    _id: String,
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
@@ -16,9 +13,7 @@ pub struct Game {
 
 impl Game {
     pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
-        let _id = Uuid::new_v4().to_string();
-
-        Self { g, p1, p2, _id }
+        Self { g, p1, p2 }
     }
 
     pub fn can_add_block(&mut self, b: Block) -> bool {
