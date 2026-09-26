@@ -508,7 +508,8 @@ mod tests {
     }
 
     #[test]
-    fn test_can_player_reach_goal_disallowed_block_formations() {
+    fn test_can_player_reach_goal_disallowed_block_formations_from_correct_position()
+     {
         struct TestCase(Player, Player);
         let blocks = vec![
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
@@ -530,10 +531,43 @@ mod tests {
 
         // test players can reach from end
         let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
-        p1.position = Position::new(4, 3);
+        p1.position = Position::new(4, 4);
         let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
-        p2.position = Position::new(4, 6);
+        p2.position = Position::new(4, 3);
 
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
+    }
+
+    #[test]
+    fn test_can_place_block_after_players_move() {
+        struct TestCase(Player, Player);
+        let blocks = vec![
+            Block::new(Placement::new(0, 3), Orientation::Horizontal),
+            Block::new(Placement::new(2, 3), Orientation::Horizontal),
+            Block::new(Placement::new(4, 3), Orientation::Horizontal),
+            Block::new(Placement::new(6, 3), Orientation::Horizontal),
+            Block::new(Placement::new(7, 5), Orientation::Horizontal),
+        ];
+        let mut g = Grid::new();
+        let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
+        let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+
+        assert!(blocks.iter().all(|block| g.place_block(
+            &p1,
+            &p2,
+            block.clone()
+        )));
+
+        let block_dividing_board =
+            Block::new(Placement::new(4, 6), Orientation::Vertical);
+        assert!(!g.place_block(&p1, &p2, block_dividing_board));
+        assert!(g.can_player_reach_goal(&p1));
+        assert!(g.can_player_reach_goal(&p2));
+
+        p1.position = Position::new(4, 4);
+        p2.position = Position::new(4, 3);
+        assert!(g.place_block(&p1, &p2, block_dividing_board));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
     }
