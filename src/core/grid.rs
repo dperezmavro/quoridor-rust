@@ -71,8 +71,6 @@ impl Grid {
     }
 
     pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
-        assert!(p.x < GRID_SIZE && p.y < GRID_SIZE);
-
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
         if p.y > 0
@@ -219,7 +217,9 @@ impl Grid {
         p2: &Player,
         b: Block,
     ) -> bool {
-        if b.placement.tile == GRID_SIZE - 1 {
+        if b.placement.tile >= GRID_SIZE - 1
+            || b.placement.lane >= GRID_SIZE - 1
+        {
             return false;
         }
         if !self.does_intersect_existing_blocks(&b)
@@ -246,7 +246,6 @@ mod tests {
     //         place_block
     /********************************************/
     #[test]
-    #[should_panic]
     fn test_place_block_out_of_bounds() {
         let tests = [
             Block::new(Placement::new(8, 0), Orientation::Horizontal),
