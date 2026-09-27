@@ -8,6 +8,7 @@ use ui::ui::{
     get_mouse_pointer_state, pre_computed_grid_lines,
 };
 
+use crate::core::position::Position;
 use crate::ui::ui::{draw_block_placement_preview, draw_game_tile_preview};
 use core::player::{Player, StartingPosition};
 use macroquad::prelude::*;
@@ -65,7 +66,10 @@ async fn main() {
                 }
             }
             MouseState::RowCol(position) => {
-                if !game.is_position_occupied_by_player(position) {
+                if !game.is_position_occupied_by_player(&Position {
+                    x: position.y,
+                    y: position.x,
+                }) {
                     draw_game_tile_preview(position);
                 }
             }
