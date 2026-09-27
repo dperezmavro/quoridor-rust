@@ -120,7 +120,6 @@ impl Grid {
         tiles_for_exploring.insert(&p.position);
 
         while !tiles_for_exploring.is_empty() {
-            // let neighbours = self.get_reachable_neighbour_tiles(p.position);
             let curr_pos = tiles_for_exploring.iter().cloned().next().unwrap();
             if visited.contains(curr_pos) {
                 continue;
