@@ -19,24 +19,11 @@ const BORDER_WIDTH: f32 = 2.0;
 /// Padding from the window's edges, in pixels.
 pub const PADDING: f32 = 50.0;
 
-/// Number of grid lines - dynamic to the grid
-const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
-
-/// Total length of the game grid
-const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
-    + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
+/// Where the game grid starts
+pub const GAME_GRID_BOX_START: f32 = PADDING;
 
 /// Width of box showing player information
-const PLAYER_BOX_WIDTH: f32 = 150.0;
-
-/// Total length of all the elements
-const TOTAL_LEN: f32 = GAME_GRID_LEN + PLAYER_BOX_WIDTH + (3.0 * PADDING);
-
-/// Screen width, in pixels.
-pub const SCREEN_WIDTH: u16 = TOTAL_LEN as u16;
-
-/// Screen height, in pixels
-pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
+const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 
 /// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
@@ -44,8 +31,27 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
 
+/// Number of grid lines - dynamic to the grid
+const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
+
+/// Total length of the game grid
+const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
+    + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
+
+/// Total length of all the elements, including padding
+const TOTAL_LEN: f32 = GAME_GRID_LEN + GAME_STATS_BOX_WIDTH + (3.0 * PADDING);
+
+/// Screen width, in pixels.
+pub const SCREEN_WIDTH: u16 = TOTAL_LEN as u16;
+
+/// Screen height, in pixels
+pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
+
 /// Player's final size
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
+
+/// Where the game display box starts
+const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
 /// Constant for light green
 const LIGHT_GREEN: Color = Color {
@@ -76,7 +82,7 @@ pub fn get_window_conf(title: String) -> Conf {
     Conf {
         window_title: title,
         window_width: SCREEN_WIDTH as i32,
-        window_height: (2 * PADDING as i32) + GAME_GRID_LEN as i32,
+        window_height: SCREEN_HEIGHT as i32,
         window_resizable: false,
         high_dpi: true,
         ..Default::default()
@@ -132,8 +138,8 @@ fn draw_grid_precomputed(vec: &Vec<Rect>) {
 /// Draws the backdrop
 fn draw_backdrop() {
     draw_rectangle(
-        PADDING,
-        PADDING,
+        GAME_GRID_BOX_START,
+        GAME_GRID_BOX_START,
         GAME_GRID_LEN,
         GAME_GRID_LEN,
         Color::new(0.90, 0.16, 0.22, 0.70), // light red
@@ -143,8 +149,8 @@ fn draw_backdrop() {
 /// Draws the borders around the game grid
 fn draw_bounds() {
     draw_rectangle(
-        PADDING - BORDER_WIDTH,
-        PADDING - BORDER_WIDTH,
+        GAME_GRID_BOX_START - BORDER_WIDTH,
+        GAME_GRID_BOX_START - BORDER_WIDTH,
         GAME_GRID_LEN + BORDER_WIDTH + BORDER_WIDTH,
         GAME_GRID_LEN + BORDER_WIDTH + BORDER_WIDTH,
         LIGHTGRAY,
@@ -158,10 +164,10 @@ pub fn draw_block_placement_preview(block: Block) {
 
 /// Tests whether the mouse is inside the game grid
 fn is_mouse_inside_board(mp: (f32, f32)) -> bool {
-    mp.0 >= PADDING
-        && mp.0 <= PADDING + GAME_GRID_LEN
-        && mp.1 >= PADDING
-        && mp.1 <= PADDING + GAME_GRID_LEN
+    mp.0 >= GAME_GRID_BOX_START
+        && mp.0 <= GAME_GRID_BOX_START + GAME_GRID_LEN
+        && mp.1 >= GAME_GRID_BOX_START
+        && mp.1 <= GAME_GRID_BOX_START + GAME_GRID_LEN
 }
 
 /// Figure out what state the mouse pointer is in.
@@ -183,8 +189,9 @@ pub fn get_mouse_pointer_state() -> MouseState {
     let mut in_vertical_block_pos = false;
 
     for y in 0..NUM_TILES {
-        let tile_base =
-            PADDING + (y as f32 * TILE_SIZE) + (y as f32 * GRID_LINE_WIDTH);
+        let tile_base = GAME_GRID_BOX_START
+            + (y as f32 * TILE_SIZE)
+            + (y as f32 * GRID_LINE_WIDTH);
 
         if mouse_position.0 >= tile_base {
             if mouse_position.0 <= tile_base + TILE_SIZE {
@@ -246,10 +253,10 @@ pub fn draw_block(b: Block, c: Color) {
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
-    let dim_1: f32 = PADDING
+    let dim_1: f32 = GAME_GRID_BOX_START
         + (b.placement.tile as f32 * TILE_SIZE)
         + (b.placement.tile as f32 * GRID_LINE_WIDTH);
-    let dim_2: f32 = PADDING
+    let dim_2: f32 = GAME_GRID_BOX_START
         + ((b.placement.lane + 1) as f32 * TILE_SIZE)
         + (b.placement.lane as f32 * GRID_LINE_WIDTH);
     let long_side: f32 = (TILE_SIZE * 2.0) + GRID_LINE_WIDTH;
@@ -266,8 +273,12 @@ pub fn draw_player(p: Player) {
     let x = p.position.x;
     let y = p.position.y;
     draw_circle(
-        PADDING + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
-        PADDING + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
+        GAME_GRID_BOX_START
+            + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
+            + PLAYER_RADIUS,
+        GAME_GRID_BOX_START
+            + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
+            + PLAYER_RADIUS,
         PLAYER_FINAL_SIZE,
         p.get_color(),
     );
@@ -276,8 +287,8 @@ pub fn draw_player(p: Player) {
 /// Draws a preview of the player-tile that the mouse is currently hovering over.
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
-        PADDING + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-        PADDING + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         TILE_SIZE,
         TILE_SIZE,
         Color::new(0.78, 0.48, 1.00, 0.80),
@@ -286,35 +297,49 @@ pub fn draw_game_tile_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::utils::{GAME_GRID_LEN, PADDING, is_mouse_inside_board};
+    use crate::ui::utils::{
+        GAME_GRID_BOX_START, GAME_GRID_LEN, is_mouse_inside_board,
+    };
 
     #[test]
     fn test_is_mouse_in_grid_corners() {
-        let v = (PADDING, PADDING);
+        let v = (GAME_GRID_BOX_START, GAME_GRID_BOX_START);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING, PADDING + GAME_GRID_LEN);
+        let v = (GAME_GRID_BOX_START, GAME_GRID_BOX_START + GAME_GRID_LEN);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING + GAME_GRID_LEN, PADDING);
+        let v = (GAME_GRID_BOX_START + GAME_GRID_LEN, GAME_GRID_BOX_START);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING + GAME_GRID_LEN, PADDING + GAME_GRID_LEN);
+        let v = (
+            GAME_GRID_BOX_START + GAME_GRID_LEN,
+            GAME_GRID_BOX_START + GAME_GRID_LEN,
+        );
         assert!(is_mouse_inside_board(v));
     }
 
     #[test]
     fn test_is_mouse_outside_grid() {
-        let v = (PADDING, PADDING - 1f32);
+        let v = (GAME_GRID_BOX_START, GAME_GRID_BOX_START - 1f32);
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING - 1f32, PADDING + GAME_GRID_LEN);
+        let v = (
+            GAME_GRID_BOX_START - 1f32,
+            GAME_GRID_BOX_START + GAME_GRID_LEN,
+        );
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING + GAME_GRID_LEN + 1f32, PADDING);
+        let v = (
+            GAME_GRID_BOX_START + GAME_GRID_LEN + 1f32,
+            GAME_GRID_BOX_START,
+        );
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING + GAME_GRID_LEN, PADDING + GAME_GRID_LEN + 1f32);
+        let v = (
+            GAME_GRID_BOX_START + GAME_GRID_LEN,
+            GAME_GRID_BOX_START + GAME_GRID_LEN + 1f32,
+        );
         assert!(!is_mouse_inside_board(v));
     }
 }
