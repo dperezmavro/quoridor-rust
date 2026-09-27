@@ -238,3 +238,13 @@ pub fn draw_player(p: Player) {
         p.get_color(),
     );
 }
+
+pub fn draw_game_tile_preview(p: &Position) {
+    draw_rectangle(
+        PADDING + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        PADDING + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        TILE_SIZE,
+        TILE_SIZE,
+        PURPLE,
+    )
+}

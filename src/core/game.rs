@@ -20,9 +20,9 @@ impl Game {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
-    pub fn is_position_occupied_by_player(&self, p: Position) -> bool {
-        (self.p1.position.x == p.x && self.p1.position.y == p.y)
-            || (self.p2.position.x == p.x && self.p2.position.y == p.y)
+    pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
+        (self.p1.position.x == p.y && self.p1.position.y == p.x)
+            || (self.p2.position.x == p.y && self.p2.position.y == p.x)
     }
 
     pub fn add_block(&mut self, b: Block) -> bool {
@@ -86,10 +86,10 @@ mod test {
             Player::new(String::from("b"), StartingPosition::Bottom);
         let mut g = Game::new(grid, p1, p2);
 
-        assert!(g.is_position_occupied_by_player(Position { x: 4, y: 0 }));
+        assert!(g.is_position_occupied_by_player(&Position { x: 4, y: 0 }));
 
         g.p1.position = Position { x: 1, y: 1 };
-        assert!(g.is_position_occupied_by_player(Position { x: 1, y: 1 }));
+        assert!(g.is_position_occupied_by_player(&Position { x: 1, y: 1 }));
     }
 
     #[test]

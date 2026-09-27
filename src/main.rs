@@ -4,12 +4,11 @@ mod ui;
 use core::game::Game;
 use core::{block, grid};
 use ui::ui::{
-    GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
-    draw_base_board, draw_block, draw_player, get_mouse_pointer_state,
-    pre_computed_grid_lines,
+    MouseState, SCREEN_WIDTH, draw_base_board, draw_block, draw_player,
+    get_mouse_pointer_state, pre_computed_grid_lines,
 };
 
-use crate::ui::ui::draw_block_placement_preview;
+use crate::ui::ui::{draw_block_placement_preview, draw_game_tile_preview};
 use core::player::{Player, StartingPosition};
 use macroquad::prelude::*;
 
@@ -66,20 +65,8 @@ async fn main() {
                 }
             }
             MouseState::RowCol(position) => {
-                let is_grid_not_occupied_by_player =
-                    !game.is_position_occupied_by_player(position.clone());
-                if is_grid_not_occupied_by_player {
-                    draw_rectangle(
-                        PADDING
-                            + ((position.y as f32)
-                                * (TILE_SIZE + GRID_LINE_WIDTH)),
-                        PADDING
-                            + ((position.x as f32)
-                                * (TILE_SIZE + GRID_LINE_WIDTH)),
-                        TILE_SIZE,
-                        TILE_SIZE,
-                        PURPLE,
-                    )
+                if !game.is_position_occupied_by_player(position) {
+                    draw_game_tile_preview(position);
                 }
             }
             // anything else isn't drawable
