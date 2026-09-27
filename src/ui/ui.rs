@@ -4,6 +4,7 @@ use macroquad::prelude::*;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::Player;
+use crate::core::position::Position;
 
 pub const SCREEN_WIDTH: u16 = 800;
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
@@ -33,7 +34,8 @@ const LIGHT_GREEN: Color = Color {
 
 #[derive(Debug)]
 pub enum MouseState {
-    RowCol { row: u16, col: u16 },
+    RowCol(Position),
+    // RowCol { row: u16, col: u16 },
     BlockPosition(Block),
     InBorderCrossSection,
     NotInsideBoard,
@@ -179,7 +181,10 @@ pub fn get_mouse_pointer_state() -> MouseState {
     }
 
     if found_row && found_col {
-        MouseState::RowCol { row, col }
+        MouseState::RowCol(Position {
+            x: row as usize,
+            y: col as usize,
+        })
     } else if in_horizontal_block_pos && in_vertical_block_pos {
         MouseState::InBorderCrossSection
     } else {

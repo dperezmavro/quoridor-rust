@@ -59,18 +59,17 @@ async fn main() {
                     draw_block_placement_preview(block.clone());
                 }
             }
-            MouseState::RowCol { row, col } => {
-                let is_grid_not_occupied_by_player = !game
-                    .is_position_occupied_by_player(
-                        *col as usize,
-                        *row as usize,
-                    );
+            MouseState::RowCol(position) => {
+                let is_grid_not_occupied_by_player =
+                    !game.is_position_occupied_by_player(position.clone());
                 if is_grid_not_occupied_by_player {
                     draw_rectangle(
                         PADDING
-                            + ((*col as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+                            + ((position.y as f32)
+                                * (TILE_SIZE + GRID_LINE_WIDTH)),
                         PADDING
-                            + ((*row as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+                            + ((position.x as f32)
+                                * (TILE_SIZE + GRID_LINE_WIDTH)),
                         TILE_SIZE,
                         TILE_SIZE,
                         PURPLE,
