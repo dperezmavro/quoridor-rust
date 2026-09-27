@@ -1,4 +1,9 @@
+use crate::core::block::Block;
 use macroquad::prelude::*;
+
+use crate::core::orientation::Orientation;
+use crate::core::placement::Placement;
+
 pub const SCREEN_WIDTH: u16 = 800;
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
 const NUM_TILES: usize = 9;
@@ -18,19 +23,17 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 const PLAYER_PADDING: f32 = 3.0;
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
-use crate::core::orientation::Orientation;
+const LIGHT_GREEN: Color = Color {
+    r: 0.0,
+    g: 1.0,
+    b: 0.0,
+    a: 0.4,
+};
 
 #[derive(Debug)]
 pub enum MouseState {
-    RowCol {
-        row: u16,
-        col: u16,
-    },
-    BlockPosition {
-        orientation: Orientation,
-        tile: u16,
-        lane: u16,
-    },
+    RowCol { row: u16, col: u16 },
+    BlockPosition(Block),
     InBorderCrossSection,
     NotInsideBoard,
 }
@@ -123,6 +126,9 @@ fn is_mouse_inside_board() -> bool {
         && pos.y >= -1.0 + PADDING_TO_WIDTH_RATIO
         && pos.y <= 1.0 - PADDING_TO_WIDTH_RATIO
 }
+pub fn draw_block_placement_preview(block: Block) {
+    draw_block(block, LIGHT_GREEN);
+}
 
 pub fn get_mouse_pointer_state() -> MouseState {
     if !is_mouse_inside_board() {
@@ -177,33 +183,39 @@ pub fn get_mouse_pointer_state() -> MouseState {
         MouseState::InBorderCrossSection
     } else {
         if found_row {
-            return MouseState::BlockPosition {
+            return MouseState::BlockPosition(Block {
                 orientation: Orientation::Vertical,
-                tile: row,
-                lane,
-            };
+                placement: Placement {
+                    tile: row as usize,
+                    lane: lane as usize,
+                },
+            });
         }
 
-        MouseState::BlockPosition {
+        MouseState::BlockPosition(Block {
             orientation: Orientation::Horizontal,
-            tile: col,
-            lane,
-        }
+            placement: Placement {
+                tile: col as usize,
+                lane: lane as usize,
+            },
+        })
     }
 }
 
-pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
-    if tile >= NUM_TILES as u16 - 1 {
+// pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
+pub fn draw_block(b: Block, c: Color) {
+    if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
-    let dim_1: f32 =
-        PADDING + (tile as f32 * TILE_SIZE) + (tile as f32 * GRID_LINE_WIDTH);
+    let dim_1: f32 = PADDING
+        + (b.placement.tile as f32 * TILE_SIZE)
+        + (b.placement.tile as f32 * GRID_LINE_WIDTH);
     let dim_2: f32 = PADDING
-        + ((lane + 1) as f32 * TILE_SIZE)
-        + (lane as f32 * GRID_LINE_WIDTH);
+        + ((b.placement.lane + 1) as f32 * TILE_SIZE)
+        + (b.placement.lane as f32 * GRID_LINE_WIDTH);
     let long_side: f32 = (TILE_SIZE * 2.0) + GRID_LINE_WIDTH;
 
-    let (x, y, w, h) = match orientation {
+    let (x, y, w, h) = match b.orientation {
         Orientation::Horizontal => (dim_1, dim_2, long_side, GRID_LINE_WIDTH),
         Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
     };

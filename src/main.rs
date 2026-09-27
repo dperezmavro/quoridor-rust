@@ -2,13 +2,14 @@ mod core;
 mod ui;
 
 use core::game::Game;
-use core::{block, grid, placement};
+use core::{block, grid};
 use ui::ui::{
     GRID_LINE_WIDTH, MouseState, PADDING, SCREEN_WIDTH, TILE_SIZE,
     draw_base_board, draw_block, draw_player, get_mouse_pointer_state,
     pre_computed_grid_lines,
 };
 
+use crate::ui::ui::draw_block_placement_preview;
 use core::player::{Player, StartingPosition};
 use macroquad::prelude::*;
 
@@ -42,12 +43,7 @@ async fn main() {
 
         // draw blocks that have already been placed
         for b in &blocks {
-            draw_block(
-                &b.orientation,
-                b.placement.tile as u16,
-                b.placement.lane as u16,
-                BLACK,
-            );
+            draw_block(b.clone(), BLACK);
         }
 
         // draw players
@@ -61,21 +57,10 @@ async fn main() {
         let res = get_mouse_pointer_state();
         match &res {
             // hovering above a block position
-            MouseState::BlockPosition {
-                orientation,
-                tile,
-                lane,
-            } => {
-                let block_under_cursor = block::Block {
-                    orientation: *orientation,
-                    placement: placement::Placement {
-                        tile: *tile as usize,
-                        lane: *lane as usize,
-                    },
-                };
+            MouseState::BlockPosition(block) => {
                 // hovering above a block position
-                if game.can_add_block(block_under_cursor) {
-                    draw_block(orientation, *tile, *lane, GREEN);
+                if game.can_add_block(block.clone()) {
+                    draw_block_placement_preview(block.clone());
                 }
             }
             MouseState::RowCol { row, col } => {
@@ -102,20 +87,9 @@ async fn main() {
 
         if is_mouse_button_pressed(MouseButton::Left) {
             match &res {
-                MouseState::BlockPosition {
-                    orientation,
-                    tile,
-                    lane,
-                } => {
-                    let block = block::Block {
-                        orientation: orientation.clone(),
-                        placement: placement::Placement {
-                            tile: *tile as usize,
-                            lane: *lane as usize,
-                        },
-                    };
-                    if game.add_block(block) {
-                        blocks.push(block);
+                MouseState::BlockPosition(block) => {
+                    if game.add_block(block.clone()) {
+                        blocks.push(block.clone());
                     }
                 }
                 // only care about the block kind
