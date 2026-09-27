@@ -129,7 +129,7 @@ const FONE_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
-pub fn draw_game_stats(text: String, f: Option<&Font>) {
+pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -198,7 +198,7 @@ pub fn draw_game_stats(text: String, f: Option<&Font>) {
         h3_params.clone(),
     );
 
-    let player_1_blocks_string = String::from("blocks: 10");
+    let player_1_blocks_string = String::from(format!("blocks: {}", p1_blocks));
     let player_1_blocks_string_centre = get_text_center(
         player_1_blocks_string.clone(),
         f,
@@ -234,7 +234,7 @@ pub fn draw_game_stats(text: String, f: Option<&Font>) {
         h3_params.clone(),
     );
 
-    let player_2_blocks_string = String::from("blocks: 10");
+    let player_2_blocks_string = String::from(format!("blocks: {}", p2_blocks));
     let player_2_blocks_string_centre = get_text_center(
         player_2_blocks_string.clone(),
         f,

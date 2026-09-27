@@ -38,7 +38,11 @@ async fn main() {
         // draws borders, grid, padding and
         draw_game_grid_base(&pre_computed_grid_lines);
 
-        draw_game_stats(String::from("stats"), Some(&font));
+        draw_game_stats(
+            Some(&font),
+            game.p1.remaining_blocks,
+            game.p2.remaining_blocks,
+        );
 
         // draw blocks that have already been placed
         for b in &blocks {
