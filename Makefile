@@ -16,3 +16,9 @@ wasm:
 run_wasm:
 	make wasm
 	cd ${WASM_DIR} && basic-http-server .
+
+build_dev:
+	cargo build --profile dev
+
+build_release:
+	cargo build --profile release
