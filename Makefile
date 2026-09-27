@@ -1,6 +1,9 @@
+BINDIR="bin/"
+WASM_DIR="${BINDIR}/wasm"
+
 
 bindir:
-	mkdir -p bin/wasm
+	mkdir -p "${WASM_DIR}"
 
 wasm:
 	make bindir
@@ -8,8 +11,14 @@ wasm:
 	cp \
 		target/wasm32-unknown-unknown/release/quoridor-rust.wasm \
 		src/wasm-release/* \
-		bin/wasm/
+		${WASM_DIR}/
 
 run_wasm:
 	make wasm
-	cd bin/wasm && basic-http-server .
+	cd ${WASM_DIR} && basic-http-server .
+
+build_dev:
+	cargo build --profile dev
+
+build_release:
+	cargo build --profile release
