@@ -7,30 +7,36 @@ use crate::core::placement::Placement;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
-/// Screen width, in pixels.
-pub const SCREEN_WIDTH: u16 = 1000;
-
-/// Screen height, in pixels
-pub const SCREEN_HEIGHT: u16 = 800;
-
 /// Size of each tile, in pixes.
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
 
 /// Width of grid line - this is re-used by the blocks
 pub const GRID_LINE_WIDTH: f32 = 12.0;
 
-/// Number of grid lines - dynamic to the grid
-const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
-
 /// Size of border around the playable board
 const BORDER_WIDTH: f32 = 2.0;
 
 /// Padding from the window's edges, in pixels.
-pub const PADDING: f32 = 50.0; //(SCREEN_HEIGHT as f32 - TOTAL_LEN) / 2.0;
+pub const PADDING: f32 = 50.0;
 
-/// Total length of the board
-const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
+/// Number of grid lines - dynamic to the grid
+const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
+
+/// Total length of the game grid
+const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
     + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
+
+/// Width of box showing player information
+const PLAYER_BOX_WIDTH: f32 = 150.0;
+
+/// Total length of all the elements
+const TOTAL_LEN: f32 = GAME_GRID_LEN + PLAYER_BOX_WIDTH + (3.0 * PADDING);
+
+/// Screen width, in pixels.
+pub const SCREEN_WIDTH: u16 = TOTAL_LEN as u16;
+
+/// Screen height, in pixels
+pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
 
 /// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
@@ -70,7 +76,7 @@ pub fn get_window_conf(title: String) -> Conf {
     Conf {
         window_title: title,
         window_width: SCREEN_WIDTH as i32,
-        window_height: (2 * PADDING as i32) + TOTAL_LEN as i32,
+        window_height: (2 * PADDING as i32) + GAME_GRID_LEN as i32,
         window_resizable: false,
         high_dpi: true,
         ..Default::default()
@@ -88,12 +94,12 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
                     x: PADDING + base_offset,
                     y: PADDING,
                     w: GRID_LINE_WIDTH,
-                    h: TOTAL_LEN,
+                    h: GAME_GRID_LEN,
                 },
                 Rect {
                     x: PADDING,
                     y: PADDING + base_offset,
-                    w: TOTAL_LEN,
+                    w: GAME_GRID_LEN,
                     h: GRID_LINE_WIDTH,
                 },
             ];
@@ -109,6 +115,11 @@ pub fn draw_base_board(vec: &Vec<Rect>) {
     draw_bounds();
     draw_backdrop();
     draw_grid_precomputed(vec);
+    draw_player_stats();
+}
+
+fn draw_player_stats() {
+    // draw_rectangle();
 }
 
 /// Draws the grid
@@ -123,8 +134,8 @@ fn draw_backdrop() {
     draw_rectangle(
         PADDING,
         PADDING,
-        TOTAL_LEN,
-        TOTAL_LEN,
+        GAME_GRID_LEN,
+        GAME_GRID_LEN,
         Color::new(0.90, 0.16, 0.22, 0.70), // light red
     );
 }
@@ -134,8 +145,8 @@ fn draw_bounds() {
     draw_rectangle(
         PADDING - BORDER_WIDTH,
         PADDING - BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
+        GAME_GRID_LEN + BORDER_WIDTH + BORDER_WIDTH,
+        GAME_GRID_LEN + BORDER_WIDTH + BORDER_WIDTH,
         LIGHTGRAY,
     );
 }
@@ -148,9 +159,9 @@ pub fn draw_block_placement_preview(block: Block) {
 /// Tests whether the mouse is inside the game grid
 fn is_mouse_inside_board(mp: (f32, f32)) -> bool {
     mp.0 >= PADDING
-        && mp.0 <= PADDING + TOTAL_LEN
+        && mp.0 <= PADDING + GAME_GRID_LEN
         && mp.1 >= PADDING
-        && mp.1 <= PADDING + TOTAL_LEN
+        && mp.1 <= PADDING + GAME_GRID_LEN
 }
 
 /// Figure out what state the mouse pointer is in.
@@ -275,20 +286,20 @@ pub fn draw_game_tile_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::utils::{PADDING, TOTAL_LEN, is_mouse_inside_board};
+    use crate::ui::utils::{GAME_GRID_LEN, PADDING, is_mouse_inside_board};
 
     #[test]
     fn test_is_mouse_in_grid_corners() {
         let v = (PADDING, PADDING);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING, PADDING + TOTAL_LEN);
+        let v = (PADDING, PADDING + GAME_GRID_LEN);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING + TOTAL_LEN, PADDING);
+        let v = (PADDING + GAME_GRID_LEN, PADDING);
         assert!(is_mouse_inside_board(v));
 
-        let v = (PADDING + TOTAL_LEN, PADDING + TOTAL_LEN);
+        let v = (PADDING + GAME_GRID_LEN, PADDING + GAME_GRID_LEN);
         assert!(is_mouse_inside_board(v));
     }
 
@@ -297,13 +308,13 @@ mod tests {
         let v = (PADDING, PADDING - 1f32);
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING - 1f32, PADDING + TOTAL_LEN);
+        let v = (PADDING - 1f32, PADDING + GAME_GRID_LEN);
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING + TOTAL_LEN + 1f32, PADDING);
+        let v = (PADDING + GAME_GRID_LEN + 1f32, PADDING);
         assert!(!is_mouse_inside_board(v));
 
-        let v = (PADDING + TOTAL_LEN, PADDING + TOTAL_LEN + 1f32);
+        let v = (PADDING + GAME_GRID_LEN, PADDING + GAME_GRID_LEN + 1f32);
         assert!(!is_mouse_inside_board(v));
     }
 }
