@@ -54,12 +54,10 @@ const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
 /// Constant for light green
-const LIGHT_GREEN: Color = Color {
-    r: 0.0,
-    g: 1.0,
-    b: 0.0,
-    a: 0.4,
-};
+const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
+
+/// Constant for light red
+const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
 /// Describes what the mouse is hovering over.
 #[derive(Debug, Clone)]
@@ -123,13 +121,83 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
     draw_grid_precomputed(vec);
 }
 
-pub fn draw_game_stats() {
+const GAME_STATS_BOX_PADDING: f32 = 5.0;
+
+const GAME_STATS_FONT_SIZE: u16 = 60;
+
+pub fn draw_game_stats(text: String, f: Option<&Font>) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
         GAME_STATS_BOX_WIDTH,
         GAME_GRID_LEN,
         WHITE,
+    );
+
+    let main_params = TextParams {
+        font: f,
+        font_size: GAME_STATS_FONT_SIZE,
+        color: BLACK, // Classic digital clock green (or RED/YELLOW)
+        ..Default::default()
+    };
+
+    let game_text_centre = get_text_center(
+        String::from("game"),
+        f,
+        main_params.font_size,
+        1.0,
+        0.0,
+    );
+    // GAME
+    draw_text_ex(
+        String::from(String::from("game")),
+        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
+            - game_text_centre.x,
+        PADDING + GAME_STATS_BOX_PADDING + (game_text_centre.y.abs() * 2.0),
+        main_params.clone(),
+    );
+
+    let stats_text_centre = get_text_center(
+        String::from("stats"),
+        f,
+        main_params.font_size,
+        1.0,
+        0.0,
+    );
+    // STATS
+    draw_text_ex(
+        String::from(String::from("stats")),
+        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
+            - stats_text_centre.x,
+        PADDING
+            + (game_text_centre.y.abs() * 4.0) // calculate height of previous line
+            + (2.0 * GAME_STATS_BOX_PADDING),
+        main_params.clone(),
+    );
+    const GAME_STATS_PLAYER_TEXT_FONT_SIZE: u16 = GAME_STATS_FONT_SIZE - 20u16;
+    let player_text_params = TextParams {
+        font: f,
+        font_size: GAME_STATS_PLAYER_TEXT_FONT_SIZE,
+        color: BLACK, // Classic digital clock green (or RED/YELLOW)
+        ..Default::default()
+    };
+
+    let player_1_text_centre = get_text_center(
+        String::from("player 1"),
+        f,
+        player_text_params.font_size,
+        1.0,
+        0.0,
+    );
+    // GAME
+    draw_text_ex(
+        String::from(String::from("player 1")),
+        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
+            - player_1_text_centre.x,
+        PADDING
+            + (3.0 * GAME_STATS_BOX_PADDING)
+            + (game_text_centre.y.abs() * 6.0),
+        player_text_params.clone(),
     );
 }
 
@@ -139,7 +207,6 @@ fn draw_grid_precomputed(vec: &Vec<Rect>) {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
-
 /// Draws the backdrop
 fn draw_backdrop() {
     draw_rectangle(
@@ -147,7 +214,7 @@ fn draw_backdrop() {
         GAME_GRID_BOX_START,
         GAME_GRID_LEN,
         GAME_GRID_LEN,
-        Color::new(0.90, 0.16, 0.22, 0.70), // light red
+        LIGHT_RED,
     );
 }
 
