@@ -26,19 +26,11 @@ const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 const BORDER_WIDTH: f32 = 2.0;
 
 /// Padding from the window's edges, in pixels.
-pub const PADDING: f32 = (SCREEN_HEIGHT as f32 - TOTAL_LEN) / 2.0;
+pub const PADDING: f32 = 50.0; //(SCREEN_HEIGHT as f32 - TOTAL_LEN) / 2.0;
 
 /// Total length of the board
 const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
     + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
-
-/// Used for determining if the mouse is in the board area
-///
-/// # Details
-/// This is used together with the call from mouse_position_local(), which
-/// returns a number from -1 to 1, and this number calculates the
-/// boundary number of where the game grid begins
-const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
 
 /// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
@@ -78,7 +70,7 @@ pub fn get_window_conf(title: String) -> Conf {
     Conf {
         window_title: title,
         window_width: SCREEN_WIDTH as i32,
-        window_height: SCREEN_HEIGHT as i32,
+        window_height: (2 * PADDING as i32) + TOTAL_LEN as i32,
         window_resizable: false,
         high_dpi: true,
         ..Default::default()
@@ -137,9 +129,8 @@ fn draw_backdrop() {
     );
 }
 
-/// Draws the yellow borders around the game grid
+/// Draws the borders around the game grid
 fn draw_bounds() {
-    // left
     draw_rectangle(
         PADDING - BORDER_WIDTH,
         PADDING - BORDER_WIDTH,
@@ -149,28 +140,27 @@ fn draw_bounds() {
     );
 }
 
-/// Tests whether the mouse is inside the game grid
-fn is_mouse_inside_board(pos: Vec2) -> bool {
-    pos.x >= -1.0 + PADDING_TO_WIDTH_RATIO
-        && pos.x <= 1.0 - PADDING_TO_WIDTH_RATIO
-        && pos.y >= -1.0 + PADDING_TO_WIDTH_RATIO
-        && pos.y <= 1.0 - PADDING_TO_WIDTH_RATIO
-}
-
 /// Draws a preview of where a block could go
 pub fn draw_block_placement_preview(block: Block) {
     draw_block(block, LIGHT_GREEN);
+}
+
+/// Tests whether the mouse is inside the game grid
+fn is_mouse_inside_board(mp: (f32, f32)) -> bool {
+    mp.0 >= PADDING
+        && mp.0 <= PADDING + TOTAL_LEN
+        && mp.1 >= PADDING
+        && mp.1 <= PADDING + TOTAL_LEN
 }
 
 /// Figure out what state the mouse pointer is in.
 ///
 /// This determines what can be done with this event (place block, highlight player tile etc).
 pub fn get_mouse_pointer_state() -> MouseState {
-    if !is_mouse_inside_board(mouse_position_local()) {
+    let mouse_position = mouse_position();
+    if !is_mouse_inside_board(mouse_position.clone()) {
         return MouseState::NotInsideBoard;
     }
-
-    let mouse_position = mouse_position();
 
     let mut row: u16 = 0;
     let mut found_row: bool = false;
@@ -285,48 +275,35 @@ pub fn draw_game_tile_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::utils::is_mouse_inside_board;
-    use macroquad::math::Vec2;
+    use crate::ui::utils::{PADDING, TOTAL_LEN, is_mouse_inside_board};
 
     #[test]
-    fn test_is_mouse_in_grid() {
-        let v: Vec2 = Vec2::new(0.0, 0.0);
-        assert!(is_mouse_inside_board(v));
-    }
-
-    #[test]
-    fn test_is_mouse_in_grid_edges() {
-        let v: Vec2 = Vec2::new(0.75, 0.0);
+    fn test_is_mouse_in_grid_corners() {
+        let v = (PADDING, PADDING);
         assert!(is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(0.0, 0.75);
+        let v = (PADDING, PADDING + TOTAL_LEN);
         assert!(is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(0.75, 0.75);
+        let v = (PADDING + TOTAL_LEN, PADDING);
         assert!(is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(-0.75, -0.75);
+        let v = (PADDING + TOTAL_LEN, PADDING + TOTAL_LEN);
         assert!(is_mouse_inside_board(v));
     }
 
     #[test]
     fn test_is_mouse_outside_grid() {
-        let v: Vec2 = Vec2::new(1.0, 0.0);
+        let v = (PADDING, PADDING - 1f32);
         assert!(!is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(1.0, 1.0);
+        let v = (PADDING - 1f32, PADDING + TOTAL_LEN);
         assert!(!is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(0.0, 1.0);
+        let v = (PADDING + TOTAL_LEN + 1f32, PADDING);
         assert!(!is_mouse_inside_board(v));
 
-        let v: Vec2 = Vec2::new(-1.0, 0.0);
-        assert!(!is_mouse_inside_board(v));
-
-        let v: Vec2 = Vec2::new(-1.0, -1.0);
-        assert!(!is_mouse_inside_board(v));
-
-        let v: Vec2 = Vec2::new(0.0, -1.0);
+        let v = (PADDING + TOTAL_LEN, PADDING + TOTAL_LEN + 1f32);
         assert!(!is_mouse_inside_board(v));
     }
 }
