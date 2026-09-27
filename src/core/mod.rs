@@ -4,5 +4,5 @@ pub mod grid;
 pub mod orientation;
 pub mod placement;
 pub mod player;
-mod position;
+pub mod position;
 mod tile;

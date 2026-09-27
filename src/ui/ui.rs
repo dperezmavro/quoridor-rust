@@ -3,6 +3,7 @@ use macroquad::prelude::*;
 
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
+use crate::core::player::Player;
 
 pub const SCREEN_WIDTH: u16 = 800;
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
@@ -222,11 +223,13 @@ pub fn draw_block(b: Block, c: Color) {
     draw_rectangle(x, y, w, h, c);
 }
 
-pub fn draw_player(x: u16, y: u16, c: Color) {
+pub fn draw_player(p: Player) {
+    let x = p.position.x;
+    let y = p.position.y;
     draw_circle(
         PADDING + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
         PADDING + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)) + PLAYER_RADIUS,
         PLAYER_FINAL_SIZE,
-        c,
+        p.get_color(),
     );
 }

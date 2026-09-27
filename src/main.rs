@@ -47,12 +47,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(game.p1.position.x as u16, game.p1.position.y as u16, BLUE);
-        draw_player(
-            game.p2.position.x as u16,
-            game.p2.position.y as u16,
-            YELLOW,
-        );
+        draw_player(game.p1.clone());
+        draw_player(game.p2.clone());
 
         let res = get_mouse_pointer_state();
         match &res {
