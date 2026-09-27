@@ -32,7 +32,7 @@ const LIGHT_GREEN: Color = Color {
     a: 0.4,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MouseState {
     RowCol(Position),
     // RowCol { row: u16, col: u16 },

@@ -58,6 +58,12 @@ async fn main() {
                 if game.can_add_block(block.clone()) {
                     draw_block_placement_preview(block.clone());
                 }
+
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    if game.add_block(block.clone()) {
+                        blocks.push(block.clone());
+                    }
+                }
             }
             MouseState::RowCol(position) => {
                 let is_grid_not_occupied_by_player =
@@ -78,18 +84,6 @@ async fn main() {
             }
             // anything else isn't drawable
             _ => {}
-        }
-
-        if is_mouse_button_pressed(MouseButton::Left) {
-            match &res {
-                MouseState::BlockPosition(block) => {
-                    if game.add_block(block.clone()) {
-                        blocks.push(block.clone());
-                    }
-                }
-                // only care about the block kind
-                _ => {}
-            }
         }
 
         next_frame().await
