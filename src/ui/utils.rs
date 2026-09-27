@@ -19,9 +19,6 @@ const BORDER_WIDTH: f32 = 2.0;
 /// Padding from the window's edges, in pixels.
 pub const PADDING: f32 = 50.0;
 
-/// Where the game grid starts
-pub const GAME_GRID_BOX_START: f32 = PADDING;
-
 /// Width of box showing player information
 const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 
@@ -30,6 +27,9 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
+
+/// Where the game grid starts
+pub const GAME_GRID_BOX_START: f32 = PADDING;
 
 /// Number of grid lines - dynamic to the grid
 const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
@@ -117,15 +117,20 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
 }
 
 /// Draws the base elements - backdrop, bounds and grid
-pub fn draw_base_board(vec: &Vec<Rect>) {
+pub fn draw_game_grid_base(vec: &Vec<Rect>) {
     draw_bounds();
     draw_backdrop();
     draw_grid_precomputed(vec);
-    draw_player_stats();
 }
 
-fn draw_player_stats() {
-    // draw_rectangle();
+pub fn draw_game_stats() {
+    draw_rectangle(
+        GAME_STATS_BOX_START,
+        PADDING,
+        GAME_STATS_BOX_WIDTH,
+        GAME_GRID_LEN,
+        WHITE,
+    );
 }
 
 /// Draws the grid

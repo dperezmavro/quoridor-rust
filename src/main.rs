@@ -3,14 +3,15 @@ mod ui;
 
 use crate::core::position::Position;
 use crate::ui::utils::{
-    draw_block_placement_preview, draw_game_tile_preview, get_window_conf,
+    draw_block_placement_preview, draw_game_stats, draw_game_tile_preview,
+    get_window_conf,
 };
 use core::game::Game;
 use core::player::{Player, StartingPosition};
 use core::{block, grid};
 use macroquad::prelude::*;
 use ui::utils::{
-    MouseState, draw_base_board, draw_block, draw_player,
+    MouseState, draw_block, draw_game_grid_base, draw_player,
     get_mouse_pointer_state, pre_computed_grid_lines,
 };
 
@@ -33,7 +34,9 @@ async fn main() {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
-        draw_base_board(&pre_computed_grid_lines);
+        draw_game_grid_base(&pre_computed_grid_lines);
+
+        draw_game_stats();
 
         // draw blocks that have already been placed
         for b in &blocks {
