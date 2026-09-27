@@ -1,30 +1,52 @@
-use crate::core::block::Block;
 use macroquad::prelude::*;
 
+use crate::core::block::Block;
+use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
+/// Screen width, in pixels.
 pub const SCREEN_WIDTH: u16 = 800;
+
+/// Size of each tile, in pixes.
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
-const NUM_TILES: usize = 9;
+
+/// Width of grid line - this is re-used by the blocks
 pub const GRID_LINE_WIDTH: f32 = 12.0;
+
+/// Number of grid lines - dynamic to the grid
 const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 
+/// Size of border around the playable board
 const BORDER_WIDTH: f32 = 2.0;
 
+/// Padding from the window's edges, in pixels.
 pub const PADDING: f32 = (SCREEN_WIDTH as f32 - TOTAL_LEN) / 2.0;
 
+/// Total length of the board
 const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
     + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
 
-// Used for determining if the mouse is in the board area
+/// Used for determining if the mouse is in the board area
+///
+/// # Details
+/// This is used together with the call from mouse_position_local(), which
+/// returns a number from -1 to 1, and this number calculates the
+/// boundary number of where the game grid begins
 const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
+
+/// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
+
+/// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
+
+/// Player's final size
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
+/// Constant for light green
 const LIGHT_GREEN: Color = Color {
     r: 0.0,
     g: 1.0,
@@ -32,15 +54,23 @@ const LIGHT_GREEN: Color = Color {
     a: 0.4,
 };
 
+/// Describes what the mouse is hovering over.
 #[derive(Debug, Clone)]
 pub enum MouseState {
+    /// Used when mouse is above player tile.
     RowCol(Position),
-    // RowCol { row: u16, col: u16 },
+
+    /// Used when mouse is above a block position.
     BlockPosition(Block),
+
+    /// Mouse in border cross-section - dead region.
     InBorderCrossSection,
+
+    /// Outside playable grid - nothing to do.
     NotInsideBoard,
 }
 
+/// Pre-computes the grid's lines where blocks will be placed
 pub fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .map(|x| {
@@ -67,74 +97,61 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
     grid_lines
 }
 
+/// Draws the base elements - backdrop, bounds and grid
 pub fn draw_base_board(vec: &Vec<Rect>) {
-    draw_backdrop();
     draw_bounds();
+    draw_backdrop();
     draw_grid_precomputed(vec);
 }
 
+/// Draws the grid
 fn draw_grid_precomputed(vec: &Vec<Rect>) {
     for v in vec {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
 
+/// Draws the backdrop
 fn draw_backdrop() {
-    draw_rectangle(PADDING, PADDING, TOTAL_LEN, TOTAL_LEN, RED);
+    draw_rectangle(
+        PADDING,
+        PADDING,
+        TOTAL_LEN,
+        TOTAL_LEN,
+        Color::new(0.90, 0.16, 0.22, 0.70), // light red
+    );
 }
 
+/// Draws the yellow borders around the game grid
 fn draw_bounds() {
     // left
     draw_rectangle(
         PADDING - BORDER_WIDTH,
         PADDING - BORDER_WIDTH,
-        BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // right
-    draw_rectangle(
-        PADDING + TOTAL_LEN,
-        PADDING,
-        BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // bottom
-    draw_rectangle(
-        PADDING - BORDER_WIDTH,
-        PADDING + TOTAL_LEN,
-        TOTAL_LEN + BORDER_WIDTH,
-        BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // top
-    draw_rectangle(
-        PADDING - BORDER_WIDTH,
-        PADDING - BORDER_WIDTH,
         TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
-        BORDER_WIDTH,
+        TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
         LIGHTGRAY,
     );
 }
 
-fn is_mouse_inside_board() -> bool {
-    let pos = mouse_position_local();
-
+/// Tests whether the mouse is inside the game grid
+fn is_mouse_inside_board(pos: Vec2) -> bool {
     pos.x >= -1.0 + PADDING_TO_WIDTH_RATIO
         && pos.x <= 1.0 - PADDING_TO_WIDTH_RATIO
         && pos.y >= -1.0 + PADDING_TO_WIDTH_RATIO
         && pos.y <= 1.0 - PADDING_TO_WIDTH_RATIO
 }
+
+/// Draws a preview of where a block could go
 pub fn draw_block_placement_preview(block: Block) {
     draw_block(block, LIGHT_GREEN);
 }
 
+/// Figure out what state the mouse pointer is in.
+///
+/// This determines what can be done with this event (place block, highlight player tile etc).
 pub fn get_mouse_pointer_state() -> MouseState {
-    if !is_mouse_inside_board() {
+    if !is_mouse_inside_board(mouse_position_local()) {
         return MouseState::NotInsideBoard;
     }
 
@@ -208,7 +225,7 @@ pub fn get_mouse_pointer_state() -> MouseState {
     }
 }
 
-// pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
+/// Draws a block - wrapper method for the macroquad method
 pub fn draw_block(b: Block, c: Color) {
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
@@ -228,6 +245,7 @@ pub fn draw_block(b: Block, c: Color) {
     draw_rectangle(x, y, w, h, c);
 }
 
+/// Draws a circle representing a player on the grid
 pub fn draw_player(p: Player) {
     let x = p.position.x;
     let y = p.position.y;
@@ -239,12 +257,61 @@ pub fn draw_player(p: Player) {
     );
 }
 
+/// Draws a preview of the player-tile that the mouse is currently hovering over.
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
         PADDING + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         PADDING + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         TILE_SIZE,
         TILE_SIZE,
-        PURPLE,
+        Color::new(0.78, 0.48, 1.00, 0.80),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ui::utils::is_mouse_inside_board;
+    use macroquad::math::Vec2;
+
+    #[test]
+    fn test_is_mouse_in_grid() {
+        let v: Vec2 = Vec2::new(0.0, 0.0);
+        assert!(is_mouse_inside_board(v));
+    }
+
+    #[test]
+    fn test_is_mouse_in_grid_edges() {
+        let v: Vec2 = Vec2::new(0.75, 0.0);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, 0.75);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.75, 0.75);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-0.75, -0.75);
+        assert!(is_mouse_inside_board(v));
+    }
+
+    #[test]
+    fn test_is_mouse_outside_grid() {
+        let v: Vec2 = Vec2::new(1.0, 0.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(1.0, 1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, 1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-1.0, 0.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-1.0, -1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, -1.0);
+        assert!(!is_mouse_inside_board(v));
+    }
 }

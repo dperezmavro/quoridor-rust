@@ -5,19 +5,19 @@ use crate::core::position::Position;
 use crate::core::tile::{Tile, TileState, TileType};
 use std::collections::HashSet;
 
-pub const GRID_SIZE: usize = 9;
+pub const NUM_TILES: usize = 9;
 
 #[derive(Debug)]
 pub struct Grid {
-    pub player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]>,
+    pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
     horizontal_blocks: Vec<Block>,
     vertical_blocks: Vec<Block>,
 }
 
-fn generate_row(y: usize) -> Box<[Tile; GRID_SIZE]> {
-    let mut res = Box::new([Tile::default(); GRID_SIZE]);
+fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
+    let mut res = Box::new([Tile::default(); NUM_TILES]);
     let default = Tile::default();
-    for i in 0..GRID_SIZE {
+    for i in 0..NUM_TILES {
         res[i] = Tile {
             position: Position { x: i, y },
             ..default
@@ -34,23 +34,23 @@ impl Grid {
             TileState::Occupied,
             Position {
                 y: 0,
-                x: GRID_SIZE / 2,
+                x: NUM_TILES / 2,
             },
         );
         let player_2_tile = Tile::new(
             TileType::Playable,
             TileState::Occupied,
             Position {
-                y: GRID_SIZE - 1,
-                x: GRID_SIZE / 2,
+                y: NUM_TILES - 1,
+                x: NUM_TILES / 2,
             },
         );
         let mut first_row = generate_row(0);
-        first_row[GRID_SIZE / 2] = player_1_tile;
-        let mut last_row = generate_row(GRID_SIZE - 1);
-        last_row[GRID_SIZE / 2] = player_2_tile;
+        first_row[NUM_TILES / 2] = player_1_tile;
+        let mut last_row = generate_row(NUM_TILES - 1);
+        last_row[NUM_TILES / 2] = player_2_tile;
 
-        let player_tiles: Box<[Box<[Tile; GRID_SIZE]>; GRID_SIZE]> =
+        let player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]> =
             Box::new([
                 first_row,
                 generate_row(1),
@@ -82,7 +82,7 @@ impl Grid {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
         }
         //bottom
-        if p.y < GRID_SIZE - 1
+        if p.y < NUM_TILES - 1
             && self.horizontal_blocks.iter().all(|x| {
                 !(x.placement.lane == p.y
                     && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
@@ -101,7 +101,7 @@ impl Grid {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
-        if p.x < GRID_SIZE - 1
+        if p.x < NUM_TILES - 1
             && self.vertical_blocks.iter().all(|x| {
                 !(x.placement.lane == p.x
                     && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
@@ -120,7 +120,6 @@ impl Grid {
         tiles_for_exploring.insert(&p.position);
 
         while !tiles_for_exploring.is_empty() {
-            // let neighbours = self.get_reachable_neighbour_tiles(p.position);
             let curr_pos = tiles_for_exploring.iter().cloned().next().unwrap();
             if visited.contains(curr_pos) {
                 continue;
@@ -217,8 +216,8 @@ impl Grid {
         p2: &Player,
         b: Block,
     ) -> bool {
-        if b.placement.tile >= GRID_SIZE - 1
-            || b.placement.lane >= GRID_SIZE - 1
+        if b.placement.tile >= NUM_TILES - 1
+            || b.placement.lane >= NUM_TILES - 1
         {
             return false;
         }
@@ -327,14 +326,14 @@ mod tests {
         let tests = vec![
             TestCase(0, 0, 2),
             TestCase(1, 1, 4),
-            TestCase(GRID_SIZE - 1, GRID_SIZE - 1, 2),
-            TestCase(0, GRID_SIZE - 1, 2),
-            TestCase(GRID_SIZE - 1, 0, 2),
-            TestCase(GRID_SIZE - 3, GRID_SIZE - 3, 4),
-            TestCase(GRID_SIZE - 2, 0, 3),
-            TestCase(0, GRID_SIZE - 2, 3),
-            TestCase(GRID_SIZE - 1, GRID_SIZE - 2, 3),
-            TestCase(GRID_SIZE - 2, GRID_SIZE - 1, 3),
+            TestCase(NUM_TILES - 1, NUM_TILES - 1, 2),
+            TestCase(0, NUM_TILES - 1, 2),
+            TestCase(NUM_TILES - 1, 0, 2),
+            TestCase(NUM_TILES - 3, NUM_TILES - 3, 4),
+            TestCase(NUM_TILES - 2, 0, 3),
+            TestCase(0, NUM_TILES - 2, 3),
+            TestCase(NUM_TILES - 1, NUM_TILES - 2, 3),
+            TestCase(NUM_TILES - 2, NUM_TILES - 1, 3),
         ];
 
         tests.iter().for_each(|t| {

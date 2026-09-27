@@ -1,4 +1,4 @@
-use crate::core::grid::GRID_SIZE;
+use crate::core::grid::NUM_TILES;
 use crate::core::position::Position;
 use macroquad::color::{BLUE, Color, YELLOW};
 
@@ -22,19 +22,19 @@ impl Player {
     pub fn new(name: String, sp: StartingPosition) -> Self {
         let p_y = match sp {
             StartingPosition::Top => 0,
-            StartingPosition::Bottom => GRID_SIZE - 1,
+            StartingPosition::Bottom => NUM_TILES - 1,
         };
         Self {
             name,
             starting_position: sp,
-            position: Position::new(GRID_SIZE / 2, p_y),
+            position: Position::new(NUM_TILES / 2, p_y),
             remaining_blocks: NUM_BLOCKS,
         }
     }
 
     pub fn get_y_goal(&self) -> usize {
         match self.starting_position {
-            StartingPosition::Top => GRID_SIZE - 1,
+            StartingPosition::Top => NUM_TILES - 1,
             StartingPosition::Bottom => 0,
         }
     }
@@ -58,15 +58,15 @@ mod tests {
     #[test]
     fn test_player_white() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Top);
-        assert_eq!(p.position.x, GRID_SIZE / 2);
+        assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, 0);
     }
 
     #[test]
     fn test_player_black() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
-        assert_eq!(p.position.x, GRID_SIZE / 2);
-        assert_eq!(p.position.y, GRID_SIZE - 1);
+        assert_eq!(p.position.x, NUM_TILES / 2);
+        assert_eq!(p.position.y, NUM_TILES - 1);
     }
 
     #[test]
