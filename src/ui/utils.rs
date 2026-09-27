@@ -123,7 +123,11 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
 
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
 
-const GAME_STATS_FONT_SIZE: u16 = 60;
+const FONT_SIZE_H1: u16 = 60;
+
+const FONE_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
+
+const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
 pub fn draw_game_stats(text: String, f: Option<&Font>) {
     draw_rectangle(
@@ -134,70 +138,118 @@ pub fn draw_game_stats(text: String, f: Option<&Font>) {
         WHITE,
     );
 
-    let main_params = TextParams {
+    let h1_params = TextParams {
         font: f,
-        font_size: GAME_STATS_FONT_SIZE,
-        color: BLACK, // Classic digital clock green (or RED/YELLOW)
+        font_size: FONT_SIZE_H1,
+        color: BLACK,
         ..Default::default()
     };
 
-    let game_text_centre = get_text_center(
-        String::from("game"),
-        f,
-        main_params.font_size,
-        1.0,
-        0.0,
-    );
+    let game_string = String::from("game");
+    let game_text_centre =
+        get_text_center(game_string.clone(), f, h1_params.font_size, 1.0, 0.0);
+
+    let mut next_line_offset = PADDING
+        + (3.0 * GAME_STATS_BOX_PADDING)
+        + (game_text_centre.y.abs() * 2.0);
+
     // GAME
     draw_text_ex(
-        String::from(String::from("game")),
-        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
-            - game_text_centre.x,
-        PADDING + GAME_STATS_BOX_PADDING + (game_text_centre.y.abs() * 2.0),
-        main_params.clone(),
+        game_string.clone(),
+        STATS_X_OFFSET - game_text_centre.x,
+        next_line_offset,
+        h1_params.clone(),
     );
 
-    let stats_text_centre = get_text_center(
-        String::from("stats"),
-        f,
-        main_params.font_size,
-        1.0,
-        0.0,
-    );
+    let stats_string = String::from("stats");
+    let stats_text_centre =
+        get_text_center(stats_string.clone(), f, h1_params.font_size, 1.0, 0.0);
+    next_line_offset +=
+        2.0 * (game_text_centre.y.abs() + GAME_STATS_BOX_PADDING);
     // STATS
     draw_text_ex(
-        String::from(String::from("stats")),
-        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
-            - stats_text_centre.x,
-        PADDING
-            + (game_text_centre.y.abs() * 4.0) // calculate height of previous line
-            + (2.0 * GAME_STATS_BOX_PADDING),
-        main_params.clone(),
+        stats_string.clone(),
+        STATS_X_OFFSET - stats_text_centre.x,
+        next_line_offset,
+        h1_params.clone(),
     );
-    const GAME_STATS_PLAYER_TEXT_FONT_SIZE: u16 = GAME_STATS_FONT_SIZE - 20u16;
-    let player_text_params = TextParams {
+    let h3_params = TextParams {
         font: f,
-        font_size: GAME_STATS_PLAYER_TEXT_FONT_SIZE,
+        font_size: FONE_SIZE_H3,
         color: BLACK, // Classic digital clock green (or RED/YELLOW)
         ..Default::default()
     };
 
+    let player_1_string = String::from("player 1");
     let player_1_text_centre = get_text_center(
-        String::from("player 1"),
+        player_1_string.clone(),
         f,
-        player_text_params.font_size,
+        h3_params.font_size,
         1.0,
         0.0,
     );
+    next_line_offset +=
+        (2.0 * game_text_centre.y.abs()) + GAME_STATS_BOX_PADDING;
+    // PLAYER 1
+    draw_text_ex(
+        player_1_string.clone(),
+        STATS_X_OFFSET - player_1_text_centre.x,
+        next_line_offset,
+        h3_params.clone(),
+    );
+
+    let player_1_blocks_string = String::from("blocks: 10");
+    let player_1_blocks_string_centre = get_text_center(
+        player_1_blocks_string.clone(),
+        f,
+        h3_params.font_size,
+        1.0,
+        0.0,
+    );
+    next_line_offset +=
+        2.0 * (player_1_blocks_string_centre.y.abs() + GAME_STATS_BOX_PADDING);
     // GAME
     draw_text_ex(
-        String::from(String::from("player 1")),
-        GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0)
-            - player_1_text_centre.x,
-        PADDING
-            + (3.0 * GAME_STATS_BOX_PADDING)
-            + (game_text_centre.y.abs() * 6.0),
-        player_text_params.clone(),
+        player_1_blocks_string.clone(),
+        STATS_X_OFFSET - player_1_blocks_string_centre.x,
+        next_line_offset,
+        h3_params.clone(),
+    );
+
+    let player_2_string = String::from("player 2");
+    let player_2_text_centre = get_text_center(
+        player_2_string.clone(),
+        f,
+        h3_params.font_size,
+        1.0,
+        0.0,
+    );
+    next_line_offset += (2.0 * player_1_blocks_string_centre.y.abs())
+        + (4.0 * GAME_STATS_BOX_PADDING);
+    // PLAYER 2
+    draw_text_ex(
+        player_2_string.clone(),
+        STATS_X_OFFSET - player_2_text_centre.x,
+        next_line_offset,
+        h3_params.clone(),
+    );
+
+    let player_2_blocks_string = String::from("blocks: 10");
+    let player_2_blocks_string_centre = get_text_center(
+        player_2_blocks_string.clone(),
+        f,
+        h3_params.font_size,
+        1.0,
+        0.0,
+    );
+    next_line_offset +=
+        2.0 * (player_2_blocks_string_centre.y.abs() + GAME_STATS_BOX_PADDING);
+    // GAME
+    draw_text_ex(
+        player_2_blocks_string.clone(),
+        STATS_X_OFFSET - player_2_blocks_string_centre.x,
+        next_line_offset,
+        h3_params.clone(),
     );
 }
 
