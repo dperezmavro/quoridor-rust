@@ -1,8 +1,9 @@
 [package]
 name = "quoridor-rust"
 authors = ["dionisio perez mavrogenis"]
-version = "0.1.0"
+version = "0.0.0"
 edition = "2024"
+description = "A game that I use to learn Rust!"
 
 [dependencies]
 macroquad = "0.4.16"
