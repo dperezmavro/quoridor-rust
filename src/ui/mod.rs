@@ -4,4 +4,4 @@
 //! macroquad, used for convenience.
 
 /// Module that has all the UI interaction and drawing code
-pub mod ui;
+pub mod utils;

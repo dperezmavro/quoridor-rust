@@ -54,12 +54,19 @@ const LIGHT_GREEN: Color = Color {
     a: 0.4,
 };
 
+/// Describes what the mouse is hovering over.
 #[derive(Debug, Clone)]
 pub enum MouseState {
+    /// Used when mouse is above player tile.
     RowCol(Position),
-    // RowCol { row: u16, col: u16 },
+
+    /// Used when mouse is above a block position.
     BlockPosition(Block),
+
+    /// Mouse in border cross-section - dead region.
     InBorderCrossSection,
+
+    /// Outside playable grid - nothing to do.
     NotInsideBoard,
 }
 
@@ -284,7 +291,7 @@ pub fn draw_game_tile_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::ui::is_mouse_inside_board;
+    use crate::ui::utils::is_mouse_inside_board;
     use macroquad::math::Vec2;
 
     #[test]

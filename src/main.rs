@@ -3,13 +3,13 @@ mod ui;
 
 use core::game::Game;
 use core::{block, grid};
-use ui::ui::{
+use ui::utils::{
     MouseState, SCREEN_WIDTH, draw_base_board, draw_block, draw_player,
     get_mouse_pointer_state, pre_computed_grid_lines,
 };
 
 use crate::core::position::Position;
-use crate::ui::ui::{draw_block_placement_preview, draw_game_tile_preview};
+use crate::ui::utils::{draw_block_placement_preview, draw_game_tile_preview};
 use core::player::{Player, StartingPosition};
 use macroquad::prelude::*;
 

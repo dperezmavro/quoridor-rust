@@ -1,5 +1,6 @@
 [package]
 name = "quoridor-rust"
+authors = ["dionisio perez mavrogenis"]
 version = "0.1.0"
 edition = "2024"
 
