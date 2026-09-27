@@ -1,28 +1,49 @@
-use crate::core::block::Block;
 use macroquad::prelude::*;
 
+use crate::core::block::Block;
+use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
+/// Screen width, in pixels.
 pub const SCREEN_WIDTH: u16 = 800;
+
+/// Size of each tile, in pixes.
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
-const NUM_TILES: usize = 9;
+
+/// Width of grid line - this is re-used by the blocks
 pub const GRID_LINE_WIDTH: f32 = 12.0;
+
+/// Number of grid lines - dynamic to the grid
 const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 
+/// Size of border around the playable board
 const BORDER_WIDTH: f32 = 2.0;
 
+/// Padding from the window's edges, in pixels.
 pub const PADDING: f32 = (SCREEN_WIDTH as f32 - TOTAL_LEN) / 2.0;
 
+/// Total length of the board
 const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
     + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
 
-// Used for determining if the mouse is in the board area
+/// Used for determining if the mouse is in the board area
+///
+/// # Details
+/// This is used together with the call from mouse_position_local(), which
+/// returns a number from -1 to 1, and this number calculates the
+/// boundary number of where the game grid begins
 const PADDING_TO_WIDTH_RATIO: f32 = (2.0 * PADDING) / SCREEN_WIDTH as f32;
+
+/// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
+
+/// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
+
+/// Player's final size
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
 /// Constant for light green
@@ -128,9 +149,7 @@ fn draw_bounds() {
 }
 
 /// Tests whether the mouse is inside the game grid
-fn is_mouse_inside_board() -> bool {
-    let pos = mouse_position_local();
-
+fn is_mouse_inside_board(pos: Vec2) -> bool {
     pos.x >= -1.0 + PADDING_TO_WIDTH_RATIO
         && pos.x <= 1.0 - PADDING_TO_WIDTH_RATIO
         && pos.y >= -1.0 + PADDING_TO_WIDTH_RATIO
@@ -146,7 +165,7 @@ pub fn draw_block_placement_preview(block: Block) {
 ///
 /// This determines what can be done with this event (place block, highlight player tile etc).
 pub fn get_mouse_pointer_state() -> MouseState {
-    if !is_mouse_inside_board() {
+    if !is_mouse_inside_board(mouse_position_local()) {
         return MouseState::NotInsideBoard;
     }
 
@@ -261,4 +280,52 @@ pub fn draw_game_tile_preview(p: &Position) {
         TILE_SIZE,
         PURPLE,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::ui::ui::is_mouse_inside_board;
+    use macroquad::math::Vec2;
+
+    #[test]
+    fn test_is_mouse_in_grid() {
+        let v: Vec2 = Vec2::new(0.0, 0.0);
+        assert!(is_mouse_inside_board(v));
+    }
+
+    #[test]
+    fn test_is_mouse_in_grid_edges() {
+        let v: Vec2 = Vec2::new(0.75, 0.0);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, 0.75);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.75, 0.75);
+        assert!(is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-0.75, -0.75);
+        assert!(is_mouse_inside_board(v));
+    }
+
+    #[test]
+    fn test_is_mouse_outside_grid() {
+        let v: Vec2 = Vec2::new(1.0, 0.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(1.0, 1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, 1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-1.0, 0.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(-1.0, -1.0);
+        assert!(!is_mouse_inside_board(v));
+
+        let v: Vec2 = Vec2::new(0.0, -1.0);
+        assert!(!is_mouse_inside_board(v));
+    }
 }
