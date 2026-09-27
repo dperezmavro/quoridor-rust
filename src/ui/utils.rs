@@ -8,7 +8,10 @@ use crate::core::player::Player;
 use crate::core::position::Position;
 
 /// Screen width, in pixels.
-pub const SCREEN_WIDTH: u16 = 800;
+pub const SCREEN_WIDTH: u16 = 1000;
+
+/// Screen height, in pixels
+pub const SCREEN_HEIGHT: u16 = 800;
 
 /// Size of each tile, in pixes.
 pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
@@ -23,7 +26,7 @@ const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 const BORDER_WIDTH: f32 = 2.0;
 
 /// Padding from the window's edges, in pixels.
-pub const PADDING: f32 = (SCREEN_WIDTH as f32 - TOTAL_LEN) / 2.0;
+pub const PADDING: f32 = (SCREEN_HEIGHT as f32 - TOTAL_LEN) / 2.0;
 
 /// Total length of the board
 const TOTAL_LEN: f32 = (TILE_SIZE * NUM_TILES as f32) as f32
@@ -68,6 +71,18 @@ pub enum MouseState {
 
     /// Outside playable grid - nothing to do.
     NotInsideBoard,
+}
+
+/// Returns the default window config
+pub fn get_window_conf(title: String) -> Conf {
+    Conf {
+        window_title: title,
+        window_width: SCREEN_WIDTH as i32,
+        window_height: SCREEN_HEIGHT as i32,
+        window_resizable: false,
+        high_dpi: true,
+        ..Default::default()
+    }
 }
 
 /// Pre-computes the grid's lines where blocks will be placed
