@@ -25,6 +25,7 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 const PLAYER_PADDING: f32 = 3.0;
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
+/// Constant for light green
 const LIGHT_GREEN: Color = Color {
     r: 0.0,
     g: 1.0,
@@ -41,6 +42,7 @@ pub enum MouseState {
     NotInsideBoard,
 }
 
+/// Pre-computes the grid's lines where blocks will be placed
 pub fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .map(|x| {
@@ -67,22 +69,26 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
     grid_lines
 }
 
+/// Draws the base elements - backdrop, bounds and grid
 pub fn draw_base_board(vec: &Vec<Rect>) {
     draw_backdrop();
     draw_bounds();
     draw_grid_precomputed(vec);
 }
 
+/// Draws the grid
 fn draw_grid_precomputed(vec: &Vec<Rect>) {
     for v in vec {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
 
+/// Draws the backdrop
 fn draw_backdrop() {
     draw_rectangle(PADDING, PADDING, TOTAL_LEN, TOTAL_LEN, RED);
 }
 
+/// Draws the yellow borders around the game grid
 fn draw_bounds() {
     // left
     draw_rectangle(
@@ -121,6 +127,7 @@ fn draw_bounds() {
     );
 }
 
+/// Tests whether the mouse is inside the game grid
 fn is_mouse_inside_board() -> bool {
     let pos = mouse_position_local();
 
@@ -129,10 +136,15 @@ fn is_mouse_inside_board() -> bool {
         && pos.y >= -1.0 + PADDING_TO_WIDTH_RATIO
         && pos.y <= 1.0 - PADDING_TO_WIDTH_RATIO
 }
+
+/// Draws a preview of where a block could go
 pub fn draw_block_placement_preview(block: Block) {
     draw_block(block, LIGHT_GREEN);
 }
 
+/// Figure out what state the mouse pointer is in.
+///
+/// This determines what can be done with this event (place block, highlight player tile etc).
 pub fn get_mouse_pointer_state() -> MouseState {
     if !is_mouse_inside_board() {
         return MouseState::NotInsideBoard;
@@ -208,7 +220,7 @@ pub fn get_mouse_pointer_state() -> MouseState {
     }
 }
 
-// pub fn draw_block(orientation: &Orientation, tile: u16, lane: u16, c: Color) {
+/// Draws a block - wrapper method for the macroquad method
 pub fn draw_block(b: Block, c: Color) {
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
@@ -228,6 +240,7 @@ pub fn draw_block(b: Block, c: Color) {
     draw_rectangle(x, y, w, h, c);
 }
 
+/// Draws a circle representing a player on the grid
 pub fn draw_player(p: Player) {
     let x = p.position.x;
     let y = p.position.y;
@@ -239,6 +252,7 @@ pub fn draw_player(p: Player) {
     );
 }
 
+/// Draws a preview of the player-tile that the mouse is currently hovering over.
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
         PADDING + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
