@@ -99,8 +99,8 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
 
 /// Draws the base elements - backdrop, bounds and grid
 pub fn draw_base_board(vec: &Vec<Rect>) {
-    draw_backdrop();
     draw_bounds();
+    draw_backdrop();
     draw_grid_precomputed(vec);
 }
 
@@ -113,7 +113,13 @@ fn draw_grid_precomputed(vec: &Vec<Rect>) {
 
 /// Draws the backdrop
 fn draw_backdrop() {
-    draw_rectangle(PADDING, PADDING, TOTAL_LEN, TOTAL_LEN, RED);
+    draw_rectangle(
+        PADDING,
+        PADDING,
+        TOTAL_LEN,
+        TOTAL_LEN,
+        Color::new(0.90, 0.16, 0.22, 0.70), // light red
+    );
 }
 
 /// Draws the yellow borders around the game grid
@@ -122,35 +128,8 @@ fn draw_bounds() {
     draw_rectangle(
         PADDING - BORDER_WIDTH,
         PADDING - BORDER_WIDTH,
-        BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // right
-    draw_rectangle(
-        PADDING + TOTAL_LEN,
-        PADDING,
-        BORDER_WIDTH,
-        TOTAL_LEN + BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // bottom
-    draw_rectangle(
-        PADDING - BORDER_WIDTH,
-        PADDING + TOTAL_LEN,
-        TOTAL_LEN + BORDER_WIDTH,
-        BORDER_WIDTH,
-        LIGHTGRAY,
-    );
-
-    // top
-    draw_rectangle(
-        PADDING - BORDER_WIDTH,
-        PADDING - BORDER_WIDTH,
         TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
-        BORDER_WIDTH,
+        TOTAL_LEN + BORDER_WIDTH + BORDER_WIDTH,
         LIGHTGRAY,
     );
 }
@@ -285,7 +264,7 @@ pub fn draw_game_tile_preview(p: &Position) {
         PADDING + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         TILE_SIZE,
         TILE_SIZE,
-        PURPLE,
+        Color::new(0.78, 0.48, 1.00, 0.80),
     )
 }
 
