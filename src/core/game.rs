@@ -40,7 +40,7 @@ impl Game {
         self.g.place_block(&self.p1, &self.p2, b)
     }
 
-    pub fn process_move(&mut self, m: Move) {
+    pub fn process_move(&mut self, m: Move) -> bool {
         let curr_player: &mut Player = if self.player_turn == 0 {
             &mut self.p1
         } else {
@@ -51,6 +51,8 @@ impl Game {
             Move::PlaceBlock(block) => {
                 if curr_player.remaining_blocks > 0 {
                     curr_player.remaining_blocks -= 1;
+                } else {
+                    return false;
                 }
             }
             Move::PlayerAdvance(pos) => {}
@@ -58,6 +60,8 @@ impl Game {
 
         self.player_turn += 1;
         self.player_turn = self.player_turn % NUM_PLAYERS;
+
+        true
     }
 }
 
@@ -182,17 +186,17 @@ mod test {
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
 
-        g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
-        )));
+        ))));
 
         assert_eq!(1, g.player_turn);
 
-        g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
-        )));
+        ))));
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
     }
@@ -208,18 +212,18 @@ mod test {
         assert_eq!(NUM_BLOCKS, g.p1.remaining_blocks);
         assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
 
-        g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
-        )));
+        ))));
 
         assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
         assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
 
-        g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
-        )));
+        ))));
 
         assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
         assert_eq!(NUM_BLOCKS - 1, g.p2.remaining_blocks);
