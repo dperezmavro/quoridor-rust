@@ -59,6 +59,9 @@ const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
+const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
+const LIGHT_YELLOW: Color = Color { a: 0.7, ..YELLOW };
+
 /// Padding for the box showing game stats
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
 
@@ -247,8 +250,12 @@ fn draw_bounds() {
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_block_placement_preview(block: Block) {
-    draw_block(block, LIGHT_GREEN);
+pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+    let mut c = LIGHT_BLUE;
+    if player_id == 0 {
+        c = LIGHT_YELLOW;
+    }
+    draw_block(block, c);
 }
 
 /// Tests whether the mouse is inside the game grid

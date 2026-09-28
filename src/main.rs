@@ -6,7 +6,7 @@ use crate::ui::utils::{
     draw_block_placement_preview, draw_game_stats, draw_game_tile_preview,
     get_window_conf,
 };
-use core::game::Game;
+use core::game::{Game, Move};
 use core::player::{Player, StartingPosition};
 use core::{block, grid};
 use macroquad::prelude::*;
@@ -59,11 +59,15 @@ async fn main() {
             MouseState::BlockPosition(block) => {
                 // hovering above a block position
                 if game.can_add_block(block.clone()) {
-                    draw_block_placement_preview(block.clone());
+                    draw_block_placement_preview(
+                        block.clone(),
+                        game.get_player_turn(),
+                    );
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left) {
-                    if game.add_block(block.clone()) {
+                    if game.can_add_block(block.clone()) {
+                        game.process_move(Move::PlaceBlock(block.clone()));
                         blocks.push(block.clone());
                     }
                 }

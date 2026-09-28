@@ -42,8 +42,12 @@ impl Game {
             || (self.p2.position.x == p.x && self.p2.position.y == p.y)
     }
 
-    pub fn add_block(&mut self, b: Block) -> bool {
+    pub fn place_block(&mut self, b: Block) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
+    }
+
+    pub fn get_player_turn(&self) -> u8 {
+        self.player_turn
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
@@ -58,7 +62,9 @@ impl Game {
                 if !curr_player.has_remaining_blocks() {
                     return false;
                 }
+
                 curr_player.consume_block();
+                self.place_block(block.clone());
             }
             Move::PlayerAdvance(pos) => {}
         }
@@ -92,7 +98,7 @@ mod test {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
-        assert!(g.add_block(Block {
+        assert!(g.place_block(Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
@@ -111,10 +117,10 @@ mod test {
         };
         // test normal add
         assert!(g.can_add_block(b.clone()));
-        assert!(g.add_block(b.clone()));
+        assert!(g.place_block(b.clone()));
         //verify duplicate add rejected
         assert!(!g.can_add_block(b.clone()));
-        assert!(!g.add_block(b.clone()));
+        assert!(!g.place_block(b.clone()));
     }
 
     #[test]
@@ -155,16 +161,16 @@ mod test {
         };
 
         assert!(g.can_add_block(b1.clone()));
-        assert!(g.add_block(b1.clone()));
+        assert!(g.place_block(b1.clone()));
         assert!(!g.can_add_block(b1.clone()));
 
         assert!(g.can_add_block(b2.clone()));
-        assert!(g.add_block(b2.clone()));
+        assert!(g.place_block(b2.clone()));
         assert!(!g.can_add_block(b2.clone()));
 
         // this should fail
         assert!(!g.can_add_block(b3));
-        assert!(!g.add_block(b3));
+        assert!(!g.place_block(b3));
 
         let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
         assert_eq!(
