@@ -148,42 +148,37 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
         ..Default::default()
     };
 
+    let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
+
     // H1
     let h1_texts = vec![String::from("game"), String::from("stats")];
+    h1_texts.iter().enumerate().for_each(|(i, h)| {
+        let h1_string = h;
+        let h1_text_centre = get_text_center(
+            h1_string.clone(),
+            f,
+            h1_params.font_size,
+            1.0,
+            0.0,
+        );
 
-    let game_string = String::from("game");
-    let game_text_centre =
-        get_text_center(game_string.clone(), f, h1_params.font_size, 1.0, 0.0);
+        next_line_offset +=
+            ((h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0);
 
-    let mut next_line_offset = PADDING
-        + (3.0 * GAME_STATS_BOX_PADDING)
-        + (game_text_centre.y.abs() * 2.0);
+        // GAME
+        draw_text_ex(
+            h1_string.clone(),
+            STATS_X_OFFSET - h1_text_centre.x,
+            next_line_offset,
+            h1_params.clone(),
+        );
+    });
 
-    // GAME
-    draw_text_ex(
-        game_string.clone(),
-        STATS_X_OFFSET - game_text_centre.x,
-        next_line_offset,
-        h1_params.clone(),
-    );
+    next_line_offset += GAME_STATS_BOX_PADDING * 12.0;
 
-    let stats_string = String::from("stats");
-    let stats_text_centre =
-        get_text_center(stats_string.clone(), f, h1_params.font_size, 1.0, 0.0);
-    next_line_offset +=
-        2.0 * (game_text_centre.y.abs() + GAME_STATS_BOX_PADDING);
-    // STATS
-    draw_text_ex(
-        stats_string.clone(),
-        STATS_X_OFFSET - stats_text_centre.x,
-        next_line_offset,
-        h1_params.clone(),
-    );
     let h3_params = TextParams {
-        font: f,
         font_size: FONT_SIZE_H3,
-        color: BLACK,
-        ..Default::default()
+        ..h1_params
     };
 
     // H3
@@ -194,8 +189,6 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
         String::from(format!("blocks: {}", p2_blocks)),
     ];
 
-    next_line_offset +=
-        (2.0 * game_text_centre.y.abs()) + GAME_STATS_BOX_PADDING;
     h3_texts.iter().enumerate().for_each(|(i, h)| {
         let h3_string = h.to_string();
         if i == 2 {
