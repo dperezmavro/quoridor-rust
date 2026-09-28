@@ -60,7 +60,7 @@ const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
 const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
-const LIGHT_YELLOW: Color = Color { a: 0.7, ..YELLOW };
+const LIGHT_YELLOW: Color = Color { a: 0.5, ..YELLOW };
 
 /// Padding for the box showing game stats
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
