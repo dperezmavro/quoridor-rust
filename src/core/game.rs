@@ -17,6 +17,12 @@ pub struct Game {
     player_turn: u8,
 }
 
+#[derive(Debug)]
+pub enum Move {
+    PlaceBlock(Block),
+    PlayerAdvance(Position),
+}
+
 impl Game {
     pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
         Self {
@@ -49,25 +55,18 @@ impl Game {
 
         match m {
             Move::PlaceBlock(block) => {
-                if curr_player.remaining_blocks > 0 {
-                    curr_player.remaining_blocks -= 1;
-                } else {
+                if !curr_player.has_remaining_blocks() {
                     return false;
                 }
+                curr_player.consume_block();
             }
             Move::PlayerAdvance(pos) => {}
         }
 
-        self.player_turn += 1;
-        self.player_turn = self.player_turn % NUM_PLAYERS;
+        self.player_turn ^= 1;
 
         true
     }
-}
-
-pub enum Move {
-    PlaceBlock(Block),
-    PlayerAdvance(Position),
 }
 
 #[cfg(test)]
@@ -227,5 +226,49 @@ mod test {
 
         assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
         assert_eq!(NUM_BLOCKS - 1, g.p2.remaining_blocks);
+    }
+
+    #[test]
+    fn test_blocks_exhausted() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+        for i in vec![
+            (0, 0),
+            (2, 0),
+            (4, 0),
+            (6, 0),
+            (0, 1),
+            (2, 1),
+            (4, 1),
+            (6, 1),
+            (0, 2),
+            (2, 2),
+            (4, 2),
+            (6, 2),
+            (0, 3),
+            (2, 3),
+            (4, 3),
+            (6, 3),
+            (0, 4),
+            (2, 4),
+            (4, 4),
+            (6, 4),
+        ] {
+            assert!(g.process_move(Move::PlaceBlock(Block::new(
+                Placement::new(i.0, i.1),
+                Orientation::Horizontal
+            ))));
+        }
+
+        assert!(!g.p1.has_remaining_blocks());
+        assert!(!g.p2.has_remaining_blocks());
+
+        assert!(!g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(6, 6),
+            Orientation::Horizontal
+        ))));
     }
 }

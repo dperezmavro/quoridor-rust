@@ -41,6 +41,10 @@ impl Player {
     pub fn consume_block(&mut self) {
         self.remaining_blocks -= 1;
     }
+
+    pub fn has_remaining_blocks(&self) -> bool {
+        self.remaining_blocks > 0
+    }
 }
 
 #[cfg(test)]
