@@ -1,31 +1,28 @@
 mod core;
 mod ui;
 
+use crate::core::position::Position;
+use crate::ui::utils::{
+    draw_block_placement_preview, draw_game_stats, draw_game_tile_preview,
+    get_window_conf,
+};
 use core::game::Game;
+use core::player::{Player, StartingPosition};
 use core::{block, grid};
+use macroquad::prelude::*;
 use ui::utils::{
-    MouseState, SCREEN_WIDTH, draw_base_board, draw_block, draw_player,
+    MouseState, draw_block, draw_game_grid_base, draw_player,
     get_mouse_pointer_state, pre_computed_grid_lines,
 };
 
-use crate::core::position::Position;
-use crate::ui::utils::{draw_block_placement_preview, draw_game_tile_preview};
-use core::player::{Player, StartingPosition};
-use macroquad::prelude::*;
-
 fn window_conf() -> Conf {
-    Conf {
-        window_title: String::from("quoridor-rust"),
-        window_width: SCREEN_WIDTH as i32,
-        window_height: SCREEN_WIDTH as i32,
-        window_resizable: false,
-        high_dpi: true,
-        ..Default::default()
-    }
+    get_window_conf(String::from("quoridor-rust"))
 }
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
+
     let mut blocks: Vec<block::Block> = Vec::with_capacity(20);
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
@@ -39,7 +36,13 @@ async fn main() {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
-        draw_base_board(&pre_computed_grid_lines);
+        draw_game_grid_base(&pre_computed_grid_lines);
+
+        draw_game_stats(
+            Some(&font),
+            game.p1.remaining_blocks,
+            game.p2.remaining_blocks,
+        );
 
         // draw blocks that have already been placed
         for b in &blocks {
