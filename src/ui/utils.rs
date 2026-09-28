@@ -4,7 +4,7 @@ use crate::core::block::Block;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
-use crate::core::player::Player;
+use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 
 /// Size of each tile, in pixes.
@@ -358,6 +358,11 @@ pub fn draw_block(b: Block, c: Color) {
 pub fn draw_player(p: Player) {
     let x = p.position.x;
     let y = p.position.y;
+    let color = match p.starting_position {
+        StartingPosition::Top => YELLOW,
+        StartingPosition::Bottom => BLUE,
+    };
+
     draw_circle(
         GAME_GRID_BOX_START
             + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
@@ -366,7 +371,7 @@ pub fn draw_player(p: Player) {
             + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
             + PLAYER_RADIUS,
         PLAYER_FINAL_SIZE,
-        p.get_color(),
+        color,
     );
 }
 
