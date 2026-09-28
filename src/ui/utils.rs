@@ -125,7 +125,7 @@ const GAME_STATS_BOX_PADDING: f32 = 5.0;
 
 const FONT_SIZE_H1: u16 = 60;
 
-const FONE_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
+const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
@@ -175,7 +175,7 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     );
     let h3_params = TextParams {
         font: f,
-        font_size: FONE_SIZE_H3,
+        font_size: FONT_SIZE_H3,
         color: BLACK, // Classic digital clock green (or RED/YELLOW)
         ..Default::default()
     };
