@@ -132,6 +132,8 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
     draw_backdrop();
     draw_grid_precomputed(vec);
 }
+
+/// Used for drawing player information
 pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     draw_rectangle(
         GAME_STATS_BOX_START,
@@ -221,6 +223,7 @@ fn draw_grid_precomputed(vec: &Vec<Rect>) {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
+
 /// Draws the backdrop
 fn draw_backdrop() {
     draw_rectangle(
