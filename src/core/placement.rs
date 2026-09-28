@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Placement {
     pub tile: usize,
     pub lane: usize,

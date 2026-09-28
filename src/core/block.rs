@@ -2,7 +2,7 @@ use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 
 /// Blocks are used for blocking player movement.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Block {
     /// `orientation` is the block's orientation
     pub orientation: Orientation,

@@ -3,17 +3,34 @@ use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
+/// Number of players for this game
+const NUM_PLAYERS: u8 = 2;
+
+/// Which player goes first
+const DEFAULT_PLAYER_ORDER: u8 = 0;
+
 #[derive(Debug)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
-    // TODO dio : other stuff like date started etc
+    player_turn: u8,
+}
+
+#[derive(Debug)]
+pub enum Move {
+    PlaceBlock(Block),
+    PlayerAdvance(Position),
 }
 
 impl Game {
     pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
-        Self { g, p1, p2 }
+        Self {
+            g,
+            p1,
+            p2,
+            player_turn: DEFAULT_PLAYER_ORDER,
+        }
     }
 
     pub fn can_add_block(&mut self, b: Block) -> bool {
@@ -25,8 +42,36 @@ impl Game {
             || (self.p2.position.x == p.x && self.p2.position.y == p.y)
     }
 
-    pub fn add_block(&mut self, b: Block) -> bool {
+    pub fn place_block(&mut self, b: Block) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
+    }
+
+    pub fn get_player_turn(&self) -> u8 {
+        self.player_turn.clone()
+    }
+
+    pub fn process_move(&mut self, m: Move) -> bool {
+        let curr_player: &mut Player = if self.player_turn == 0 {
+            &mut self.p1
+        } else {
+            &mut self.p2
+        };
+
+        match m {
+            Move::PlaceBlock(block) => {
+                if !curr_player.has_remaining_blocks() {
+                    return false;
+                }
+
+                curr_player.consume_block();
+                self.place_block(block.clone());
+            }
+            Move::PlayerAdvance(pos) => {}
+        }
+
+        self.player_turn ^= 1;
+
+        true
     }
 }
 
@@ -38,7 +83,7 @@ mod test {
     use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
-    use crate::core::player::StartingPosition;
+    use crate::core::player::{NUM_BLOCKS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::tile::Tile;
 
@@ -53,7 +98,7 @@ mod test {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
-        assert!(g.add_block(Block {
+        assert!(g.place_block(Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
@@ -72,10 +117,10 @@ mod test {
         };
         // test normal add
         assert!(g.can_add_block(b.clone()));
-        assert!(g.add_block(b.clone()));
+        assert!(g.place_block(b.clone()));
         //verify duplicate add rejected
         assert!(!g.can_add_block(b.clone()));
-        assert!(!g.add_block(b.clone()));
+        assert!(!g.place_block(b.clone()));
     }
 
     #[test]
@@ -116,16 +161,16 @@ mod test {
         };
 
         assert!(g.can_add_block(b1.clone()));
-        assert!(g.add_block(b1.clone()));
+        assert!(g.place_block(b1.clone()));
         assert!(!g.can_add_block(b1.clone()));
 
         assert!(g.can_add_block(b2.clone()));
-        assert!(g.add_block(b2.clone()));
+        assert!(g.place_block(b2.clone()));
         assert!(!g.can_add_block(b2.clone()));
 
         // this should fail
         assert!(!g.can_add_block(b3));
-        assert!(!g.add_block(b3));
+        assert!(!g.place_block(b3));
 
         let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
         assert_eq!(
@@ -134,5 +179,102 @@ mod test {
             "{:?}",
             tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
         );
+    }
+
+    #[test]
+    fn test_player_index_changed() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+
+        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        ))));
+
+        assert_eq!(1, g.player_turn);
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        ))));
+
+        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+    }
+
+    #[test]
+    fn test_player_block_decrement() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+
+        assert_eq!(NUM_BLOCKS, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        ))));
+
+        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        ))));
+
+        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS - 1, g.p2.remaining_blocks);
+    }
+
+    #[test]
+    fn test_blocks_exhausted() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+        for i in vec![
+            (0, 0),
+            (2, 0),
+            (4, 0),
+            (6, 0),
+            (0, 1),
+            (2, 1),
+            (4, 1),
+            (6, 1),
+            (0, 2),
+            (2, 2),
+            (4, 2),
+            (6, 2),
+            (0, 3),
+            (2, 3),
+            (4, 3),
+            (6, 3),
+            (0, 4),
+            (2, 4),
+            (4, 4),
+            (6, 4),
+        ] {
+            assert!(g.process_move(Move::PlaceBlock(Block::new(
+                Placement::new(i.0, i.1),
+                Orientation::Horizontal
+            ))));
+        }
+
+        assert!(!g.p1.has_remaining_blocks());
+        assert!(!g.p2.has_remaining_blocks());
+
+        assert!(!g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(6, 6),
+            Orientation::Horizontal
+        ))));
     }
 }

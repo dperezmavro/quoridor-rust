@@ -437,7 +437,7 @@ mod tests {
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
-        let block = &Block::default();
+        let block = &Block::new(Placement::new(0, 0), Orientation::Horizontal);
         assert!(g.place_block(&p1, &p2, *block));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
