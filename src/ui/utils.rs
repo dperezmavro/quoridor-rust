@@ -59,6 +59,18 @@ const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
+/// Padding for the box showing game stats
+const GAME_STATS_BOX_PADDING: f32 = 5.0;
+
+/// Font size for H1
+const FONT_SIZE_H1: u16 = 60;
+
+/// Font size for H3
+const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
+
+/// Convenience offset for where to start drawing the text in the stats box
+const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
+
 /// Describes what the mouse is hovering over.
 #[derive(Debug, Clone)]
 pub enum MouseState {
@@ -120,15 +132,6 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
     draw_backdrop();
     draw_grid_precomputed(vec);
 }
-
-const GAME_STATS_BOX_PADDING: f32 = 5.0;
-
-const FONT_SIZE_H1: u16 = 60;
-
-const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
-
-const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
-
 pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     draw_rectangle(
         GAME_STATS_BOX_START,
@@ -144,6 +147,9 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
         color: BLACK,
         ..Default::default()
     };
+
+    // H1
+    let h1_texts = vec![String::from("game"), String::from("stats")];
 
     let game_string = String::from("game");
     let game_text_centre =
@@ -176,81 +182,44 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     let h3_params = TextParams {
         font: f,
         font_size: FONT_SIZE_H3,
-        color: BLACK, // Classic digital clock green (or RED/YELLOW)
+        color: BLACK,
         ..Default::default()
     };
 
-    let player_1_string = String::from("player 1");
-    let player_1_text_centre = get_text_center(
-        player_1_string.clone(),
-        f,
-        h3_params.font_size,
-        1.0,
-        0.0,
-    );
+    // H3
+    let h3_texts = vec![
+        String::from("player 1"),
+        String::from(format!("blocks: {}", p1_blocks)),
+        String::from("player 2"),
+        String::from(format!("blocks: {}", p2_blocks)),
+    ];
+
     next_line_offset +=
         (2.0 * game_text_centre.y.abs()) + GAME_STATS_BOX_PADDING;
-    // PLAYER 1
-    draw_text_ex(
-        player_1_string.clone(),
-        STATS_X_OFFSET - player_1_text_centre.x,
-        next_line_offset,
-        h3_params.clone(),
-    );
+    h3_texts.iter().enumerate().for_each(|(i, h)| {
+        let h3_string = h.to_string();
+        if i == 2 {
+            // text for player 2
+            next_line_offset += (4.0 * GAME_STATS_BOX_PADDING);
+        }
+        let h3_string_text_centre = get_text_center(
+            h3_string.clone(),
+            f,
+            h3_params.font_size,
+            1.0,
+            0.0,
+        );
 
-    let player_1_blocks_string = String::from(format!("blocks: {}", p1_blocks));
-    let player_1_blocks_string_centre = get_text_center(
-        player_1_blocks_string.clone(),
-        f,
-        h3_params.font_size,
-        1.0,
-        0.0,
-    );
-    next_line_offset +=
-        2.0 * (player_1_blocks_string_centre.y.abs() + GAME_STATS_BOX_PADDING);
-    // GAME
-    draw_text_ex(
-        player_1_blocks_string.clone(),
-        STATS_X_OFFSET - player_1_blocks_string_centre.x,
-        next_line_offset,
-        h3_params.clone(),
-    );
+        draw_text_ex(
+            h3_string.clone(),
+            STATS_X_OFFSET - h3_string_text_centre.x,
+            next_line_offset,
+            h3_params.clone(),
+        );
 
-    let player_2_string = String::from("player 2");
-    let player_2_text_centre = get_text_center(
-        player_2_string.clone(),
-        f,
-        h3_params.font_size,
-        1.0,
-        0.0,
-    );
-    next_line_offset += (2.0 * player_1_blocks_string_centre.y.abs())
-        + (4.0 * GAME_STATS_BOX_PADDING);
-    // PLAYER 2
-    draw_text_ex(
-        player_2_string.clone(),
-        STATS_X_OFFSET - player_2_text_centre.x,
-        next_line_offset,
-        h3_params.clone(),
-    );
-
-    let player_2_blocks_string = String::from(format!("blocks: {}", p2_blocks));
-    let player_2_blocks_string_centre = get_text_center(
-        player_2_blocks_string.clone(),
-        f,
-        h3_params.font_size,
-        1.0,
-        0.0,
-    );
-    next_line_offset +=
-        2.0 * (player_2_blocks_string_centre.y.abs() + GAME_STATS_BOX_PADDING);
-    // GAME
-    draw_text_ex(
-        player_2_blocks_string.clone(),
-        STATS_X_OFFSET - player_2_blocks_string_centre.x,
-        next_line_offset,
-        h3_params.clone(),
-    );
+        next_line_offset +=
+            (2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING);
+    });
 }
 
 /// Draws the grid
