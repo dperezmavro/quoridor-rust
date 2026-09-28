@@ -3,17 +3,28 @@ use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
+/// Number of players for this game
+const NUM_PLAYERS: u8 = 2;
+
+/// Which player goes first
+const DEFAULT_PLAYER_ORDER: u8 = 0;
+
 #[derive(Debug)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
-    // TODO dio : other stuff like date started etc
+    player_turn: u8,
 }
 
 impl Game {
     pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
-        Self { g, p1, p2 }
+        Self {
+            g,
+            p1,
+            p2,
+            player_turn: DEFAULT_PLAYER_ORDER,
+        }
     }
 
     pub fn can_add_block(&mut self, b: Block) -> bool {
@@ -28,6 +39,27 @@ impl Game {
     pub fn add_block(&mut self, b: Block) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
     }
+
+    pub fn process_move(&mut self, m: Move) {
+        let curr_player = if self.player_turn == 0 {
+            self.p1.clone()
+        } else {
+            self.p2.clone()
+        };
+
+        match m {
+            Move::PlaceBlock(block) => {}
+            Move::PlayerAdvance(pos) => {}
+        }
+
+        self.player_turn += 1;
+        self.player_turn = self.player_turn % NUM_PLAYERS;
+    }
+}
+
+pub enum Move {
+    PlaceBlock(Block),
+    PlayerAdvance(Position),
 }
 
 #[cfg(test)]
@@ -134,5 +166,30 @@ mod test {
             "{:?}",
             tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
         );
+    }
+
+    #[test]
+    fn test_player_index_changed() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+
+        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+
+        g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        )));
+
+        assert_eq!(1, g.player_turn);
+
+        g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        )));
+
+        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
     }
 }
