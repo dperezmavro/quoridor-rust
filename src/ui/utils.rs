@@ -74,6 +74,9 @@ const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 /// Convenience offset for where to start drawing the text in the stats box
 const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
+/// First player's colour mapping
+const FIRST_PLAYER_ID: u8 = 0;
+
 /// Describes what the mouse is hovering over.
 #[derive(Debug, Clone)]
 pub enum MouseState {
@@ -252,7 +255,7 @@ fn draw_bounds() {
 /// Draws a preview of where a block could go
 pub fn draw_block_placement_preview(block: Block, player_id: u8) {
     let mut c = LIGHT_BLUE;
-    if player_id == 0 {
+    if player_id == FIRST_PLAYER_ID {
         c = LIGHT_YELLOW;
     }
     draw_block(block, c);
