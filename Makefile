@@ -1,9 +1,11 @@
 BINDIR="bin/"
 WASM_DIR="${BINDIR}/wasm"
+ASSET_DIR="${WASM_DIR}/assets"
 
 
 bindir:
 	mkdir -p "${WASM_DIR}"
+	mkdir -p "${ASSET_DIR}"
 
 wasm:
 	make bindir
@@ -12,6 +14,7 @@ wasm:
 		target/wasm32-unknown-unknown/release/quoridor-rust.wasm \
 		src/wasm-release/* \
 		${WASM_DIR}/
+	cp assets/digital-7.ttf ${ASSET_DIR}/
 
 run_wasm:
 	make wasm
