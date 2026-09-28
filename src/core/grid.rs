@@ -158,24 +158,24 @@ impl Grid {
     fn does_intersect_existing_blocks(&self, incoming_block: &Block) -> bool {
         // applied to an incoming horizontal block
         // testing for an existing vertical block
-        let hor_clos = |x1: &&Block| -> bool {
+        let hor_clos = |x1: &Block| -> bool {
             x1.placement.tile == incoming_block.placement.lane
                 && x1.placement.lane == incoming_block.placement.tile
         };
 
         // applied to an incoming vertical block
         // testing for an existing horizontal block
-        let ver_clos = |x1: &&Block| -> bool {
+        let ver_clos = |x1: &Block| -> bool {
             x1.placement.tile == incoming_block.placement.lane
                 && x1.placement.lane.abs_diff(incoming_block.placement.tile)
                     == 0
         };
         match incoming_block.orientation {
             Orientation::Horizontal => {
-                self.vertical_blocks.iter().filter(hor_clos).count() != 0
+                self.vertical_blocks.iter().any(hor_clos)
             }
             Orientation::Vertical => {
-                self.horizontal_blocks.iter().filter(ver_clos).count() != 0
+                self.horizontal_blocks.iter().any(ver_clos)
             }
         }
     }

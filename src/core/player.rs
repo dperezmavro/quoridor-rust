@@ -1,6 +1,5 @@
 use crate::core::grid::NUM_TILES;
 use crate::core::position::Position;
-use macroquad::color::{BLUE, Color, YELLOW};
 
 pub const NUM_BLOCKS: usize = 10;
 
@@ -37,13 +36,6 @@ impl Player {
             StartingPosition::Top => NUM_TILES - 1,
             StartingPosition::Bottom => 0,
         }
-    }
-
-    pub fn get_color(&self) -> Color {
-        if self.starting_position == StartingPosition::Top {
-            return YELLOW;
-        }
-        BLUE
     }
 
     pub fn consume_block(&mut self) {
