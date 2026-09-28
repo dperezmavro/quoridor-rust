@@ -47,7 +47,7 @@ impl Game {
     }
 
     pub fn get_player_turn(&self) -> u8 {
-        self.player_turn
+        self.player_turn.clone()
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
