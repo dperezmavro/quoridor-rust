@@ -41,14 +41,18 @@ impl Game {
     }
 
     pub fn process_move(&mut self, m: Move) {
-        let curr_player = if self.player_turn == 0 {
-            self.p1.clone()
+        let curr_player: &mut Player = if self.player_turn == 0 {
+            &mut self.p1
         } else {
-            self.p2.clone()
+            &mut self.p2
         };
 
         match m {
-            Move::PlaceBlock(block) => {}
+            Move::PlaceBlock(block) => {
+                if curr_player.remaining_blocks > 0 {
+                    curr_player.remaining_blocks -= 1;
+                }
+            }
             Move::PlayerAdvance(pos) => {}
         }
 
@@ -70,7 +74,7 @@ mod test {
     use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
-    use crate::core::player::StartingPosition;
+    use crate::core::player::{NUM_BLOCKS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::tile::Tile;
 
@@ -191,5 +195,33 @@ mod test {
         )));
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+    }
+
+    #[test]
+    fn test_player_block_decrement() {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut g = Game::new(grid, p1, p2);
+
+        assert_eq!(NUM_BLOCKS, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+
+        g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        )));
+
+        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+
+        g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(2, 1),
+            Orientation::Horizontal,
+        )));
+
+        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
+        assert_eq!(NUM_BLOCKS - 1, g.p2.remaining_blocks);
     }
 }
