@@ -241,33 +241,47 @@ mod test {
         let p2: Player =
             Player::new(String::from("b"), StartingPosition::Bottom);
         let mut g = Game::new(grid, p1, p2);
-        for i in vec![
-            (0, 0),
-            (2, 0),
-            (4, 0),
-            (6, 0),
-            (0, 1),
-            (2, 1),
-            (4, 1),
-            (6, 1),
-            (0, 2),
-            (2, 2),
-            (4, 2),
-            (6, 2),
-            (0, 3),
-            (2, 3),
-            (4, 3),
-            (6, 3),
-            (0, 4),
-            (2, 4),
-            (4, 4),
-            (6, 4),
-        ] {
-            assert!(g.process_move(Move::PlaceBlock(Block::new(
-                Placement::new(i.0, i.1),
-                Orientation::Horizontal
-            ))));
+        let mut total_block_placed = 0;
+        for col in 0..=4 {
+            assert!(
+                g.p1.has_remaining_blocks(),
+                "remaining blocks: {}",
+                g.p1.remaining_blocks
+            );
+            assert!(
+                g.p2.has_remaining_blocks(),
+                "remaining blocks: {}",
+                g.p2.remaining_blocks
+            );
+            for i in vec![0, 2, 4, 6] {
+                assert!(g.process_move(Move::PlaceBlock(Block::new(
+                    Placement::new(i, col),
+                    Orientation::Horizontal
+                ))));
+                total_block_placed += 1;
+            }
         }
+
+        assert_eq!(
+            20, total_block_placed,
+            "total_block_placed {total_block_placed}"
+        );
+
+        assert!(
+            !g.p1.has_remaining_blocks(),
+            "remaining blocks: {}",
+            g.p1.remaining_blocks
+        );
+        assert!(
+            !g.p2.has_remaining_blocks(),
+            "remaining blocks: {}",
+            g.p2.remaining_blocks
+        );
+
+        assert!(!g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(6, 6),
+            Orientation::Horizontal
+        ))));
 
         assert!(!g.p1.has_remaining_blocks());
         assert!(!g.p2.has_remaining_blocks());
