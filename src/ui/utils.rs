@@ -393,7 +393,7 @@ pub fn draw_player(p: Player) {
     );
 }
 
-pub fn highlight_player_options(player_id: u8, pos: Vec<Position>) {
+pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     for p in pos {
         draw_rectangle(
             GAME_GRID_BOX_START

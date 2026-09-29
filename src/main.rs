@@ -54,9 +54,10 @@ async fn main() {
         draw_player(game.p1.clone());
         draw_player(game.p2.clone());
 
+        let available_move_tiles_for_player = game.get_player_options();
         highlight_player_options(
             game.get_player_turn(),
-            game.get_player_options(),
+            &available_move_tiles_for_player,
         );
 
         let res = get_mouse_pointer_state();
@@ -77,11 +78,18 @@ async fn main() {
                 }
             }
             MouseState::RowCol(position) => {
-                if !game.is_position_occupied_by_player(&Position {
+                let p = &Position {
                     x: position.y,
                     y: position.x,
-                }) {
-                    draw_game_tile_preview(position);
+                };
+
+                if available_move_tiles_for_player
+                    .iter()
+                    .any(|pp| pp.x == p.y && pp.y == p.x)
+                {
+                    if !game.is_position_occupied_by_player(p) {
+                        draw_game_tile_preview(position);
+                    }
                 }
             }
             // anything else isn't drawable
