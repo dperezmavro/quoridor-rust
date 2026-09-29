@@ -47,7 +47,7 @@ impl Game {
         self.g
             .get_reachable_neighbour_tiles(&player.position)
             .iter()
-            .map(|t| t.position)
+            .map(|t| Position::new(t.position.y, t.position.x))
             .collect()
     }
 
