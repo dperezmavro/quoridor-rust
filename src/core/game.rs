@@ -37,6 +37,16 @@ impl Game {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
+    pub fn move_player(&mut self, pos: Position) {
+        let mut player: &mut Player = if self.get_player_turn() == 0 {
+            &mut self.p1
+        } else {
+            &mut self.p2
+        };
+
+        player.position = pos;
+    }
+
     pub fn get_player_options(&self) -> Vec<Position> {
         let player: &Player = if self.get_player_turn() == 0 {
             &self.p1

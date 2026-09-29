@@ -91,6 +91,10 @@ async fn main() {
                         draw_game_tile_preview(position);
                     }
                 }
+
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    game.move_player(p.clone());
+                }
             }
             // anything else isn't drawable
             _ => {}
