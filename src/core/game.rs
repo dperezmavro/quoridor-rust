@@ -38,9 +38,17 @@ impl Game {
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
-        let mut options: Vec<Position> = Vec::new();
+        let player: &Player = if self.get_player_turn() == 0 {
+            &self.p1
+        } else {
+            &self.p2
+        };
 
-        options
+        self.g
+            .get_reachable_neighbour_tiles(&player.position)
+            .iter()
+            .map(|t| t.position)
+            .collect()
     }
 
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
