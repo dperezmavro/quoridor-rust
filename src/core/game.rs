@@ -37,6 +37,12 @@ impl Game {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
+    pub fn get_player_options(&self) -> Vec<Position> {
+        let mut options: Vec<Position> = Vec::new();
+
+        options
+    }
+
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
         (self.p1.position.x == p.x && self.p1.position.y == p.y)
             || (self.p2.position.x == p.x && self.p2.position.y == p.y)

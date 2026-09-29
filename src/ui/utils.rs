@@ -253,12 +253,17 @@ fn draw_bounds() {
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+pub fn get_current_player_color(player_id: u8) -> Color {
     let mut c = LIGHT_BLUE;
     if player_id == FIRST_PLAYER_ID {
         c = LIGHT_YELLOW;
     }
-    draw_block(block, c);
+    c
+}
+
+/// Draws a preview of where a block could go
+pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+    draw_block(block, get_current_player_color(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -388,7 +393,23 @@ pub fn draw_player(p: Player) {
     );
 }
 
+pub fn highlight_player_options(player_id: u8, pos: Vec<Position>) {
+    for p in pos {
+        draw_rectangle(
+            GAME_GRID_BOX_START
+                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            GAME_GRID_BOX_START
+                + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            TILE_SIZE,
+            TILE_SIZE,
+            get_current_player_color(player_id),
+        );
+    }
+}
+
 /// Draws a preview of the player-tile that the mouse is currently hovering over.
+///
+/// DEPRECATED
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
         GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),

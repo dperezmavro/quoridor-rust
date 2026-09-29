@@ -12,7 +12,7 @@ use core::{block, grid};
 use macroquad::prelude::*;
 use ui::utils::{
     MouseState, draw_game_grid_base, draw_player, get_mouse_pointer_state,
-    pre_computed_grid_lines,
+    highlight_player_options, pre_computed_grid_lines,
 };
 
 fn window_conf() -> Conf {
@@ -53,6 +53,11 @@ async fn main() {
         // draw players
         draw_player(game.p1.clone());
         draw_player(game.p2.clone());
+
+        highlight_player_options(
+            game.get_player_turn(),
+            game.get_player_options(),
+        );
 
         let res = get_mouse_pointer_state();
         match &res {
