@@ -93,7 +93,14 @@ async fn main() {
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left) {
-                    game.move_player(p.clone());
+                    if available_move_tiles_for_player
+                        .iter()
+                        .any(|pp| pp.x == p.y && pp.y == p.x)
+                    {
+                        if !game.is_position_occupied_by_player(p) {
+                            game.process_move(Move::PlayerAdvance(p.clone()));
+                        }
+                    }
                 }
             }
             // anything else isn't drawable

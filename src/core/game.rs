@@ -48,14 +48,20 @@ impl Game {
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
-        let player: &Player = if self.get_player_turn() == 0 {
+        let active_player: &Player = if self.get_player_turn() == 0 {
             &self.p1
         } else {
             &self.p2
         };
 
+        // let other_player: &Player = if self.get_player_turn() == 0 {
+        //     &self.p2
+        // } else {
+        //     &self.p1
+        // };
+
         self.g
-            .get_reachable_neighbour_tiles(&player.position)
+            .get_reachable_neighbour_tiles(&active_player.position)
             .iter()
             .map(|t| Position::new(t.position.y, t.position.x))
             .collect()
@@ -90,7 +96,9 @@ impl Game {
                 curr_player.consume_block();
                 self.place_block(block.clone());
             }
-            Move::PlayerAdvance(pos) => {}
+            Move::PlayerAdvance(pos) => {
+                self.move_player(pos);
+            }
         }
 
         self.player_turn ^= 1;
