@@ -9,7 +9,7 @@ pub const NUM_TILES: usize = 9;
 
 #[derive(Debug)]
 pub struct Grid {
-    pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
+    // pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
     horizontal_blocks: Vec<Block>,
     vertical_blocks: Vec<Block>,
 }
@@ -58,7 +58,7 @@ impl Grid {
             ]);
 
         Self {
-            player_tiles,
+            // player_tiles,
             horizontal_blocks: Vec::with_capacity(NUM_BLOCKS),
             vertical_blocks: Vec::with_capacity(NUM_BLOCKS),
         }
