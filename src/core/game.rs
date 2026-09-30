@@ -450,8 +450,8 @@ mod test {
         g.p2.position = Position::new(5, 6);
 
         let res = g.get_player_options();
-        // these seem flipped around for some reason...
 
+        // these seem flipped around for some reason...
         let want = vec![
             Position { x: 4, y: 5 },
             Position { x: 5, y: 4 },
@@ -459,6 +459,25 @@ mod test {
             Position { x: 7, y: 5 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_no_jump_over_player_due_to_blocks() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(5, 5);
+        g.p2.position = Position::new(5, 6);
+
+        let res = g.get_player_options();
+        assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
+
+        // these seem flipped around for some reason...
+        let want = vec![
+            Position { x: 4, y: 5 },
+            Position { x: 5, y: 4 },
+            Position { x: 5, y: 6 },
+        ];
+        assert_eq!(want.len(), res.len(), "found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
 }
