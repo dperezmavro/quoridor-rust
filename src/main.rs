@@ -34,13 +34,13 @@ async fn main() {
     let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
 
     // TODO (dio): debug only for drawing
-    // p1.position = Position::new(4, 5);
-    // p2.position = Position::new(4, 6);
+    p1.position = Position::new(4, 5);
+    p2.position = Position::new(4, 6);
 
     let mut game = Game::new(grid, p1, p2);
 
     // TODO (dio): debug only for drawing
-    // blocks.push((Block::new(Placement::new(4, 6), Orientation::Horizontal), 0 ));
+    blocks.push((Block::new(Placement::new(4, 6), Orientation::Horizontal), 0 ));
 
     loop {
         clear_background(GRAY);

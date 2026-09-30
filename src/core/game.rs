@@ -48,7 +48,7 @@ impl Game {
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
-        let mut other_player: &Player;
+        let other_player: &Player;
         let active_player: &Player = if self.get_player_turn() == 0 {
             other_player = &self.p2;
             &self.p1
@@ -58,14 +58,14 @@ impl Game {
         };
 
         // unoccupied tiles
-        let free_blocks = self
+        let player_unoccupied_tiles = self
             .g
             .get_reachable_neighbour_tiles(&active_player.position)
             .into_iter()
             .filter(|t| !self.is_position_occupied_by_player(&t.position));
 
         // tiles behind the player
-        let player_occupied_blocks = self
+        let player_occupied_tiles = self
             .g
             .get_reachable_neighbour_tiles(&active_player.position)
             .into_iter()
@@ -82,9 +82,7 @@ impl Game {
                         if t.position.y < other_player.position.y {
                             return true;
                         }
-                    }
-
-                    if active_player.position.y < other_player.position.y {
+                    } else if active_player.position.y < other_player.position.y {
                         if t.position.y > other_player.position.y {
                             return true;
                         }
@@ -93,6 +91,7 @@ impl Game {
                     // players horizontally aligned
                     // player is to the right of other player
                     if active_player.position.x > other_player.position.x {}
+                    if active_player.position.x < other_player.position.x {}
                     // return true;
                 }
 
@@ -100,8 +99,8 @@ impl Game {
             });
 
         // tiles around the player
-        let positions = free_blocks
-            .chain(player_occupied_blocks)
+        let positions = player_unoccupied_tiles
+            .chain(player_occupied_tiles)
             .map(|t| Position::new(t.position.y, t.position.x))
             .collect();
 
@@ -451,7 +450,7 @@ mod test {
 
         let res = g.get_player_options();
 
-        // these seem flipped around for some reason...
+        // TODO (dio): these seem flipped around for some reason...
         let want = vec![
             Position { x: 4, y: 5 },
             Position { x: 5, y: 4 },
@@ -471,7 +470,7 @@ mod test {
         let res = g.get_player_options();
         assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
 
-        // these seem flipped around for some reason...
+        // TODO (dio): these seem flipped around for some reason...
         let want = vec![
             Position { x: 4, y: 5 },
             Position { x: 5, y: 4 },

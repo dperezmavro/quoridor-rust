@@ -830,13 +830,13 @@ mod tests {
             &p2,
             Block::new(Placement { tile: 4, lane: 7 }, Orientation::Horizontal)
         ));
-        //
-        // assert!(grid.can_place_block(
-        //     &p1,
-        //     &p2,
-        //     Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
-        // ));
-        //
+
+        assert!(!grid.can_place_block(
+            &p1,
+            &p2,
+            Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
+        ));
+
         assert!(!grid.can_place_block(
             &p1,
             &p2,
