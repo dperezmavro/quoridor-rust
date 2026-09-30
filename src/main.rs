@@ -54,12 +54,6 @@ async fn main() {
         draw_player(game.p1.clone());
         draw_player(game.p2.clone());
 
-        let available_move_tiles_for_player = game.get_player_options();
-        highlight_player_options(
-            game.get_player_turn(),
-            &available_move_tiles_for_player,
-        );
-
         let res = get_mouse_pointer_state();
         match &res {
             // hovering above a block position
@@ -82,6 +76,12 @@ async fn main() {
                     x: position.y,
                     y: position.x,
                 };
+
+                let available_move_tiles_for_player = game.get_player_options();
+                highlight_player_options(
+                    game.get_player_turn(),
+                    &available_move_tiles_for_player,
+                );
 
                 if available_move_tiles_for_player
                     .iter()

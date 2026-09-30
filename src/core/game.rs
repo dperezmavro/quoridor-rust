@@ -369,8 +369,8 @@ mod test {
 
     #[test]
     fn test_process_illegal_move_far_away() {
-        let _g = setup_new_game();
+        let mut g = setup_new_game();
 
-        // assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
+        assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
     }
 }
