@@ -376,8 +376,19 @@ mod test {
     fn test_process_illegal_move_far_away() {
         let mut g = setup_new_game();
 
+        // illegal moves
         assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
         assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 1))));
+
+        // player 1 move forward
         assert!(g.process_move(Move::PlayerAdvance(Position::new(4, 1))));
+
+        // player 2 move forward
+        assert!(
+            g.process_move(Move::PlayerAdvance(Position::new(4, 7))),
+            "player turn {}, {:?}",
+            g.get_player_turn(),
+            g.p2,
+        );
     }
 }

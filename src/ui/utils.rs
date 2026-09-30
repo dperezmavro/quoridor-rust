@@ -389,6 +389,7 @@ pub fn draw_player(p: Player) {
     );
 }
 
+/// Highlights player options when a player is above a valid block
 pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     for p in pos {
         draw_rectangle(
@@ -404,8 +405,6 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
 }
 
 /// Draws a preview of the player-tile that the mouse is currently hovering over.
-///
-/// DEPRECATED
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
         GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
@@ -419,8 +418,22 @@ pub fn draw_game_tile_preview(p: &Position) {
 #[cfg(test)]
 mod tests {
     use crate::ui::utils::{
-        GAME_GRID_BOX_START, GAME_GRID_LEN, is_mouse_inside_board,
+        GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
+        get_current_player_color, is_mouse_inside_board,
+        pre_computed_grid_lines,
     };
+
+    #[test]
+    fn test_correct_num_of_precomputed_lines() {
+        let pcl = pre_computed_grid_lines();
+        assert_eq!(16, pcl.len());
+    }
+
+    #[test]
+    fn test_correct_colours() {
+        assert_eq!(LIGHT_YELLOW, get_current_player_color(0));
+        assert_eq!(LIGHT_BLUE, get_current_player_color(1));
+    }
 
     #[test]
     fn test_is_mouse_in_grid_corners() {
