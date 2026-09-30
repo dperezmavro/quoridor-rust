@@ -71,10 +71,10 @@ impl Game {
             .into_iter()
             .filter(|t| self.is_position_occupied_by_player(&t.position))
             .filter(|t| t.position != active_player.position)
-            .map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
-            .flatten()
+            .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
             .filter(|t| {
                 // determine orientation of two players
+
                 // players vertically aligned
                 if active_player.position.x == other_player.position.x {
                     // active_player is below other player
@@ -82,15 +82,14 @@ impl Game {
                         if t.position.y < other_player.position.y {
                             return true;
                         }
-                    } else if active_player.position.y < other_player.position.y {
-                        if t.position.y > other_player.position.y {
+                    } else if active_player.position.y < other_player.position.y
+                        && t.position.y > other_player.position.y {
                             return true;
                         }
-                    }
                 } else if active_player.position.y == other_player.position.y {
                     // players horizontally aligned
                     // player is to the right of other player
-                    if active_player.position.x > other_player.position.x {}
+                    
                     if active_player.position.x < other_player.position.x {}
                     // return true;
                 }
@@ -99,12 +98,10 @@ impl Game {
             });
 
         // tiles around the player
-        let positions = player_unoccupied_tiles
+        player_unoccupied_tiles
             .chain(player_occupied_tiles)
-            .map(|t| Position::new(t.position.y, t.position.x))
-            .collect();
-
-        return positions;
+            .map(|t| Position::new(t.position.x, t.position.y))
+            .collect()
     }
 
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
@@ -151,8 +148,7 @@ impl Game {
             Move::PlayerAdvance(pos) => {
                 let is_move_valid = self
                     .get_player_options()
-                    .iter()
-                    .any(|pp| pp.x == pos.y && pp.y == pos.x); // TODO (dio): investigate XY flip
+                    .contains(&pos);
                 if !is_move_valid {
                     return false;
                 }
@@ -464,17 +460,21 @@ mod test {
     #[test]
     fn test_no_jump_over_player_due_to_blocks() {
         let mut g = setup_new_game();
+        // top player
         g.p1.position = Position::new(4, 5);
+        // bottom player
         g.p2.position = Position::new(4, 6);
 
-        let res = g.get_player_options();
+
         assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
+        let res = g.get_player_options();
 
         // TODO (dio): these seem flipped around for some reason...
+        // TBLR
         let want = vec![
-            Position { x: 4, y: 5 },
-            Position { x: 5, y: 4 },
-            Position { x: 5, y: 6 },
+            Position { x: 4, y: 4 },
+            Position { x: 3, y: 5 },
+            Position { x: 5, y: 5 },
         ];
         assert_eq!(0, g.get_player_turn());
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
