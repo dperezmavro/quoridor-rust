@@ -48,25 +48,61 @@ impl Game {
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
+        let mut other_player: &Player;
         let active_player: &Player = if self.get_player_turn() == 0 {
+            other_player = &self.p2;
             &self.p1
         } else {
+            other_player = &self.p1;
             &self.p2
         };
 
-        let mut free_blocks = self
+        // unoccupied tiles
+        let free_blocks = self
             .g
             .get_reachable_neighbour_tiles(&active_player.position)
             .into_iter()
             .filter(|t| !self.is_position_occupied_by_player(&t.position));
 
-        let mut player_occupied_blocks = self
+        // tiles behind the player
+        let player_occupied_blocks = self
             .g
             .get_reachable_neighbour_tiles(&active_player.position)
             .into_iter()
-            .filter(|t| self.is_position_occupied_by_player(&t.position));
+            .filter(|t| self.is_position_occupied_by_player(&t.position))
+            .filter(|t| t.position != active_player.position)
+            .filter(|t| {
+                // determine orientation of two players
+                // players vertically aligned
+                if active_player.position.x == other_player.position.x {
+                    // active_player is below other player
+                    if active_player.position.y > other_player.position.y {
+                        if t.position.y < other_player.position.y {
+                            return true;
+                        }
+                    }
 
+                    if active_player.position.y < other_player.position.y {
+                        if t.position.y > other_player.position.y {
+                            return true;
+                        }
+                    }
+                    return true;
+                }
+
+                // players horizontally aligned
+                if active_player.position.y == other_player.position.y {
+                    // player is to the right of other player
+                    if active_player.position.x > other_player.position.x {}
+                    return true;
+                }
+
+                false
+            });
+
+        // tiles around the player
         let positions = free_blocks
+            .chain(player_occupied_blocks)
             .map(|t| Position::new(t.position.y, t.position.x))
             .collect();
 
@@ -84,6 +120,10 @@ impl Game {
 
     pub fn get_player_turn(&self) -> u8 {
         self.player_turn
+    }
+
+    pub fn get_other_player_id(&self) -> u8 {
+        self.get_player_turn() ^ 1
     }
 
     pub fn next_player(&mut self) {
@@ -410,7 +450,14 @@ mod test {
         g.p1.position = Position::new(5, 5);
         g.p2.position = Position::new(5, 6);
 
-        let options = g.get_player_options().len();
-        assert_eq!(4, options, "{:?}", options);
+        let res = g.get_player_options();
+        let want = vec![
+            Position { x: 4, y: 5 },
+            Position { x: 5, y: 4 },
+            Position { x: 5, y: 7 },
+            Position { x: 6, y: 5 },
+        ];
+        assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want, res, "{:?}", res);
     }
 }
