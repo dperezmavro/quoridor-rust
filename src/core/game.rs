@@ -149,8 +149,6 @@ impl Game {
                 let is_move_valid = self
                     .get_player_options()
                     .contains(&pos);
-                    // .iter()
-                    // .any(|pp| pp.x == pos.y && pp.y == pos.x); // TODO (dio): investigate XY flip
                 if !is_move_valid {
                     return false;
                 }
