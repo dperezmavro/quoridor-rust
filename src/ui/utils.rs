@@ -53,9 +53,6 @@ const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 /// Where the game display box starts
 const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
-/// Constant for light green
-const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
-
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 

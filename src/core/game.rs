@@ -101,6 +101,13 @@ impl Game {
                 self.place_block(block);
             }
             Move::PlayerAdvance(pos) => {
+                let is_move_valid = self
+                    .get_player_options()
+                    .iter()
+                    .any(|pp| pp.x == pos.y && pp.y == pos.x);
+                if !is_move_valid {
+                    return false;
+                }
                 self.move_player(pos);
             }
         }
@@ -372,5 +379,7 @@ mod test {
         let mut g = setup_new_game();
 
         assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
+        assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 1))));
+        assert!(g.process_move(Move::PlayerAdvance(Position::new(4, 1))));
     }
 }
