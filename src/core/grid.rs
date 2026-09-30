@@ -19,7 +19,6 @@ fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
     for i in 0..NUM_TILES {
         res[i] = Tile {
             position: Position { x: i, y },
-            // state: TileState::Free,
         };
     }
 
