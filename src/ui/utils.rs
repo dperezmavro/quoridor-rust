@@ -369,7 +369,7 @@ pub fn draw_block(b: Block, c: Color) {
 }
 
 /// Draws a circle representing a player on the grid
-pub fn draw_player(p: Player) {
+pub fn draw_player(p: &Player) {
     let x = p.position.x;
     let y = p.position.y;
     let color = match p.starting_position {

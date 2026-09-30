@@ -54,11 +54,23 @@ impl Game {
             &self.p2
         };
 
-        self.g
+        let mut free_blocks = self
+            .g
             .get_reachable_neighbour_tiles(&active_player.position)
-            .iter()
+            .into_iter()
+            .filter(|t| !self.is_position_occupied_by_player(&t.position));
+
+        let mut player_occupied_blocks = self
+            .g
+            .get_reachable_neighbour_tiles(&active_player.position)
+            .into_iter()
+            .filter(|t| self.is_position_occupied_by_player(&t.position));
+
+        let positions = free_blocks
             .map(|t| Position::new(t.position.y, t.position.x))
-            .collect()
+            .collect();
+
+        return positions;
     }
 
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
@@ -390,5 +402,15 @@ mod test {
             g.get_player_turn(),
             g.p2,
         );
+    }
+
+    #[test]
+    fn test_jump_over_player_no_blocks() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(5, 5);
+        g.p2.position = Position::new(5, 6);
+
+        let options = g.get_player_options().len();
+        assert_eq!(4, options, "{:?}", options);
     }
 }

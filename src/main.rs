@@ -27,8 +27,12 @@ async fn main() {
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    let mut p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+
+    // temporary
+    p1.position = Position::new(4, 5);
+    p2.position = Position::new(4, 6);
 
     let mut game = Game::new(grid, p1, p2);
 
@@ -46,8 +50,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(game.p1.clone());
-        draw_player(game.p2.clone());
+        draw_player(&game.p1);
+        draw_player(&game.p2);
 
         let res = get_mouse_pointer_state();
         match &res {
