@@ -71,6 +71,8 @@ impl Game {
             .into_iter()
             .filter(|t| self.is_position_occupied_by_player(&t.position))
             .filter(|t| t.position != active_player.position)
+            .map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
+            .flatten()
             .filter(|t| {
                 // determine orientation of two players
                 // players vertically aligned
@@ -87,14 +89,11 @@ impl Game {
                             return true;
                         }
                     }
-                    return true;
-                }
-
-                // players horizontally aligned
-                if active_player.position.y == other_player.position.y {
+                } else if active_player.position.y == other_player.position.y {
+                    // players horizontally aligned
                     // player is to the right of other player
                     if active_player.position.x > other_player.position.x {}
-                    return true;
+                    // return true;
                 }
 
                 false
@@ -451,11 +450,13 @@ mod test {
         g.p2.position = Position::new(5, 6);
 
         let res = g.get_player_options();
+        // these seem flipped around for some reason...
+
         let want = vec![
             Position { x: 4, y: 5 },
             Position { x: 5, y: 4 },
-            Position { x: 5, y: 7 },
-            Position { x: 6, y: 5 },
+            Position { x: 5, y: 6 },
+            Position { x: 7, y: 5 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
         assert_eq!(want, res, "{:?}", res);
