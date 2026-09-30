@@ -445,17 +445,17 @@ mod test {
     #[test]
     fn test_jump_over_player_no_blocks() {
         let mut g = setup_new_game();
-        g.p1.position = Position::new(5, 5);
-        g.p2.position = Position::new(5, 6);
+        g.p1.position = Position::new(4, 5);
+        g.p2.position = Position::new(4, 6);
 
         let res = g.get_player_options();
 
         // TODO (dio): these seem flipped around for some reason...
         let want = vec![
-            Position { x: 4, y: 5 },
-            Position { x: 5, y: 4 },
-            Position { x: 5, y: 6 },
-            Position { x: 7, y: 5 },
+            Position { x: 4, y: 4 },
+            Position { x: 5, y: 3 },
+            Position { x: 5, y: 5 },
+            Position { x: 7, y: 4 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
         assert_eq!(want, res, "{:?}", res);
@@ -464,8 +464,8 @@ mod test {
     #[test]
     fn test_no_jump_over_player_due_to_blocks() {
         let mut g = setup_new_game();
-        g.p1.position = Position::new(5, 5);
-        g.p2.position = Position::new(5, 6);
+        g.p1.position = Position::new(4, 5);
+        g.p2.position = Position::new(4, 6);
 
         let res = g.get_player_options();
         assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
@@ -476,6 +476,7 @@ mod test {
             Position { x: 5, y: 4 },
             Position { x: 5, y: 6 },
         ];
+        assert_eq!(0, g.get_player_turn());
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
