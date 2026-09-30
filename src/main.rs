@@ -76,15 +76,15 @@ async fn main() {
                     blocks.push((*b, turn));
                 }
             }
-            MouseState::RowCol(position) => {
+            MouseState::RowCol(position2) => {
                 // TODO (dio): position flipping
                 // this bug causes the ui block selection directions to be flipped
-                let p = &Position {
+                let pos = &Position {
                     // x: position.y,
                     // y: position.x,
-                    ..position.clone()
+                    ..position2.clone()
                 };
-                println!("player mouse over {:?}", p);
+                println!("player mouse over {:?}", pos);
 
                 let available_move_tiles_for_player = game.get_player_options();
                 highlight_player_options(
@@ -93,16 +93,16 @@ async fn main() {
                 );
 
 
-                if available_move_tiles_for_player.contains(p)
+                if available_move_tiles_for_player.contains(pos)
                     // .iter()
                     // .any(|pp| pp.x == p.y && pp.y == p.x) // TODO (dio): investigate XY flip
-                    && !game.is_position_occupied_by_player(p)
+                    && !game.is_position_occupied_by_player(pos)
                 {
-                    draw_game_tile_preview(position);
+                    draw_game_tile_preview(pos);
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left) {
-                    game.process_move(Move::PlayerAdvance(*p));
+                    game.process_move(Move::PlayerAdvance(*pos));
                 }
             }
             // anything else isn't drawable
