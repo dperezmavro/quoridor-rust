@@ -9,7 +9,7 @@ pub const NUM_TILES: usize = 9;
 
 #[derive(Debug)]
 pub struct Grid {
-    // pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
+    pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
     horizontal_blocks: Vec<Block>,
     vertical_blocks: Vec<Block>,
 }
@@ -58,7 +58,7 @@ impl Grid {
             ]);
 
         Self {
-            // player_tiles,
+            player_tiles,
             horizontal_blocks: Vec::with_capacity(NUM_BLOCKS),
             vertical_blocks: Vec::with_capacity(NUM_BLOCKS),
         }
@@ -68,18 +68,18 @@ impl Grid {
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
         if p.y > 0
-            && self.horizontal_blocks.iter().all(|x| {
-                !(x.placement.lane == p.y - 1
-                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
+            && self.horizontal_blocks.iter().all(|b| {
+                !(b.placement.lane == p.y - 1
+                    && (b.placement.tile == p.x || b.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
         }
         //bottom
         if p.y < NUM_TILES - 1
-            && self.horizontal_blocks.iter().all(|x| {
-                !(x.placement.lane == p.y
-                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
+            && self.horizontal_blocks.iter().all(|b| {
+                !(b.placement.lane == p.y
+                    && (b.placement.tile == p.x || b.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
@@ -87,18 +87,19 @@ impl Grid {
 
         //left
         if p.x > 0
-            && self.vertical_blocks.iter().all(|x| {
-                !(x.placement.lane == p.x - 1
-                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
+            && self.vertical_blocks.iter().all(|b| {
+                !(b.placement.lane == p.x - 1
+                    && (b.placement.tile == p.y || b.placement.tile + 1 == p.y))
             })
         {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
+
         // right
         if p.x < NUM_TILES - 1
-            && self.vertical_blocks.iter().all(|x| {
-                !(x.placement.lane == p.x
-                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
+            && self.vertical_blocks.iter().all(|b| {
+                !(b.placement.lane == p.x
+                    && (b.placement.tile == p.y || b.placement.tile + 1 == p.y))
             })
         {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
