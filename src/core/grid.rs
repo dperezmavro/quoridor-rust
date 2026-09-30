@@ -507,7 +507,7 @@ mod tests {
     fn test_can_player_reach_goal_disallowed_block_formations_from_correct_position()
      {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -538,7 +538,7 @@ mod tests {
     #[test]
     fn test_can_place_block_after_players_move() {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -571,7 +571,7 @@ mod tests {
     #[test]
     fn test_can_not_player_reach_goal_disallowed_block_formations() {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),

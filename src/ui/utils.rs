@@ -159,7 +159,7 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
 
     // H1
-    let h1_texts = vec![String::from("game"), String::from("stats")];
+    let h1_texts = [String::from("game"), String::from("stats")];
     h1_texts.iter().enumerate().for_each(|(i, h)| {
         let h1_string = h;
         let h1_text_centre = get_text_center(
@@ -190,7 +190,7 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     };
 
     // H3
-    let h3_texts = vec![
+    let h3_texts = [
         String::from("player 1"),
         String::from(format!("blocks: {}", p1_blocks)),
         String::from("player 2"),
