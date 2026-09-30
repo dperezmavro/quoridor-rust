@@ -54,12 +54,6 @@ impl Game {
             &self.p2
         };
 
-        // let other_player: &Player = if self.get_player_turn() == 0 {
-        //     &self.p2
-        // } else {
-        //     &self.p1
-        // };
-
         self.g
             .get_reachable_neighbour_tiles(&active_player.position)
             .iter()
@@ -238,44 +232,44 @@ mod test {
     fn test_player_block_decrement() {
         let mut g = setup_new_game();
 
-        assert_eq!(NUM_BLOCKS, g.p1.remaining_blocks);
-        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+        let block_counts = g.player_block_counts();
+        assert_eq!(NUM_BLOCKS, block_counts.0);
+        assert_eq!(NUM_BLOCKS, block_counts.1);
 
         assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
-        assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
+        let block_counts = g.player_block_counts();
+        assert_eq!(NUM_BLOCKS - 1, block_counts.0);
+        assert_eq!(NUM_BLOCKS, block_counts.1);
 
         assert!(g.process_move(Move::PlaceBlock(Block::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(NUM_BLOCKS - 1, g.p1.remaining_blocks);
-        assert_eq!(NUM_BLOCKS - 1, g.p2.remaining_blocks);
+        let block_counts = g.player_block_counts();
+        assert_eq!(NUM_BLOCKS - 1, block_counts.0);
+        assert_eq!(NUM_BLOCKS - 1, block_counts.1);
     }
 
     #[test]
     fn test_blocks_exhausted() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
+        let block_counts = g.player_block_counts();
         let mut total_block_placed = 0;
         for col in 0..=4 {
             assert!(
                 g.p1.has_remaining_blocks(),
                 "remaining blocks: {}",
-                g.p1.remaining_blocks
+                block_counts.0
             );
             assert!(
                 g.p2.has_remaining_blocks(),
                 "remaining blocks: {}",
-                g.p2.remaining_blocks
+                block_counts.1
             );
             for i in [0, 2, 4, 6] {
                 assert!(g.process_move(Move::PlaceBlock(Block::new(
@@ -294,12 +288,12 @@ mod test {
         assert!(
             !g.p1.has_remaining_blocks(),
             "remaining blocks: {}",
-            g.p1.remaining_blocks
+            block_counts.0
         );
         assert!(
             !g.p2.has_remaining_blocks(),
             "remaining blocks: {}",
-            g.p2.remaining_blocks
+            block_counts.1
         );
 
         assert!(!g.process_move(Move::PlaceBlock(Block::new(
