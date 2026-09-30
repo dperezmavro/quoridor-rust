@@ -38,6 +38,10 @@ impl Player {
         }
     }
 
+    pub fn is_there(&self, position: &Position) -> bool {
+        self.position == *position
+    }
+
     pub fn consume_block(&mut self) {
         self.remaining_blocks -= 1;
     }
@@ -56,6 +60,9 @@ impl Player {
 
     pub fn is_above(&self, p: &Player) -> bool {
         self.position.is_above(&p.position)
+    }
+    pub fn is_left_of(&self, p: &Player) -> bool {
+        self.position.is_left_of(&p.position)
     }
 }
 
@@ -94,6 +101,15 @@ mod tests {
 
         p2.position = Position::new(2, 1);
         assert!(p1.is_haligned(&p2));
+    }
+
+
+    #[test]
+    pub fn test_is_there() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        assert!(!p1.is_there(&Position::new(1, 1)));
+        p1.position = Position::new(1, 1);
+        assert!(p1.is_there(&Position::new(1, 1)));
     }
 
     #[test]

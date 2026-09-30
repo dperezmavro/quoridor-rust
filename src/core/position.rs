@@ -29,6 +29,10 @@ impl Position {
     pub fn is_above(&self, p: &Position) -> bool {
         self.y > p.y && self.x == p.x
     }
+
+    pub fn is_left_of(&self, p: &Position) -> bool {
+        self.x < p.x && self.y == p.y
+    }
 }
 
 #[cfg(test)]
