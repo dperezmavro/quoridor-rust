@@ -136,7 +136,7 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
+pub fn draw_game_stats(f: Option<&Font>, block_counts: (usize, usize)) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -188,9 +188,9 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     // H3
     let h3_texts = [
         String::from("player 1"),
-        format!("blocks: {}", p1_blocks),
+        format!("blocks: {}", block_counts.0),
         String::from("player 2"),
-        format!("blocks: {}", p2_blocks),
+        format!("blocks: {}", block_counts.1),
     ];
 
     h3_texts.iter().enumerate().for_each(|(i, h)| {

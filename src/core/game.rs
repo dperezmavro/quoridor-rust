@@ -84,6 +84,10 @@ impl Game {
         self.player_turn ^= 1;
     }
 
+    pub fn player_block_counts(&self) -> (usize, usize) {
+        (self.p1.remaining_blocks, self.p2.remaining_blocks)
+    }
+
     pub fn process_move(&mut self, m: Move) -> bool {
         let curr_player: &mut Player = if self.player_turn == 0 {
             &mut self.p1
