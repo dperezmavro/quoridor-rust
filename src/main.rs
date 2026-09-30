@@ -66,15 +66,15 @@ async fn main() {
             MouseState::BlockPosition(b) => {
                 let turn = game.get_player_turn();
                 // hovering above a block position
-                if game.can_add_block(b.clone()) {
-                    draw_block_placement_preview(b.clone(), turn);
+                if game.can_add_block(*b) {
+                    draw_block_placement_preview(*b, turn);
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left) {
-                    if game.can_add_block(b.clone()) {
-                        game.process_move(Move::PlaceBlock(b.clone()));
-                        blocks.push((b.clone(), turn));
-                    }
+                if is_mouse_button_pressed(MouseButton::Left)
+                    && game.can_add_block(*b)
+                {
+                    game.process_move(Move::PlaceBlock(*b));
+                    blocks.push((*b, turn));
                 }
             }
             MouseState::RowCol(position) => {
@@ -86,21 +86,19 @@ async fn main() {
                 if available_move_tiles_for_player
                     .iter()
                     .any(|pp| pp.x == p.y && pp.y == p.x)
+                    && !game.is_position_occupied_by_player(p)
                 {
-                    if !game.is_position_occupied_by_player(p) {
-                        draw_game_tile_preview(position);
-                    }
+                    draw_game_tile_preview(position);
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left) {
-                    if available_move_tiles_for_player
+                if is_mouse_button_pressed(MouseButton::Left)
+                    && available_move_tiles_for_player
                         .iter()
                         .any(|pp| pp.x == p.y && pp.y == p.x)
-                    {
-                        // if !game.is_position_occupied_by_player(p) {
-                        game.process_move(Move::PlayerAdvance(p.clone()));
-                        // }
-                    }
+                {
+                    // if !game.is_position_occupied_by_player(p) {
+                    game.process_move(Move::PlayerAdvance(*p));
+                    // }
                 }
             }
             // anything else isn't drawable

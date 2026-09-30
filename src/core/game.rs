@@ -38,7 +38,7 @@ impl Game {
     }
 
     pub fn move_player(&mut self, pos: Position) {
-        let mut player: &mut Player = if self.get_player_turn() == 0 {
+        let player: &mut Player = if self.get_player_turn() == 0 {
             &mut self.p1
         } else {
             &mut self.p2
@@ -98,7 +98,7 @@ impl Game {
                 }
 
                 curr_player.consume_block();
-                self.place_block(block.clone());
+                self.place_block(block);
             }
             Move::PlayerAdvance(pos) => {
                 self.move_player(pos);
@@ -144,11 +144,11 @@ mod test {
             placement: Placement { tile: 0, lane: 0 },
         };
         // test normal add
-        assert!(g.can_add_block(b.clone()));
-        assert!(g.place_block(b.clone()));
+        assert!(g.can_add_block(b));
+        assert!(g.place_block(b));
         //verify duplicate add rejected
-        assert!(!g.can_add_block(b.clone()));
-        assert!(!g.place_block(b.clone()));
+        assert!(!g.can_add_block(b));
+        assert!(!g.place_block(b));
     }
 
     #[test]
@@ -181,13 +181,13 @@ mod test {
             placement: Placement { tile: 4, lane: 0 },
         };
 
-        assert!(g.can_add_block(b1.clone()));
-        assert!(g.place_block(b1.clone()));
-        assert!(!g.can_add_block(b1.clone()));
+        assert!(g.can_add_block(b1));
+        assert!(g.place_block(b1));
+        assert!(!g.can_add_block(b1));
 
-        assert!(g.can_add_block(b2.clone()));
-        assert!(g.place_block(b2.clone()));
-        assert!(!g.can_add_block(b2.clone()));
+        assert!(g.can_add_block(b2));
+        assert!(g.place_block(b2));
+        assert!(!g.can_add_block(b2));
 
         // this should fail
         assert!(!g.can_add_block(b3));
@@ -196,7 +196,7 @@ mod test {
         let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
         assert_eq!(
             2,
-            tile_vec.clone().iter().count(),
+            tile_vec.clone().len(),
             "{:?}",
             tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
         );
@@ -266,7 +266,7 @@ mod test {
                 "remaining blocks: {}",
                 g.p2.remaining_blocks
             );
-            for i in vec![0, 2, 4, 6] {
+            for i in [0, 2, 4, 6] {
                 assert!(g.process_move(Move::PlaceBlock(Block::new(
                     Placement::new(i, col),
                     Orientation::Horizontal
@@ -369,7 +369,7 @@ mod test {
 
     #[test]
     fn test_process_illegal_move_far_away() {
-        let mut g = setup_new_game();
+        let _g = setup_new_game();
 
         // assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
     }
