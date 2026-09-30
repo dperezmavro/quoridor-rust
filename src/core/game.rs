@@ -84,12 +84,9 @@ impl Game {
 
                 // discover players' orientation relative to each other
                 if active_player.is_valigned(other_player) {
-                    if active_player.is_above(other_player)
-                        &&  other_player.position.is_above(&t.position)
-                    {
-                        return true;
-                    } else if other_player.is_above(active_player)
-                        && t.position.is_above( &other_player.position)
+                    if (active_player.is_above(other_player)
+                        &&  other_player.position.is_above(&t.position))|| (other_player.is_above(active_player)
+                        && t.position.is_above( &other_player.position))
                     {
                         return true;
                     }
