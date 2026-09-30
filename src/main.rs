@@ -3,7 +3,7 @@ mod ui;
 
 use crate::core::position::Position;
 use crate::ui::utils::{
-    draw_block_placement_preview, draw_game_stats, draw_game_tile_preview,
+    draw_block_placement_preview, draw_game_stats, draw_move_preview,
     get_window_conf,
 };
 use core::game::{Game, Move};
@@ -98,7 +98,7 @@ async fn main() {
                     // .any(|pp| pp.x == p.y && pp.y == p.x) // TODO (dio): investigate XY flip
                     && !game.is_position_occupied_by_player(pos)
                 {
-                    draw_game_tile_preview(pos);
+                    draw_move_preview(pos);
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left) {

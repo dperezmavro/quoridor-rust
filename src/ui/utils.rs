@@ -409,7 +409,7 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
 }
 
 /// Draws a preview of the player-tile that the mouse is currently hovering over.
-pub fn draw_game_tile_preview(p: &Position) {
+pub fn draw_move_preview(p: &Position) {
     draw_rectangle(
         GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
