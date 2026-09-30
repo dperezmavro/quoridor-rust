@@ -77,7 +77,11 @@ impl Game {
     }
 
     pub fn get_player_turn(&self) -> u8 {
-        self.player_turn.clone()
+        self.player_turn
+    }
+
+    pub fn next_player(&mut self) {
+        self.player_turn ^= 1;
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
@@ -101,7 +105,7 @@ impl Game {
             }
         }
 
-        self.player_turn ^= 1;
+        self.next_player();
 
         true
     }
@@ -310,5 +314,22 @@ mod test {
     }
 
     #[test]
-    fn test_process_move_normal() {}
+    fn test_get_player_options() {
+        let mut g = setup_new_game();
+        const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
+
+        // player 1
+        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+
+        // player 2
+        g.next_player();
+        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+    }
+
+    #[test]
+    fn test_process_illegal_move_far_away() {
+        let mut g = setup_new_game();
+
+        // assert!(!g.process_move(Move::PlayerAdvance(Position::new(0, 0))));
+    }
 }

@@ -97,9 +97,9 @@ async fn main() {
                         .iter()
                         .any(|pp| pp.x == p.y && pp.y == p.x)
                     {
-                        if !game.is_position_occupied_by_player(p) {
-                            game.process_move(Move::PlayerAdvance(p.clone()));
-                        }
+                        // if !game.is_position_occupied_by_player(p) {
+                        game.process_move(Move::PlayerAdvance(p.clone()));
+                        // }
                     }
                 }
             }
