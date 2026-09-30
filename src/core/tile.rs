@@ -7,7 +7,6 @@ pub struct Tile {
 
 impl Tile {
     pub fn new(
-        state: TileState,
         position: Position,
     ) -> Self {
         Tile {
