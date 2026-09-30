@@ -71,8 +71,7 @@ impl Game {
             .into_iter()
             .filter(|t| self.is_position_occupied_by_player(&t.position))
             .filter(|t| t.position != active_player.position)
-            .map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
-            .flatten()
+            .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
             .filter(|t| {
                 // determine orientation of two players
 
@@ -83,15 +82,14 @@ impl Game {
                         if t.position.y < other_player.position.y {
                             return true;
                         }
-                    } else if active_player.position.y < other_player.position.y {
-                        if t.position.y > other_player.position.y {
+                    } else if active_player.position.y < other_player.position.y
+                        && t.position.y > other_player.position.y {
                             return true;
                         }
-                    }
                 } else if active_player.position.y == other_player.position.y {
                     // players horizontally aligned
                     // player is to the right of other player
-                    if active_player.position.x > other_player.position.x {}
+                    
                     if active_player.position.x < other_player.position.x {}
                     // return true;
                 }

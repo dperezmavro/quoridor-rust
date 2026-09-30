@@ -1,7 +1,6 @@
 mod core;
 mod ui;
 
-use crate::core::position::Position;
 use crate::ui::utils::{
     draw_block_placement_preview, draw_game_stats, draw_move_preview,
     get_window_conf,
@@ -14,9 +13,6 @@ use ui::utils::{
     MouseState, draw_game_grid_base, draw_player, get_mouse_pointer_state,
     highlight_player_options, pre_computed_grid_lines,
 };
-use crate::core::block::Block;
-use crate::core::orientation::Orientation;
-use crate::core::placement::Placement;
 
 fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
@@ -30,8 +26,8 @@ async fn main() {
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
-    let mut p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
 
     // TODO (dio): debug only for drawing
     // p1.position = Position::new(4, 5);
