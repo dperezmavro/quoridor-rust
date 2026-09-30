@@ -2,7 +2,7 @@ use crate::core::block::Block;
 use crate::core::orientation::Orientation;
 use crate::core::player::{NUM_BLOCKS, Player};
 use crate::core::position::Position;
-use crate::core::tile::{Tile, TileState, TileType};
+use crate::core::tile::{Tile, TileState};
 use std::collections::HashSet;
 
 pub const NUM_TILES: usize = 9;
@@ -16,11 +16,10 @@ pub struct Grid {
 
 fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
     let mut res = Box::new([Tile::default(); NUM_TILES]);
-    let default = Tile::default();
     for i in 0..NUM_TILES {
         res[i] = Tile {
             position: Position { x: i, y },
-            ..default
+            state: TileState::Free,
         };
     }
 
@@ -30,7 +29,7 @@ fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
 impl Grid {
     pub fn new() -> Self {
         let player_1_tile = Tile::new(
-            TileType::Playable,
+
             TileState::Occupied,
             Position {
                 y: 0,
@@ -38,7 +37,7 @@ impl Grid {
             },
         );
         let player_2_tile = Tile::new(
-            TileType::Playable,
+
             TileState::Occupied,
             Position {
                 y: NUM_TILES - 1,

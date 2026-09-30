@@ -469,7 +469,6 @@ mod test {
         assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
         let res = g.get_player_options();
 
-        // TODO (dio): these seem flipped around for some reason...
         // TBLR
         let want = vec![
             Position { x: 4, y: 4 },
