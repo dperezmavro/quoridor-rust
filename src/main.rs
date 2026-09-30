@@ -12,7 +12,7 @@ use core::{block, grid};
 use macroquad::prelude::*;
 use ui::utils::{
     MouseState, draw_game_grid_base, draw_player, get_mouse_pointer_state,
-    pre_computed_grid_lines,
+    highlight_player_options, pre_computed_grid_lines,
 };
 
 fn window_conf() -> Conf {
@@ -38,15 +38,10 @@ async fn main() {
         // draws borders, grid, padding and
         draw_game_grid_base(&pre_computed_grid_lines);
 
-        draw_game_stats(
-            Some(&font),
-            game.p1.remaining_blocks,
-            game.p2.remaining_blocks,
-        );
+        draw_game_stats(Some(&font), game.player_block_counts());
 
         // draw blocks that have already been placed
         for b in &blocks {
-            // temporarily using this function
             draw_block_placement_preview(b.0, b.1);
         }
 
@@ -60,23 +55,39 @@ async fn main() {
             MouseState::BlockPosition(b) => {
                 let turn = game.get_player_turn();
                 // hovering above a block position
-                if game.can_add_block(b.clone()) {
-                    draw_block_placement_preview(b.clone(), turn);
+                if game.can_add_block(*b) {
+                    draw_block_placement_preview(*b, turn);
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left) {
-                    if game.can_add_block(b.clone()) {
-                        game.process_move(Move::PlaceBlock(b.clone()));
-                        blocks.push((b.clone(), turn));
-                    }
+                if is_mouse_button_pressed(MouseButton::Left)
+                    && game.can_add_block(*b)
+                {
+                    game.process_move(Move::PlaceBlock(*b));
+                    blocks.push((*b, turn));
                 }
             }
             MouseState::RowCol(position) => {
-                if !game.is_position_occupied_by_player(&Position {
+                let p = &Position {
                     x: position.y,
                     y: position.x,
-                }) {
+                };
+
+                let available_move_tiles_for_player = game.get_player_options();
+                highlight_player_options(
+                    game.get_player_turn(),
+                    &available_move_tiles_for_player,
+                );
+
+                if available_move_tiles_for_player
+                    .iter()
+                    .any(|pp| pp.x == p.y && pp.y == p.x)
+                    && !game.is_position_occupied_by_player(p)
+                {
                     draw_game_tile_preview(position);
+                }
+
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    game.process_move(Move::PlayerAdvance(*p));
                 }
             }
             // anything else isn't drawable

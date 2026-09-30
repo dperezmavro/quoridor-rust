@@ -278,7 +278,7 @@ mod tests {
 
     #[test]
     fn test_bulk_place_blocks_illegal() {
-        let tests = vec![
+        let tests = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -507,7 +507,7 @@ mod tests {
     fn test_can_player_reach_goal_disallowed_block_formations_from_correct_position()
      {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -518,10 +518,10 @@ mod tests {
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
             Orientation::Horizontal => {
-                g.horizontal_blocks.push(block.clone());
+                g.horizontal_blocks.push(*block);
             }
             Orientation::Vertical => {
-                g.vertical_blocks.push(block.clone());
+                g.vertical_blocks.push(*block);
             }
         });
 
@@ -538,7 +538,7 @@ mod tests {
     #[test]
     fn test_can_place_block_after_players_move() {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -549,11 +549,7 @@ mod tests {
         let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
         let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
 
-        assert!(blocks.iter().all(|block| g.place_block(
-            &p1,
-            &p2,
-            block.clone()
-        )));
+        assert!(blocks.iter().all(|block| g.place_block(&p1, &p2, *block)));
 
         let block_dividing_board =
             Block::new(Placement::new(4, 6), Orientation::Vertical);
@@ -571,7 +567,7 @@ mod tests {
     #[test]
     fn test_can_not_player_reach_goal_disallowed_block_formations() {
         struct TestCase(Player, Player);
-        let blocks = vec![
+        let blocks = [
             Block::new(Placement::new(0, 3), Orientation::Horizontal),
             Block::new(Placement::new(2, 3), Orientation::Horizontal),
             Block::new(Placement::new(4, 3), Orientation::Horizontal),
@@ -582,10 +578,10 @@ mod tests {
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
             Orientation::Horizontal => {
-                g.horizontal_blocks.push(block.clone());
+                g.horizontal_blocks.push(*block);
             }
             Orientation::Vertical => {
-                g.vertical_blocks.push(block.clone());
+                g.vertical_blocks.push(*block);
             }
         });
 
@@ -593,7 +589,7 @@ mod tests {
         let p1 = Player::new(String::from("t"), StartingPosition::Top);
         let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
 
-        let neighbours = g.get_reachable_neighbour_tiles(&p1.position);
+        let _neighbours = g.get_reachable_neighbour_tiles(&p1.position);
         assert!(!g.can_player_reach_goal(&p1));
         assert!(!g.can_player_reach_goal(&p2));
     }

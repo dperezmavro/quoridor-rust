@@ -53,9 +53,6 @@ const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 /// Where the game display box starts
 const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
-/// Constant for light green
-const LIGHT_GREEN: Color = Color::new(0.0, 1.0, 0.0, 0.4);
-
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
@@ -108,10 +105,10 @@ pub fn get_window_conf(title: String) -> Conf {
 /// Pre-computes the grid's lines where blocks will be placed
 pub fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
-        .map(|x| {
+        .flat_map(|x| {
             let base_offset: f32 =
                 (x + 1) as f32 * TILE_SIZE + (x as f32 * GRID_LINE_WIDTH);
-            return vec![
+            vec![
                 Rect {
                     x: PADDING + base_offset,
                     y: PADDING,
@@ -124,9 +121,8 @@ pub fn pre_computed_grid_lines() -> Vec<Rect> {
                     w: GAME_GRID_LEN,
                     h: GRID_LINE_WIDTH,
                 },
-            ];
+            ]
         })
-        .flatten()
         .collect();
 
     grid_lines
@@ -140,7 +136,7 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
+pub fn draw_game_stats(f: Option<&Font>, block_counts: (usize, usize)) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -159,8 +155,8 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
 
     // H1
-    let h1_texts = vec![String::from("game"), String::from("stats")];
-    h1_texts.iter().enumerate().for_each(|(i, h)| {
+    let h1_texts = [String::from("game"), String::from("stats")];
+    h1_texts.iter().for_each(|h| {
         let h1_string = h;
         let h1_text_centre = get_text_center(
             h1_string.clone(),
@@ -171,7 +167,7 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
         );
 
         next_line_offset +=
-            ((h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0);
+            (h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
 
         // GAME
         draw_text_ex(
@@ -190,18 +186,18 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
     };
 
     // H3
-    let h3_texts = vec![
+    let h3_texts = [
         String::from("player 1"),
-        String::from(format!("blocks: {}", p1_blocks)),
+        format!("blocks: {}", block_counts.0),
         String::from("player 2"),
-        String::from(format!("blocks: {}", p2_blocks)),
+        format!("blocks: {}", block_counts.1),
     ];
 
     h3_texts.iter().enumerate().for_each(|(i, h)| {
         let h3_string = h.to_string();
         if i == 2 {
             // text for player 2
-            next_line_offset += (4.0 * GAME_STATS_BOX_PADDING);
+            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
         }
         let h3_string_text_centre = get_text_center(
             h3_string.clone(),
@@ -219,7 +215,7 @@ pub fn draw_game_stats(f: Option<&Font>, p1_blocks: usize, p2_blocks: usize) {
         );
 
         next_line_offset +=
-            (2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING);
+            2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
     });
 }
 
@@ -253,12 +249,17 @@ fn draw_bounds() {
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+pub fn get_current_player_color(player_id: u8) -> Color {
     let mut c = LIGHT_BLUE;
     if player_id == FIRST_PLAYER_ID {
         c = LIGHT_YELLOW;
     }
-    draw_block(block, c);
+    c
+}
+
+/// Draws a preview of where a block could go
+pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+    draw_block(block, get_current_player_color(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -274,7 +275,7 @@ fn is_mouse_inside_board(mp: (f32, f32)) -> bool {
 /// This determines what can be done with this event (place block, highlight player tile etc).
 pub fn get_mouse_pointer_state() -> MouseState {
     let mouse_position = mouse_position();
-    if !is_mouse_inside_board(mouse_position.clone()) {
+    if !is_mouse_inside_board(mouse_position) {
         return MouseState::NotInsideBoard;
     }
 
@@ -388,6 +389,21 @@ pub fn draw_player(p: Player) {
     );
 }
 
+/// Highlights player options when a player is above a valid block
+pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
+    for p in pos {
+        draw_rectangle(
+            GAME_GRID_BOX_START
+                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            GAME_GRID_BOX_START
+                + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            TILE_SIZE,
+            TILE_SIZE,
+            get_current_player_color(player_id),
+        );
+    }
+}
+
 /// Draws a preview of the player-tile that the mouse is currently hovering over.
 pub fn draw_game_tile_preview(p: &Position) {
     draw_rectangle(
@@ -402,8 +418,22 @@ pub fn draw_game_tile_preview(p: &Position) {
 #[cfg(test)]
 mod tests {
     use crate::ui::utils::{
-        GAME_GRID_BOX_START, GAME_GRID_LEN, is_mouse_inside_board,
+        GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
+        get_current_player_color, is_mouse_inside_board,
+        pre_computed_grid_lines,
     };
+
+    #[test]
+    fn test_correct_num_of_precomputed_lines() {
+        let pcl = pre_computed_grid_lines();
+        assert_eq!(16, pcl.len());
+    }
+
+    #[test]
+    fn test_correct_colours() {
+        assert_eq!(LIGHT_YELLOW, get_current_player_color(0));
+        assert_eq!(LIGHT_BLUE, get_current_player_color(1));
+    }
 
     #[test]
     fn test_is_mouse_in_grid_corners() {

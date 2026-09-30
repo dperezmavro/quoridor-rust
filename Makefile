@@ -2,6 +2,9 @@ BINDIR="bin/"
 WASM_DIR="${BINDIR}/wasm"
 ASSET_DIR="${WASM_DIR}/assets"
 
+test:
+	#cargo test
+	cargo tarpaulin --out html
 
 bindir:
 	mkdir -p "${WASM_DIR}"
