@@ -16,14 +16,6 @@ impl Tile {
             position,
         }
     }
-
-    pub fn occupy(&mut self) {
-        self.state = TileState::Occupied;
-    }
-
-    pub fn free(&mut self) {
-        self.state = TileState::Free
-    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]

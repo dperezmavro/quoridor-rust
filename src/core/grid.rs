@@ -489,9 +489,6 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
-            g.player_tiles[t.1.position.y][t.1.position.x].occupy();
-            g.player_tiles[t.2.position.y][t.2.position.x].occupy();
-
             t.0.iter().for_each(|block| {
                 assert!(g.can_place_block(&t.1, &t.2, *block), "{:?}", block);
                 assert!(g.place_block(&t.1, &t.2, *block), "{:?}", block);
