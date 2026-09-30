@@ -2,7 +2,7 @@ use crate::core::position::Position;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Tile {
-    pub state: TileState,
+    // pub state: TileState,
     pub position: Position,
 }
 
@@ -12,7 +12,7 @@ impl Tile {
         position: Position,
     ) -> Self {
         Tile {
-            state,
+            // state,
             position,
         }
     }
