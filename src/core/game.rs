@@ -121,11 +121,7 @@ mod test {
 
     #[test]
     fn test_default() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
         assert!(g.can_add_block(Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
@@ -138,11 +134,7 @@ mod test {
 
     #[test]
     fn test_cant_add_block_twice() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
         let b = Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
@@ -157,11 +149,7 @@ mod test {
 
     #[test]
     fn test_is_position_occupied_by_player() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
 
         assert!(g.is_position_occupied_by_player(&Position { x: 4, y: 0 }));
         assert!(g.is_position_occupied_by_player(&Position { x: 4, y: 8 }));
@@ -172,11 +160,8 @@ mod test {
 
     #[test]
     fn test_ui_bugs() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
+
         let b1 = Block {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 3 },
@@ -215,11 +200,7 @@ mod test {
 
     #[test]
     fn test_player_index_changed() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
 
@@ -240,11 +221,7 @@ mod test {
 
     #[test]
     fn test_player_block_decrement() {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        let mut g = Game::new(grid, p1, p2);
+        let mut g = setup_new_game();
 
         assert_eq!(NUM_BLOCKS, g.p1.remaining_blocks);
         assert_eq!(NUM_BLOCKS, g.p2.remaining_blocks);
@@ -323,4 +300,15 @@ mod test {
             Orientation::Horizontal
         ))));
     }
+
+    fn setup_new_game() -> Game {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        Game::new(grid, p1, p2)
+    }
+
+    #[test]
+    fn test_process_move_normal() {}
 }
