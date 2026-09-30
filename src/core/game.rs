@@ -3,9 +3,6 @@ use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
-/// Number of players for this game
-const NUM_PLAYERS: u8 = 2;
-
 /// Which player goes first
 const DEFAULT_PLAYER_ORDER: u8 = 0;
 
