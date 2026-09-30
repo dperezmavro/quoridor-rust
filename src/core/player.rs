@@ -61,6 +61,7 @@ impl Player {
     pub fn is_above(&self, p: &Player) -> bool {
         self.position.is_above(&p.position)
     }
+
     pub fn is_left_of(&self, p: &Player) -> bool {
         self.position.is_left_of(&p.position)
     }
@@ -102,7 +103,6 @@ mod tests {
         p2.position = Position::new(2, 1);
         assert!(p1.is_haligned(&p2));
     }
-
 
     #[test]
     pub fn test_is_there() {

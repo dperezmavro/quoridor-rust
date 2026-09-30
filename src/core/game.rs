@@ -82,8 +82,9 @@ impl Game {
                 // discover players' orientation relative to each other
                 if active_player.is_valigned(other_player) {
                     if (active_player.is_above(other_player)
-                        &&  other_player.position.is_above(&t.position))|| (other_player.is_above(active_player)
-                        && t.position.is_above( &other_player.position))
+                        && other_player.position.is_above(&t.position))
+                        || (other_player.is_above(active_player)
+                            && t.position.is_above(&other_player.position))
                     {
                         return true;
                     }
@@ -92,8 +93,9 @@ impl Game {
                     // player is to the right of other player
 
                     if (active_player.is_left_of(other_player)
-                        && t.position.x > other_player.position.x) ||(other_player.is_left_of( active_player)
-                        && t.position.is_left_of(&other_player.position))
+                        && t.position.x > other_player.position.x)
+                        || (other_player.is_left_of(active_player)
+                            && t.position.is_left_of(&other_player.position))
                     {
                         return true;
                     }
@@ -109,8 +111,7 @@ impl Game {
     }
 
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
-        self.p1.is_there(p )
-            || self.p2.is_there(p)
+        self.p1.is_there(p) || self.p2.is_there(p)
     }
 
     pub fn place_block(&mut self, b: Block) -> bool {
