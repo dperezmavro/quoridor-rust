@@ -97,12 +97,9 @@ impl Game {
                     // players horizontally aligned
                     // player is to the right of other player
 
-                    if active_player.is_left_of(other_player)
-                        && t.position.x > other_player.position.x
-                    {
-                        return true;
-                    } else if other_player.is_left_of( active_player)
-                        && t.position.is_left_of(&other_player.position)
+                    if (active_player.is_left_of(other_player)
+                        && t.position.x > other_player.position.x) ||(other_player.is_left_of( active_player)
+                        && t.position.is_left_of(&other_player.position))
                     {
                         return true;
                     }
