@@ -34,13 +34,13 @@ async fn main() {
     let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
 
     // TODO (dio): debug only for drawing
-    p1.position = Position::new(4, 5);
-    p2.position = Position::new(4, 6);
+    // p1.position = Position::new(4, 5);
+    // p2.position = Position::new(4, 6);
 
     let mut game = Game::new(grid, p1, p2);
 
     // TODO (dio): debug only for drawing
-    blocks.push((Block::new(Placement::new(4, 6), Orientation::Horizontal), 0 ));
+    // blocks.push((Block::new(Placement::new(4, 6), Orientation::Horizontal), 0 ));
 
     loop {
         clear_background(GRAY);
@@ -77,9 +77,12 @@ async fn main() {
                 }
             }
             MouseState::RowCol(position) => {
+                // TODO (dio): position flipping
+                // this bug causes the ui block selection directions to be flipped
                 let p = &Position {
                     x: position.y,
                     y: position.x,
+                    // ..position.clone()
                 };
 
                 let available_move_tiles_for_player = game.get_player_options();
@@ -88,9 +91,10 @@ async fn main() {
                     &available_move_tiles_for_player,
                 );
 
+
                 if available_move_tiles_for_player
                     .iter()
-                    .any(|pp| pp.x == p.y && pp.y == p.x)
+                    .any(|pp| pp.x == p.y && pp.y == p.x) // TODO (dio): investigate XY flip
                     && !game.is_position_occupied_by_player(p)
                 {
                     draw_game_tile_preview(position);

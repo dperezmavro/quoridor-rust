@@ -322,8 +322,12 @@ pub fn get_mouse_pointer_state() -> MouseState {
 
     if found_row && found_col {
         MouseState::RowCol(Position {
+            // TODO (dio): another instance of column and row switching
             x: row as usize,
             y: col as usize,
+            // x: col as usize,
+            // y: row as usize,
+
         })
     } else if in_horizontal_block_pos && in_vertical_block_pos {
         MouseState::InBorderCrossSection
