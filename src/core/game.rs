@@ -312,11 +312,11 @@ mod test {
             Player::new(String::from("b"), StartingPosition::Bottom);
         Game::new(grid, p1, p2)
     }
+    const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
 
     #[test]
     fn test_get_player_options() {
         let mut g = setup_new_game();
-        const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
 
         // player 1
         assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
@@ -324,6 +324,47 @@ mod test {
         // player 2
         g.next_player();
         assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+    }
+
+    #[test]
+    fn test_get_player_options_with_blocks() {
+        // new game - random block in the middle of the board
+        let mut g = setup_new_game();
+        g.place_block(Block::new(
+            Placement::new(6, 6),
+            Orientation::Horizontal,
+        ));
+
+        // player 1
+        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+
+        // player 2
+        g.next_player();
+        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+
+        // new game - blocks in from of the players
+        let mut g = setup_new_game();
+        g.place_block(Block::new(
+            Placement::new(3, 0),
+            Orientation::Horizontal,
+        ));
+
+        // player 1
+        assert_eq!(
+            DEFAULT_STARTING_NEIGHBOURS - 1,
+            g.get_player_options().len()
+        );
+
+        g.place_block(Block::new(
+            Placement::new(3, 7),
+            Orientation::Horizontal,
+        ));
+        // player 2
+        g.next_player();
+        assert_eq!(
+            DEFAULT_STARTING_NEIGHBOURS - 1,
+            g.get_player_options().len()
+        );
     }
 
     #[test]
