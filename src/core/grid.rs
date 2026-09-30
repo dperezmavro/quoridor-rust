@@ -2,7 +2,7 @@ use crate::core::block::Block;
 use crate::core::orientation::Orientation;
 use crate::core::player::{NUM_BLOCKS, Player};
 use crate::core::position::Position;
-use crate::core::tile::{Tile, TileState};
+use crate::core::tile::Tile;
 use std::collections::HashSet;
 
 pub const NUM_TILES: usize = 9;
