@@ -123,10 +123,6 @@ impl Game {
         self.player_turn
     }
 
-    pub fn get_other_player_id(&self) -> u8 {
-        self.get_player_turn() ^ 1
-    }
-
     pub fn next_player(&mut self) {
         self.player_turn ^= 1;
     }
