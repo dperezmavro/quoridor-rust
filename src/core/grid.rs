@@ -1,6 +1,6 @@
 use crate::core::wall::Wall;
 use crate::core::orientation::Orientation;
-use crate::core::player::{NUM_BLOCKS, Player};
+use crate::core::player::{NUM_WALLS, Player};
 use crate::core::position::Position;
 use crate::core::tile::Tile;
 use std::collections::HashSet;
@@ -55,8 +55,8 @@ impl Grid {
 
         Self {
             player_tiles,
-            horizontal_walls: Vec::with_capacity(NUM_BLOCKS),
-            vertical_walls: Vec::with_capacity(NUM_BLOCKS),
+            horizontal_walls: Vec::with_capacity(NUM_WALLS),
+            vertical_walls: Vec::with_capacity(NUM_WALLS),
         }
     }
 
@@ -480,13 +480,13 @@ mod tests {
                     position: Position::new(4, 4),
                     name: String::new(),
                     starting_position: StartingPosition::Top,
-                    remaining_blocks: NUM_BLOCKS,
+                    remaining_walls: NUM_WALLS,
                 },
                 Player {
                     position: Position::new(4, 3),
                     name: String::new(),
                     starting_position: StartingPosition::Bottom,
-                    remaining_blocks: NUM_BLOCKS,
+                    remaining_walls: NUM_WALLS,
                 },
             ),
         ];

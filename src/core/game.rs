@@ -30,7 +30,7 @@ impl Game {
         }
     }
 
-    pub fn can_add_block(&mut self, b: Wall) -> bool {
+    pub fn can_add_wall(&mut self, b: Wall) -> bool {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
@@ -89,7 +89,7 @@ impl Game {
         self.p1.is_there(p) || self.p2.is_there(p)
     }
 
-    pub fn place_block(&mut self, b: Wall) -> bool {
+    pub fn place_wall(&mut self, b: Wall) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
     }
 
@@ -101,8 +101,8 @@ impl Game {
         self.player_turn ^= 1;
     }
 
-    pub fn player_block_counts(&self) -> (usize, usize) {
-        (self.p1.remaining_blocks, self.p2.remaining_blocks)
+    pub fn player_wall_counts(&self) -> (usize, usize) {
+        (self.p1.remaining_walls, self.p2.remaining_walls)
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
@@ -114,12 +114,12 @@ impl Game {
 
         match m {
             Move::PlaceBlock(block) => {
-                if !curr_player.has_remaining_blocks() {
+                if !curr_player.has_remaining_walls() {
                     return false;
                 }
 
-                curr_player.consume_block();
-                self.place_block(block);
+                curr_player.consume_wall();
+                self.place_wall(block);
             }
             Move::PlayerAdvance(pos) => {
                 let is_move_valid = self.get_player_options().contains(&pos);
@@ -144,18 +144,18 @@ mod test {
     use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
-    use crate::core::player::{NUM_BLOCKS, StartingPosition};
+    use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::tile::Tile;
 
     #[test]
     fn test_default() {
         let mut g = setup_new_game();
-        assert!(g.can_add_block(Wall {
+        assert!(g.can_add_wall(Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
-        assert!(g.place_block(Wall {
+        assert!(g.place_wall(Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
@@ -169,11 +169,11 @@ mod test {
             placement: Placement { tile: 0, lane: 0 },
         };
         // test normal add
-        assert!(g.can_add_block(b));
-        assert!(g.place_block(b));
+        assert!(g.can_add_wall(b));
+        assert!(g.place_wall(b));
         //verify duplicate add rejected
-        assert!(!g.can_add_block(b));
-        assert!(!g.place_block(b));
+        assert!(!g.can_add_wall(b));
+        assert!(!g.place_wall(b));
     }
 
     #[test]
@@ -206,17 +206,17 @@ mod test {
             placement: Placement { tile: 4, lane: 0 },
         };
 
-        assert!(g.can_add_block(b1));
-        assert!(g.place_block(b1));
-        assert!(!g.can_add_block(b1));
+        assert!(g.can_add_wall(b1));
+        assert!(g.place_wall(b1));
+        assert!(!g.can_add_wall(b1));
 
-        assert!(g.can_add_block(b2));
-        assert!(g.place_block(b2));
-        assert!(!g.can_add_block(b2));
+        assert!(g.can_add_wall(b2));
+        assert!(g.place_wall(b2));
+        assert!(!g.can_add_wall(b2));
 
         // this should fail
-        assert!(!g.can_add_block(b3));
-        assert!(!g.place_block(b3));
+        assert!(!g.can_add_wall(b3));
+        assert!(!g.place_wall(b3));
 
         let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
         assert_eq!(
@@ -252,42 +252,42 @@ mod test {
     fn test_player_block_decrement() {
         let mut g = setup_new_game();
 
-        let block_counts = g.player_block_counts();
-        assert_eq!(NUM_BLOCKS, block_counts.0);
-        assert_eq!(NUM_BLOCKS, block_counts.1);
+        let block_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS, block_counts.0);
+        assert_eq!(NUM_WALLS, block_counts.1);
 
         assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        let block_counts = g.player_block_counts();
-        assert_eq!(NUM_BLOCKS - 1, block_counts.0);
-        assert_eq!(NUM_BLOCKS, block_counts.1);
+        let block_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS - 1, block_counts.0);
+        assert_eq!(NUM_WALLS, block_counts.1);
 
         assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        let block_counts = g.player_block_counts();
-        assert_eq!(NUM_BLOCKS - 1, block_counts.0);
-        assert_eq!(NUM_BLOCKS - 1, block_counts.1);
+        let block_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS - 1, block_counts.0);
+        assert_eq!(NUM_WALLS - 1, block_counts.1);
     }
 
     #[test]
     fn test_blocks_exhausted() {
         let mut g = setup_new_game();
-        let block_counts = g.player_block_counts();
+        let block_counts = g.player_wall_counts();
         let mut total_block_placed = 0;
         for col in 0..=4 {
             assert!(
-                g.p1.has_remaining_blocks(),
+                g.p1.has_remaining_walls(),
                 "remaining blocks: {}",
                 block_counts.0
             );
             assert!(
-                g.p2.has_remaining_blocks(),
+                g.p2.has_remaining_walls(),
                 "remaining blocks: {}",
                 block_counts.1
             );
@@ -306,12 +306,12 @@ mod test {
         );
 
         assert!(
-            !g.p1.has_remaining_blocks(),
+            !g.p1.has_remaining_walls(),
             "remaining blocks: {}",
             block_counts.0
         );
         assert!(
-            !g.p2.has_remaining_blocks(),
+            !g.p2.has_remaining_walls(),
             "remaining blocks: {}",
             block_counts.1
         );
@@ -321,8 +321,8 @@ mod test {
             Orientation::Horizontal
         ))));
 
-        assert!(!g.p1.has_remaining_blocks());
-        assert!(!g.p2.has_remaining_blocks());
+        assert!(!g.p1.has_remaining_walls());
+        assert!(!g.p2.has_remaining_walls());
 
         assert!(!g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(6, 6),
@@ -355,7 +355,7 @@ mod test {
     fn test_get_player_options_with_blocks() {
         // new game - random block in the middle of the board
         let mut g = setup_new_game();
-        g.place_block(Wall::new(
+        g.place_wall(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal,
         ));
@@ -369,7 +369,7 @@ mod test {
 
         // new game - blocks in from of the players
         let mut g = setup_new_game();
-        g.place_block(Wall::new(
+        g.place_wall(Wall::new(
             Placement::new(3, 0),
             Orientation::Horizontal,
         ));
@@ -380,7 +380,7 @@ mod test {
             g.get_player_options().len()
         );
 
-        g.place_block(Wall::new(
+        g.place_wall(Wall::new(
             Placement::new(3, 7),
             Orientation::Horizontal,
         ));
@@ -440,7 +440,7 @@ mod test {
         // bottom player
         g.p2.position = Position::new(4, 6);
 
-        assert!(g.place_block(Wall::new(
+        assert!(g.place_wall(Wall::new(
             Placement::new(4, 6),
             Orientation::Horizontal
         )));

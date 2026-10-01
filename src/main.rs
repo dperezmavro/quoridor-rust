@@ -39,7 +39,7 @@ async fn main() {
         // draws borders, grid, padding and
         draw_game_grid_base(&pre_computed_grid_lines);
 
-        draw_game_stats(Some(&font), game.player_block_counts());
+        draw_game_stats(Some(&font), game.player_wall_counts());
 
         // draw blocks that have already been placed
         for b in &blocks {
@@ -56,12 +56,12 @@ async fn main() {
             MouseState::BlockPosition(b) => {
                 let turn = game.get_player_turn();
                 // hovering above a block position
-                if game.can_add_block(*b) {
+                if game.can_add_wall(*b) {
                     draw_block_placement_preview(*b, turn);
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left)
-                    && game.can_add_block(*b)
+                    && game.can_add_wall(*b)
                 {
                     game.process_move(Move::PlaceBlock(*b));
                     blocks.push(*b);
