@@ -86,7 +86,7 @@ impl Game {
 
                 if active_player.position.is_valigned(&other_player.position) {
                     // active_player is below other player
-                    if active_player.position.y > other_player.position.y {
+                    if active_player.position.is_above(&other_player.position) {
                         if t.position.y < other_player.position.y {
                             return true;
                         }

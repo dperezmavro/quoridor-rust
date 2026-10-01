@@ -25,6 +25,10 @@ impl Position {
     pub fn is_haligned(&self, p: &Position) -> bool {
         self.y == p.y
     }
+
+    pub fn is_above(&self, p: &Position) -> bool {
+        self.y > p.y && self.x == p.x
+    }
 }
 
 #[cfg(test)]
@@ -74,6 +78,18 @@ mod tests {
         let p1 = Position::new(1, 1);
         let p = Position::new(1, 2);
         assert!(p1.is_valigned(&p));
+    }
+
+    #[test]
+    pub fn test_are_positions_above() {
+        let p1 = Position::new(1, 1);
+        let p2 = Position::new(2, 2);
+        assert!(!p1.is_above(&p2));
+
+        let p1 = Position::new(1, 1);
+        let p2 = Position::new(1, 2);
+        assert!(!p1.is_above(&p2));
+        assert!(p2.is_above(&p1));
     }
 
     //
