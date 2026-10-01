@@ -526,10 +526,7 @@ mod tests {
         let mps = get_mouse_pointer_state((PADDING + 1.0, PADDING + 1.0));
         assert_eq!(mps, MouseState::RowCol(Position { x: 0, y: 0 }));
 
-        let mps = get_mouse_pointer_state((
-            PADDING,
-            PADDING + TILE_SIZE + 1.0,
-        ));
+        let mps = get_mouse_pointer_state((PADDING, PADDING + TILE_SIZE + 1.0));
         assert_eq!(
             mps,
             MouseState::BlockPosition(Block::new(
@@ -542,9 +539,6 @@ mod tests {
             PADDING + TILE_SIZE + 1.0,
             PADDING + TILE_SIZE + 1.0,
         ));
-        assert_eq!(
-            mps,
-            MouseState::InBorderCrossSection
-        );
+        assert_eq!(mps, MouseState::InBorderCrossSection);
     }
 }
