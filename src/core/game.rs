@@ -81,14 +81,8 @@ impl Game {
                 }
 
                 // discover players' orientation relative to each other
-                if active_player.is_valigned(other_player) {
-                    if (active_player.is_above(other_player)
-                        && other_player.position.is_above(&t.position))
-                        || (other_player.is_above(active_player)
-                            && t.position.is_above(&other_player.position))
-                    {
-                        return true;
-                    }
+                if active_player.can_jump_over(other_player, &t.position) {
+                    return true;
                 } else if active_player.is_haligned(other_player) {
                     // players horizontally aligned
                     // player is to the right of other player

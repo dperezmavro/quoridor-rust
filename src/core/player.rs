@@ -65,6 +65,18 @@ impl Player {
     pub fn is_left_of(&self, p: &Player) -> bool {
         self.position.is_left_of(&p.position)
     }
+
+    pub fn can_jump_over(&self, p: &Player, pos: &Position) -> bool {
+        self.is_valigned(p)
+            && ((self.is_above(p) && p.position.is_above(pos))
+                || (p.is_above(self) && pos.is_above(&p.position)))
+    }
+
+    pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
+        self.is_haligned(p)
+            && ((self.is_left_of(p) && p.position.is_above(pos))
+            || (p.is_left_of(self) && pos.is_above(&p.position)))
+    }
 }
 
 #[cfg(test)]
