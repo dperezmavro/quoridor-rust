@@ -69,9 +69,11 @@ impl Game {
         // tiles behind the player
         let alternative_jumping_tiles = self
             .g
-            .get_reachable_neighbour_tiles(&other_player.position)
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
             .into_iter()
-            .filter(|t| !self.is_position_occupied_by_player(&t.position))
             .filter(|t| {
                 // determine orientation of two players
 
