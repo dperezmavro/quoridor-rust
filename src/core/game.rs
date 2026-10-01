@@ -482,4 +482,30 @@ mod test {
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
+
+    #[test]
+    fn test_no_other_player_due_to_block() {
+        let mut g = setup_new_game();
+        // top player
+        g.p1.position = Position::new(4, 5);
+        // bottom player
+        g.p2.position = Position::new(4, 6);
+
+        // TBLR
+        let want = vec![
+            Position { x: 4, y: 7 },
+            Position { x: 3, y: 6 },
+            Position { x: 5, y: 6 },
+        ];
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(4, 4),
+            Orientation::Horizontal
+        ))));
+        assert_eq!(1, g.get_player_turn());
+
+        let res = g.get_player_options();
+        assert_eq!(want.len(), res.len(), "found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
 }
