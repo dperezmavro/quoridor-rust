@@ -103,6 +103,18 @@ mod tests {
     }
 
     #[test]
+    fn test_can_jump_over() {
+        let mut p1 = Player::new("DUMMY".to_string(), StartingPosition::Top);
+        let mut p2 = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+
+        p1.position = Position::new(4, 3);
+        p2.position = Position::new(4, 4);
+
+        assert!(p1.can_jump_over(&p2, &Position::new(4, 5)));
+        assert!(p2.can_jump_over(&p1, &Position::new(4, 2)));
+    }
+
+    #[test]
     fn test_player_black() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.position.x, NUM_TILES / 2);
