@@ -45,7 +45,7 @@ impl Game {
     }
 
     fn get_players(&self) -> (&Player, &Player) {
-        if self.get_player_turn() == 0 {
+        if self.get_player_turn() == DEFAULT_PLAYER_ORDER {
             return (&self.p1, &self.p2);
         }
 
