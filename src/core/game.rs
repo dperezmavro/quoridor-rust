@@ -82,7 +82,9 @@ impl Game {
                         if t.position.y < other_player.position.y {
                             return true;
                         }
-                    } else if active_player.position.y < other_player.position.y
+                    }
+
+                    if active_player.position.y < other_player.position.y
                         && t.position.y > other_player.position.y
                     {
                         return true;
@@ -96,7 +98,12 @@ impl Game {
                     {
                         return true;
                     }
-                    // return true;
+
+                    if active_player.position.x > other_player.position.x
+                        && t.position.x < other_player.position.x
+                    {
+                        return true;
+                    }
                 }
 
                 false
@@ -525,8 +532,28 @@ mod test {
             Position { x: 4, y: 4 },
             Position { x: 4, y: 6 },
             Position { x: 3, y: 5 },
-            // bottom added as extra square
+            // right added as extra square
             Position { x: 6, y: 5 },
+        ];
+        assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_jump_over_player_no_blocks_horizontal_right_to_left() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(5, 5);
+        g.p2.position = Position::new(4, 5);
+
+        let res = g.get_player_options();
+
+        // TBLR
+        let want = vec![
+            Position { x: 5, y: 4 },
+            Position { x: 5, y: 6 },
+            Position { x: 6, y: 5 },
+            // left added as extra square
+            Position { x: 3, y: 5 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
         assert_eq!(want, res, "{:?}", res);
