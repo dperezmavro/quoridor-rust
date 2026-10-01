@@ -9,3 +9,6 @@ impl Position {
         Self { x, y }
     }
 }
+
+#[cfg(test)]
+mod tests {}
