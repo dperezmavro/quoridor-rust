@@ -108,4 +108,17 @@ mod tests {
         p2.position = Position::new(1, 2);
         assert!(p1.is_valigned(&p2));
     }
+
+    #[test]
+    pub fn test_are_positions_above() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        p1.position = Position::new(1, 1);
+        let mut p2 = p1.clone();
+        p2.position = Position::new(2, 2);
+        assert!(!p1.is_above(&p2));
+
+        p2.position = Position::new(1, 2);
+        assert!(!p1.is_above(&p2));
+        assert!(p2.is_above(&p1));
+    }
 }
