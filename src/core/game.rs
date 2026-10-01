@@ -75,14 +75,9 @@ impl Game {
             .filter(|t| {
                 // determine orientation of two players
 
-                if !&active_player.position.is_neighbour(&other_player.position)
-                {
-                    return false;
-                }
-
-                // discover players' orientation relative to each other
-                active_player.can_jump_over(other_player, &t.position) ||
-                    active_player.can_cross_over(other_player, &t.position)
+                active_player.position.is_neighbour(&other_player.position)
+                    && active_player.can_jump_over(other_player, &t.position)
+                    || active_player.can_cross_over(other_player, &t.position)
             });
 
         // tiles around the player
