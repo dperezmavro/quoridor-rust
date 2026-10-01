@@ -57,6 +57,9 @@ const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
 const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
+
+const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME};
+
 const LIGHT_YELLOW: Color = Color { a: 0.5, ..YELLOW };
 
 /// Padding for the box showing game stats
@@ -257,9 +260,10 @@ pub fn get_current_player_color(player_id: u8) -> Color {
     c
 }
 
+
 /// Draws a preview of where a block could go
 pub fn draw_placed_block(block: Block) {
-    draw_block(block, get_current_player_color(0));
+    draw_block(block, LIGHT_GREEN);
 }
 
 /// Draws a preview of where a block could go
