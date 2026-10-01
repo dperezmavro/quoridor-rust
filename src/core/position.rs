@@ -91,13 +91,4 @@ mod tests {
         assert!(!p1.is_above(&p2));
         assert!(p2.is_above(&p1));
     }
-
-    //
-    // pub fn are_positions_valigned(&self, p1: &Position, p: &Position) -> bool {
-    //     p1.x == p.x
-    // }
-    //
-    // pub fn are_positions_haligned(&self, p1: &Position, p: &Position) -> bool {
-    //     p1.y == p.y
-    // }
 }
