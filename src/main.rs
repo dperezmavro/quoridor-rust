@@ -70,8 +70,6 @@ async fn main() {
                 }
             }
             MouseState::RowCol(pos) => {
-                println!("player mouse over {:?}", pos);
-
                 let available_move_tiles_for_player = game.get_player_options();
                 highlight_player_options(
                     game.get_player_turn(),
