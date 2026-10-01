@@ -92,7 +92,7 @@ impl Game {
                         }
                     }
 
-                    if active_player.position.y < other_player.position.y
+                    if other_player.position.is_above(&active_player.position)
                         && t.position.y > other_player.position.y
                     {
                         return true;
