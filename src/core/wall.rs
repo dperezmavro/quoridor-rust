@@ -1,13 +1,13 @@
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 
-/// Blocks are used for blocking player movement.
+/// Walls are used for walling player movement.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Wall {
-    /// `orientation` is the block's orientation
+    /// `orientation` is the wall's orientation
     pub orientation: Orientation,
 
-    /// `placement` is the block's placement on the grid
+    /// `placement` is the wall's placement on the grid
     pub placement: Placement,
 }
 
