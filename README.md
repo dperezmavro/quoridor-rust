@@ -1,4 +1,5 @@
 # About
+[![Rust PR checks](https://github.com/dperezmavro/quoridor-rust/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/dperezmavro/quoridor-rust/actions/workflows/rust-ci.yaml)
 
 This is a small project I have been working on to learn Rust.
 
