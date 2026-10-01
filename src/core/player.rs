@@ -65,6 +65,18 @@ impl Player {
     pub fn is_left_of(&self, p: &Player) -> bool {
         self.position.is_left_of(&p.position)
     }
+
+    pub fn can_jump_over(&self, p: &Player, pos: &Position) -> bool {
+        self.is_valigned(p)
+            && ((self.is_above(p) && p.position.is_above(pos))
+                || (p.is_above(self) && pos.is_above(&p.position)))
+    }
+
+    pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
+        self.is_haligned(p)
+            && (self.is_left_of(p) && p.position.is_left_of(pos))
+            || (p.is_left_of(self) && pos.is_left_of(&p.position))
+    }
 }
 
 #[cfg(test)]
@@ -76,6 +88,30 @@ mod tests {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Top);
         assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, 0);
+    }
+
+    #[test]
+    fn test_can_cross_over() {
+        let mut p1 = Player::new("DUMMY".to_string(), StartingPosition::Top);
+        let mut p2 = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+
+        p1.position = Position::new(3, 4);
+        p2.position = Position::new(4, 4);
+
+        assert!(p1.can_cross_over(&p2, &Position::new(5, 4)));
+        assert!(p2.can_cross_over(&p1, &Position::new(2, 4)));
+    }
+
+    #[test]
+    fn test_can_jump_over() {
+        let mut p1 = Player::new("DUMMY".to_string(), StartingPosition::Top);
+        let mut p2 = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+
+        p1.position = Position::new(4, 3);
+        p2.position = Position::new(4, 4);
+
+        assert!(p1.can_jump_over(&p2, &Position::new(4, 5)));
+        assert!(p2.can_jump_over(&p1, &Position::new(4, 2)));
     }
 
     #[test]
