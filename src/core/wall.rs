@@ -3,7 +3,7 @@ use crate::core::placement::Placement;
 
 /// Blocks are used for blocking player movement.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Block {
+pub struct Wall {
     /// `orientation` is the block's orientation
     pub orientation: Orientation,
 
@@ -11,7 +11,7 @@ pub struct Block {
     pub placement: Placement,
 }
 
-impl Block {
+impl Wall {
     pub fn new(placement: Placement, orientation: Orientation) -> Self {
         Self {
             orientation,

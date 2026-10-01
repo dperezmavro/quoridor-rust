@@ -1,6 +1,6 @@
 use macroquad::prelude::*;
 
-use crate::core::block::Block;
+use crate::core::wall::Wall;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
@@ -84,7 +84,7 @@ pub enum MouseState {
     RowCol(Position),
 
     /// Used when mouse is above a block position.
-    BlockPosition(Block),
+    BlockPosition(Wall),
 
     /// Mouse in border cross-section - dead region.
     InBorderCrossSection,
@@ -271,12 +271,12 @@ pub fn get_current_player_color(player_id: u8) -> Color {
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_placed_block(block: Block) {
+pub fn draw_placed_block(block: Wall) {
     draw_block(block, LIGHT_GREEN);
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_block_placement_preview(block: Block, player_id: u8) {
+pub fn draw_block_placement_preview(block: Wall, player_id: u8) {
     draw_block(block, get_current_player_color(player_id));
 }
 
@@ -346,7 +346,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
         MouseState::InBorderCrossSection
     } else {
         if found_row {
-            return MouseState::BlockPosition(Block {
+            return MouseState::BlockPosition(Wall {
                 orientation: Orientation::Vertical,
                 placement: Placement {
                     tile: row as usize,
@@ -355,7 +355,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
             });
         }
 
-        MouseState::BlockPosition(Block {
+        MouseState::BlockPosition(Wall {
             orientation: Orientation::Horizontal,
             placement: Placement {
                 tile: col as usize,
@@ -366,7 +366,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
 }
 
 /// Draws a block - wrapper method for the macroquad method
-pub fn draw_block(b: Block, c: Color) {
+pub fn draw_block(b: Wall, c: Color) {
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
@@ -452,7 +452,7 @@ pub fn draw_move_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::block::Block;
+    use crate::core::wall::Wall;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::ui::utils::{
@@ -529,7 +529,7 @@ mod tests {
         let mps = get_mouse_pointer_state((PADDING, PADDING + TILE_SIZE + 1.0));
         assert_eq!(
             mps,
-            MouseState::BlockPosition(Block::new(
+            MouseState::BlockPosition(Wall::new(
                 Placement::new(0, 0),
                 Orientation::Horizontal
             ))
@@ -538,7 +538,7 @@ mod tests {
         let mps = get_mouse_pointer_state((PADDING + TILE_SIZE + 1.0, PADDING));
         assert_eq!(
             mps,
-            MouseState::BlockPosition(Block::new(
+            MouseState::BlockPosition(Wall::new(
                 Placement::new(0, 0),
                 Orientation::Vertical
             ))

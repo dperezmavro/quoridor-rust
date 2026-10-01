@@ -4,7 +4,7 @@
 //! be imported by things that handle presentation.
 
 /// A block, used to stop players from advancing position.
-pub mod block;
+pub mod wall;
 pub mod game;
 pub mod grid;
 pub mod orientation;

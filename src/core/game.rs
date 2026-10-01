@@ -1,4 +1,4 @@
-use crate::core::block::Block;
+use crate::core::wall::Wall;
 use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
@@ -16,7 +16,7 @@ pub struct Game {
 
 #[derive(Debug)]
 pub enum Move {
-    PlaceBlock(Block),
+    PlaceBlock(Wall),
     PlayerAdvance(Position),
 }
 
@@ -30,7 +30,7 @@ impl Game {
         }
     }
 
-    pub fn can_add_block(&mut self, b: Block) -> bool {
+    pub fn can_add_block(&mut self, b: Wall) -> bool {
         self.g.can_place_block(&self.p1, &self.p2, b)
     }
 
@@ -89,7 +89,7 @@ impl Game {
         self.p1.is_there(p) || self.p2.is_there(p)
     }
 
-    pub fn place_block(&mut self, b: Block) -> bool {
+    pub fn place_block(&mut self, b: Wall) -> bool {
         self.g.place_block(&self.p1, &self.p2, b)
     }
 
@@ -140,7 +140,7 @@ impl Game {
 mod test {
     use super::*;
 
-    use crate::core::block::Block;
+    use crate::core::wall::Wall;
     use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
@@ -151,11 +151,11 @@ mod test {
     #[test]
     fn test_default() {
         let mut g = setup_new_game();
-        assert!(g.can_add_block(Block {
+        assert!(g.can_add_block(Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
-        assert!(g.place_block(Block {
+        assert!(g.place_block(Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         }));
@@ -164,7 +164,7 @@ mod test {
     #[test]
     fn test_cant_add_block_twice() {
         let mut g = setup_new_game();
-        let b = Block {
+        let b = Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 0 },
         };
@@ -191,17 +191,17 @@ mod test {
     fn test_ui_bugs() {
         let mut g = setup_new_game();
 
-        let b1 = Block {
+        let b1 = Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 3 },
         };
-        let b2 = Block {
+        let b2 = Wall {
             orientation: Orientation::Vertical,
             placement: Placement { tile: 0, lane: 5 },
         };
 
         // bad block
-        let b3 = Block {
+        let b3 = Wall {
             orientation: Orientation::Horizontal,
             placement: Placement { tile: 4, lane: 0 },
         };
@@ -233,14 +233,14 @@ mod test {
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
 
-        assert!(g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
         assert_eq!(1, g.player_turn);
 
-        assert!(g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
@@ -256,7 +256,7 @@ mod test {
         assert_eq!(NUM_BLOCKS, block_counts.0);
         assert_eq!(NUM_BLOCKS, block_counts.1);
 
-        assert!(g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
@@ -265,7 +265,7 @@ mod test {
         assert_eq!(NUM_BLOCKS - 1, block_counts.0);
         assert_eq!(NUM_BLOCKS, block_counts.1);
 
-        assert!(g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
@@ -292,7 +292,7 @@ mod test {
                 block_counts.1
             );
             for i in [0, 2, 4, 6] {
-                assert!(g.process_move(Move::PlaceBlock(Block::new(
+                assert!(g.process_move(Move::PlaceBlock(Wall::new(
                     Placement::new(i, col),
                     Orientation::Horizontal
                 ))));
@@ -316,7 +316,7 @@ mod test {
             block_counts.1
         );
 
-        assert!(!g.process_move(Move::PlaceBlock(Block::new(
+        assert!(!g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal
         ))));
@@ -324,7 +324,7 @@ mod test {
         assert!(!g.p1.has_remaining_blocks());
         assert!(!g.p2.has_remaining_blocks());
 
-        assert!(!g.process_move(Move::PlaceBlock(Block::new(
+        assert!(!g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal
         ))));
@@ -355,7 +355,7 @@ mod test {
     fn test_get_player_options_with_blocks() {
         // new game - random block in the middle of the board
         let mut g = setup_new_game();
-        g.place_block(Block::new(
+        g.place_block(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal,
         ));
@@ -369,7 +369,7 @@ mod test {
 
         // new game - blocks in from of the players
         let mut g = setup_new_game();
-        g.place_block(Block::new(
+        g.place_block(Wall::new(
             Placement::new(3, 0),
             Orientation::Horizontal,
         ));
@@ -380,7 +380,7 @@ mod test {
             g.get_player_options().len()
         );
 
-        g.place_block(Block::new(
+        g.place_block(Wall::new(
             Placement::new(3, 7),
             Orientation::Horizontal,
         ));
@@ -440,7 +440,7 @@ mod test {
         // bottom player
         g.p2.position = Position::new(4, 6);
 
-        assert!(g.place_block(Block::new(
+        assert!(g.place_block(Wall::new(
             Placement::new(4, 6),
             Orientation::Horizontal
         )));
@@ -472,7 +472,7 @@ mod test {
             Position { x: 5, y: 6 },
         ];
 
-        assert!(g.process_move(Move::PlaceBlock(Block::new(
+        assert!(g.process_move(Move::PlaceBlock(Wall::new(
             Placement::new(4, 4),
             Orientation::Horizontal
         ))));

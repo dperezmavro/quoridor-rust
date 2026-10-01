@@ -3,7 +3,7 @@ mod ui;
 
 use core::game::{DEFAULT_PLAYER_ORDER, Game, Move};
 use core::player::{Player, StartingPosition};
-use core::{block, grid};
+use core::{wall, grid};
 use macroquad::prelude::*;
 use ui::utils::{
     MouseState, draw_block_placement_preview, draw_game_grid_base,
@@ -22,7 +22,7 @@ async fn main() {
 
     // this currently holds block + user information
     // could block be refactored to use this?
-    let mut blocks: Vec<block::Block> = Vec::with_capacity(20);
+    let mut blocks: Vec<wall::Wall> = Vec::with_capacity(20);
 
     // minor optimisation
     let pre_computed_grid_lines = pre_computed_grid_lines();
