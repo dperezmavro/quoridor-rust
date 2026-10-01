@@ -57,18 +57,18 @@ impl Game {
             &self.p2
         };
 
-        // unoccupied tiles
-        let player_unoccupied_tiles = self
+        let all_neighbour_tiles = self
             .g
             .get_reachable_neighbour_tiles(&active_player.position)
-            .into_iter()
+            .into_iter();
+
+        // unoccupied tiles
+        let player_unoccupied_tiles = all_neighbour_tiles
+            .clone()
             .filter(|t| !self.is_position_occupied_by_player(&t.position));
 
         // tiles behind the player
-        let player_occupied_tiles = self
-            .g
-            .get_reachable_neighbour_tiles(&active_player.position)
-            .into_iter()
+        let player_occupied_tiles = all_neighbour_tiles
             .filter(|t| self.is_position_occupied_by_player(&t.position))
             .filter(|t| t.position != active_player.position)
             .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
