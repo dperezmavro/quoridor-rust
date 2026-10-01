@@ -115,7 +115,7 @@ mod tests {
     }
 
     #[test]
-    fn test_player_black() {
+    fn test_player_position() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, NUM_TILES - 1);
