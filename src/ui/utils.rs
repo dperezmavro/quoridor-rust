@@ -58,7 +58,7 @@ const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
 
 const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
 
-const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME};
+const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
 const LIGHT_YELLOW: Color = Color { a: 0.5, ..YELLOW };
 
@@ -260,7 +260,6 @@ pub fn get_current_player_color(player_id: u8) -> Color {
     c
 }
 
-
 /// Draws a preview of where a block could go
 pub fn draw_placed_block(block: Block) {
     draw_block(block, LIGHT_GREEN);
@@ -378,7 +377,7 @@ pub fn draw_block(b: Block, c: Color) {
 }
 
 /// Draws a circle representing a player on the grid
-pub fn draw_player(p: &Player) {
+pub fn draw_player(p: &Player, highlight: bool) {
     let x = p.position.x;
     let y = p.position.y;
     let color = match p.starting_position {

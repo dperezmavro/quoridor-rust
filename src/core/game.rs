@@ -4,7 +4,7 @@ use crate::core::player::Player;
 use crate::core::position::Position;
 
 /// Which player goes first
-const DEFAULT_PLAYER_ORDER: u8 = 0;
+pub const DEFAULT_PLAYER_ORDER: u8 = 0;
 
 #[derive(Debug)]
 pub struct Game {
@@ -46,10 +46,10 @@ impl Game {
 
     fn get_players(&self) -> (&Player, &Player) {
         if self.get_player_turn() == 0 {
-           return  (&self.p1, &self.p2);
+            return (&self.p1, &self.p2);
         }
 
-          (&self.p2, &self.p1)
+        (&self.p2, &self.p1)
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
