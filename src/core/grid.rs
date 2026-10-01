@@ -205,7 +205,7 @@ impl Grid {
         })
     }
 
-    pub fn place_block(&mut self, p1: &Player, p2: &Player, b: Wall) -> bool {
+    pub fn place_wall(&mut self, p1: &Player, p2: &Player, b: Wall) -> bool {
         if self.can_place_wall(p1, p2, b) {
             self.add_wall(b);
             return true;
@@ -257,7 +257,7 @@ mod tests {
             let mut grid = Grid::new();
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
-            let success = grid.place_block(&p1, &p2, *b);
+            let success = grid.place_wall(&p1, &p2, *b);
             assert!(!success);
         }
     }
@@ -269,14 +269,14 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
         let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
-        assert!(grid.place_block(&p1, &p2, b1));
+        assert!(grid.place_wall(&p1, &p2, b1));
 
         let b2 = Wall::new(Placement::new(1, 0), Orientation::Horizontal);
-        assert!(!grid.place_block(&p1, &p2, b2));
+        assert!(!grid.place_wall(&p1, &p2, b2));
 
         let b3 = Wall::new(Placement::new(3, 0), Orientation::Horizontal);
-        assert!(grid.place_block(&p1, &p2, b3));
-        assert!(!grid.place_block(&p1, &p2, b3));
+        assert!(grid.place_wall(&p1, &p2, b3));
+        assert!(!grid.place_wall(&p1, &p2, b3));
     }
 
     #[test]
@@ -292,13 +292,13 @@ mod tests {
         let mut g = Grid::new();
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
-        let results: bool = tests.iter().all(|b| g.place_block(&p1, &p2, *b));
+        let results: bool = tests.iter().all(|b| g.place_wall(&p1, &p2, *b));
         assert!(results);
 
         // block that makes the grid illegal
         let b = Wall::new(Placement::new(4, 6), Orientation::Vertical);
         assert!(!g.can_place_wall(&p1, &p2, b));
-        assert!(!g.place_block(&p1, &p2, b));
+        assert!(!g.place_wall(&p1, &p2, b));
     }
     #[test]
     fn test_bulk_place_blocks_legal() {
@@ -315,7 +315,7 @@ mod tests {
             let p1 = Player::new(String::new(), StartingPosition::Top);
             let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
-            let results: bool = t.iter().all(|b| g.place_block(&p1, &p2, *b));
+            let results: bool = t.iter().all(|b| g.place_wall(&p1, &p2, *b));
             assert!(results);
         }
     }
@@ -357,7 +357,7 @@ mod tests {
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
         let b = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
-        assert!(g.place_block(&p1, &p2, b));
+        assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(1, result.len());
         assert_eq!(result[0].position, Position::new(1, 0));
@@ -365,7 +365,7 @@ mod tests {
         // place vertical block
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(0, 0), Orientation::Vertical);
-        assert!(g.place_block(&p1, &p2, b));
+        assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(1, result.len());
         assert_eq!(Position::new(0, 1), result[0].position);
@@ -373,7 +373,7 @@ mod tests {
         // place vertical block mid-grid
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(4, 0), Orientation::Horizontal);
-        assert!(g.place_block(&p1, &p2, b));
+        assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // // only bottom and right
@@ -383,7 +383,7 @@ mod tests {
         // place vertical block mid-grid
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(0, 3), Orientation::Vertical);
-        assert!(g.place_block(&p1, &p2, b));
+        assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // only bottom and right
@@ -402,16 +402,16 @@ mod tests {
 
         // place vertical block mid-grid
         let mut g = Grid::new();
-        assert!(g.place_block(&p1, &p2, b1));
-        assert!(g.place_block(&p1, &p2, b2));
+        assert!(g.place_wall(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b2));
         let result = g.get_reachable_neighbour_tiles(&p1.position);
         assert_eq!(1, result.len());
         // only bottom and right
         assert_eq!(Position::new(4, 1), result[0].position);
 
         let mut g = Grid::new();
-        assert!(g.place_block(&p1, &p2, b1));
-        assert!(g.place_block(&p1, &p2, b2));
+        assert!(g.place_wall(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b2));
         let result = g.get_reachable_neighbour_tiles(&p3.position);
         assert_eq!(2, result.len());
         assert_eq!(
@@ -441,7 +441,7 @@ mod tests {
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         let block = &Wall::new(Placement::new(0, 0), Orientation::Horizontal);
-        assert!(g.place_block(&p1, &p2, *block));
+        assert!(g.place_wall(&p1, &p2, *block));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
     }
@@ -495,7 +495,7 @@ mod tests {
             let mut g = Grid::new();
             t.0.iter().for_each(|block| {
                 assert!(g.can_place_wall(&t.1, &t.2, *block), "{:?}", block);
-                assert!(g.place_block(&t.1, &t.2, *block), "{:?}", block);
+                assert!(g.place_wall(&t.1, &t.2, *block), "{:?}", block);
             });
 
             assert!(g.can_player_reach_goal(&t.1), "player 1 {:?}", t.1);
@@ -549,17 +549,17 @@ mod tests {
         let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
         let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
 
-        assert!(blocks.iter().all(|block| g.place_block(&p1, &p2, *block)));
+        assert!(blocks.iter().all(|block| g.place_wall(&p1, &p2, *block)));
 
         let block_dividing_board =
             Wall::new(Placement::new(4, 6), Orientation::Vertical);
-        assert!(!g.place_block(&p1, &p2, block_dividing_board));
+        assert!(!g.place_wall(&p1, &p2, block_dividing_board));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
 
         p1.position = Position::new(4, 4);
         p2.position = Position::new(4, 3);
-        assert!(g.place_block(&p1, &p2, block_dividing_board));
+        assert!(g.place_wall(&p1, &p2, block_dividing_board));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
     }
@@ -607,11 +607,11 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
         assert!(!g.does_intersect_existing_walls(&b1));
-        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b1));
         assert!(!g.does_intersect_existing_walls(&b2));
-        assert!(g.place_block(&p1, &p2, b2));
+        assert!(g.place_wall(&p1, &p2, b2));
         assert!(!g.does_intersect_existing_walls(&b3));
-        assert!(g.place_block(&p1, &p2, b3));
+        assert!(g.place_wall(&p1, &p2, b3));
     }
 
     /********************************************/
@@ -626,23 +626,23 @@ mod tests {
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
-        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b1));
         assert!(g.does_intersect_existing_walls(&b2));
-        assert!(!g.place_block(&p1, &p2, b2));
+        assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
         let b2 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
-        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b1));
         assert!(g.does_intersect_existing_walls(&b2));
-        assert!(!g.place_block(&p1, &p2, b2));
+        assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
-        assert!(g.place_block(&p1, &p2, b1));
+        assert!(g.place_wall(&p1, &p2, b1));
         assert!(g.does_intersect_existing_walls(&b2));
-        assert!(!g.place_block(&p1, &p2, b2));
+        assert!(!g.place_wall(&p1, &p2, b2));
     }
 
     #[test]
@@ -670,7 +670,7 @@ mod tests {
 
             placement: Placement::new(5, 6),
         };
-        assert!(g.place_block(p1, p2, *b1));
+        assert!(g.place_wall(p1, p2, *b1));
         assert!(!g.does_intersect_existing_walls(b2));
         assert!(!g.does_intersect_existing_walls(b3));
         assert!(!g.does_intersect_existing_walls(b4));
@@ -723,8 +723,8 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         for t in tests.iter() {
             let mut grid = Grid::new();
-            assert!(grid.place_block(&p1, &p2, t.0));
-            assert!(!grid.place_block(&p1, &p2, t.1));
+            assert!(grid.place_wall(&p1, &p2, t.0));
+            assert!(!grid.place_wall(&p1, &p2, t.1));
         }
     }
 
@@ -803,9 +803,9 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         for t in tests {
             let mut grid = Grid::new();
-            assert!(grid.place_block(&p1, &p2, t.0));
+            assert!(grid.place_wall(&p1, &p2, t.0));
             assert!(
-                grid.place_block(&p1, &p2, t.1),
+                grid.place_wall(&p1, &p2, t.1),
                 "existing {:?} and new {:?} intersect",
                 t.0,
                 t.1,

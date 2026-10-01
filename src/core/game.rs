@@ -90,7 +90,7 @@ impl Game {
     }
 
     pub fn place_wall(&mut self, b: Wall) -> bool {
-        self.g.place_block(&self.p1, &self.p2, b)
+        self.g.place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn get_player_turn(&self) -> u8 {
@@ -249,7 +249,7 @@ mod test {
     }
 
     #[test]
-    fn test_player_block_decrement() {
+    fn test_player_wall_decrement() {
         let mut g = setup_new_game();
 
         let wall_counts = g.player_wall_counts();
@@ -276,44 +276,44 @@ mod test {
     }
 
     #[test]
-    fn test_blocks_exhausted() {
+    fn test_walls_exhausted() {
         let mut g = setup_new_game();
-        let block_counts = g.player_wall_counts();
-        let mut total_block_placed = 0;
+        let wall_counts = g.player_wall_counts();
+        let mut total_wall_placed = 0;
         for col in 0..=4 {
             assert!(
                 g.p1.has_remaining_walls(),
-                "remaining blocks: {}",
-                block_counts.0
+                "remaining: {}",
+                wall_counts.0
             );
             assert!(
                 g.p2.has_remaining_walls(),
-                "remaining blocks: {}",
-                block_counts.1
+                "remaining: {}",
+                wall_counts.1
             );
             for i in [0, 2, 4, 6] {
                 assert!(g.process_move(Move::PlaceWall(Wall::new(
                     Placement::new(i, col),
                     Orientation::Horizontal
                 ))));
-                total_block_placed += 1;
+                total_wall_placed += 1;
             }
         }
 
         assert_eq!(
-            20, total_block_placed,
-            "total_block_placed {total_block_placed}"
+            20, total_wall_placed,
+            "total {total_wall_placed}"
         );
 
         assert!(
             !g.p1.has_remaining_walls(),
-            "remaining blocks: {}",
-            block_counts.0
+            "remaining: {}",
+            wall_counts.0
         );
         assert!(
             !g.p2.has_remaining_walls(),
-            "remaining blocks: {}",
-            block_counts.1
+            "remaining: {}",
+            wall_counts.1
         );
 
         assert!(!g.process_move(Move::PlaceWall(Wall::new(
@@ -352,8 +352,7 @@ mod test {
     }
 
     #[test]
-    fn test_get_player_options_with_blocks() {
-        // new game - random block in the middle of the board
+    fn test_get_player_options_with_walls() {
         let mut g = setup_new_game();
         g.place_wall(Wall::new(
             Placement::new(6, 6),
@@ -367,7 +366,7 @@ mod test {
         g.next_player();
         assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
 
-        // new game - blocks in from of the players
+        // new game - wall in from of the players
         let mut g = setup_new_game();
         g.place_wall(Wall::new(
             Placement::new(3, 0),
