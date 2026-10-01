@@ -66,7 +66,7 @@ async fn main() {
                     && game.can_add_block(*b)
                 {
                     game.process_move(Move::PlaceBlock(*b));
-                    blocks.push((*b));
+                    blocks.push(*b);
                 }
             }
             MouseState::RowCol(pos) => {
