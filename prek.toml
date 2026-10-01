@@ -30,8 +30,10 @@ hooks = [
     {
         id = "check-todo",
         name = "Check for TODO comments",
-        entry = "grep -rnEI 'TODO:'",
+        # grep exits 0 on a match and 1 on none; the hook must fail on a match, so invert it.
+        entry = "sh -c '! grep -nEI \"(//\\s*TODO|todo!\\()\" \"$@\"' --",
         language = "system",
+        files = "\\.rs$",
         stages = ["pre-commit"]
     }
 ]
