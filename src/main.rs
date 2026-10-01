@@ -22,7 +22,11 @@ fn window_conf() -> Conf {
 async fn main() {
     let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
 
+    // this currently holds block + user information
+    // could block be refactored to use this?
     let mut blocks: Vec<(block::Block, u8)> = Vec::with_capacity(20);
+
+    // minor optimisation
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
