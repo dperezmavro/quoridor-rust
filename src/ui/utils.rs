@@ -7,9 +7,6 @@ use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 
-/// Size of each tile, in pixes.
-pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
-
 /// Width of grid line - this is re-used by the blocks
 pub const GRID_LINE_WIDTH: f32 = 12.0;
 
@@ -22,11 +19,14 @@ pub const PADDING: f32 = 50.0;
 /// Width of box showing player information
 const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 
-/// How big to draw the players
-const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
-
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
+
+/// Size of each tile, in pixes.
+pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
+
+/// How big to draw the players
+const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 
 /// Where the game grid starts
 pub const GAME_GRID_BOX_START: f32 = PADDING;
@@ -60,7 +60,7 @@ const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
 
 const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
-const LIGHT_YELLOW: Color = Color { a: 0.5, ..YELLOW };
+const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
 
 /// Padding for the box showing game stats
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
@@ -240,6 +240,16 @@ fn draw_backdrop() {
     );
 }
 
+fn draw_tile_at(p: Position) {
+    draw_rectangle(
+        PADDING + (p.x as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
+        PADDING + (p.y as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
+        TILE_SIZE,
+        TILE_SIZE,
+        WHITE,
+    )
+}
+
 /// Draws the borders around the game grid
 fn draw_bounds() {
     draw_rectangle(
@@ -396,6 +406,10 @@ pub fn draw_player(p: &Player, highlight: bool) {
             }
         }
     };
+
+    if highlight {
+        draw_tile_at(p.position);
+    }
 
     draw_circle(
         GAME_GRID_BOX_START

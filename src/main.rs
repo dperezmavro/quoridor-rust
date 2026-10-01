@@ -48,7 +48,7 @@ async fn main() {
 
         // draw players
         draw_player(&game.p1, game.get_player_turn() == DEFAULT_PLAYER_ORDER);
-        draw_player(&game.p2, game.get_player_turn() == DEFAULT_PLAYER_ORDER);
+        draw_player(&game.p2, game.get_player_turn() != DEFAULT_PLAYER_ORDER);
 
         let res = get_mouse_pointer_state();
         match &res {
