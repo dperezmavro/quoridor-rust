@@ -57,21 +57,21 @@ impl Game {
             &self.p2
         };
 
-        let all_neighbour_tiles = self
+        // unoccupied tiles
+        let player_unoccupied_tiles = self
             .g
-            .get_reachable_neighbour_tiles(&active_player.position)
+            .get_unoccupied_reachable_neighbour_tiles(
+                &active_player.position,
+                &other_player.position,
+            )
             .into_iter();
 
-        // unoccupied tiles
-        let player_unoccupied_tiles = all_neighbour_tiles
-            .clone()
-            .filter(|t| !self.is_position_occupied_by_player(&t.position));
-
         // tiles behind the player
-        let player_occupied_tiles = all_neighbour_tiles
-            .filter(|t| self.is_position_occupied_by_player(&t.position))
-            .filter(|t| t.position != active_player.position)
-            .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
+        let alternative_jumping_tiles = self
+            .g
+            .get_reachable_neighbour_tiles(&other_player.position)
+            .into_iter()
+            .filter(|t| !self.is_position_occupied_by_player(&t.position))
             .filter(|t| {
                 // determine orientation of two players
 
@@ -111,7 +111,7 @@ impl Game {
 
         // tiles around the player
         player_unoccupied_tiles
-            .chain(player_occupied_tiles)
+            .chain(alternative_jumping_tiles)
             .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
