@@ -50,7 +50,7 @@ async fn main() {
         draw_player(&game.p1, game.get_player_turn() == DEFAULT_PLAYER_ORDER);
         draw_player(&game.p2, game.get_player_turn() != DEFAULT_PLAYER_ORDER);
 
-        let res = get_mouse_pointer_state();
+        let res = get_mouse_pointer_state(mouse_position());
         match &res {
             // hovering above a block position
             MouseState::BlockPosition(b) => {

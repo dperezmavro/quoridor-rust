@@ -78,7 +78,7 @@ const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 const FIRST_PLAYER_ID: u8 = 0;
 
 /// Describes what the mouse is hovering over.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum MouseState {
     /// Used when mouse is above player tile.
     RowCol(Position),
@@ -291,8 +291,7 @@ fn is_mouse_inside_board(mp: (f32, f32)) -> bool {
 /// Figure out what state the mouse pointer is in.
 ///
 /// This determines what can be done with this event (place block, highlight player tile etc).
-pub fn get_mouse_pointer_state() -> MouseState {
-    let mouse_position = mouse_position();
+pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
     if !is_mouse_inside_board(mouse_position) {
         return MouseState::NotInsideBoard;
     }
@@ -453,11 +452,17 @@ pub fn draw_move_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::block::Block;
+    use crate::core::orientation::Orientation;
+    use crate::core::placement::Placement;
     use crate::ui::utils::{
         GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
-        get_current_player_color, is_mouse_inside_board,
+        MouseState, PADDING, TILE_SIZE, get_current_player_color,
+        get_mouse_pointer_state, is_mouse_inside_board,
         pre_computed_grid_lines,
     };
+
+    use crate::core::position::Position;
 
     #[test]
     fn test_correct_num_of_precomputed_lines() {
@@ -511,5 +516,35 @@ mod tests {
             GAME_GRID_BOX_START + GAME_GRID_LEN + 1f32,
         );
         assert!(!is_mouse_inside_board(v));
+    }
+
+    #[test]
+    fn test_get_mouse_pointer_state() {
+        let mps = get_mouse_pointer_state((0.0, 0.0));
+        assert_eq!(mps, MouseState::NotInsideBoard);
+
+        let mps = get_mouse_pointer_state((PADDING + 1.0, PADDING + 1.0));
+        assert_eq!(mps, MouseState::RowCol(Position { x: 0, y: 0 }));
+
+        let mps = get_mouse_pointer_state((
+            PADDING,
+            PADDING + TILE_SIZE + 1.0,
+        ));
+        assert_eq!(
+            mps,
+            MouseState::BlockPosition(Block::new(
+                Placement::new(0, 0),
+                Orientation::Horizontal
+            ))
+        );
+
+        let mps = get_mouse_pointer_state((
+            PADDING + TILE_SIZE + 1.0,
+            PADDING + TILE_SIZE + 1.0,
+        ));
+        assert_eq!(
+            mps,
+            MouseState::InBorderCrossSection
+        );
     }
 }
