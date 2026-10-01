@@ -23,3 +23,15 @@ hooks = [
         pass_filenames = false,
     },
 ]
+
+[[repos]]
+repo = "local"
+hooks = [
+    {
+        id = "check-todo",
+        name = "Check for TODO comments",
+        entry = "grep -rnEI 'TODO:'",
+        language = "system",
+        stages = ["pre-commit"]
+    }
+]
