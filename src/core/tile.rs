@@ -6,12 +6,8 @@ pub struct Tile {
 }
 
 impl Tile {
-    pub fn new(
-        position: Position,
-    ) -> Self {
-        Tile {
-            position,
-        }
+    pub fn new(position: Position) -> Self {
+        Tile { position }
     }
 }
 

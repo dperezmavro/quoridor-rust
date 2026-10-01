@@ -324,7 +324,6 @@ pub fn get_mouse_pointer_state() -> MouseState {
         MouseState::RowCol(Position {
             x: col as usize,
             y: row as usize,
-
         })
     } else if in_horizontal_block_pos && in_vertical_block_pos {
         MouseState::InBorderCrossSection

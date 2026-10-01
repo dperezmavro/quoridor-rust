@@ -81,7 +81,6 @@ async fn main() {
                     &available_move_tiles_for_player,
                 );
 
-
                 if available_move_tiles_for_player.contains(pos)
                     && !game.is_position_occupied_by_player(pos)
                 {
