@@ -10,8 +10,8 @@ pub const NUM_TILES: usize = 9;
 #[derive(Debug)]
 pub struct Grid {
     pub player_tiles: Box<[Box<[Tile; NUM_TILES]>; NUM_TILES]>,
-    horizontal_blocks: Vec<Wall>,
-    vertical_blocks: Vec<Wall>,
+    horizontal_walls: Vec<Wall>,
+    vertical_walls: Vec<Wall>,
 }
 
 fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
@@ -55,8 +55,8 @@ impl Grid {
 
         Self {
             player_tiles,
-            horizontal_blocks: Vec::with_capacity(NUM_BLOCKS),
-            vertical_blocks: Vec::with_capacity(NUM_BLOCKS),
+            horizontal_walls: Vec::with_capacity(NUM_BLOCKS),
+            vertical_walls: Vec::with_capacity(NUM_BLOCKS),
         }
     }
 
@@ -77,18 +77,18 @@ impl Grid {
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top
         if p.y > 0
-            && self.horizontal_blocks.iter().all(|x| {
-                !(x.placement.lane == p.y - 1
-                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
+            && self.horizontal_walls.iter().all(|w| {
+                !(w.placement.lane == p.y - 1
+                    && (w.placement.tile == p.x || w.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
         }
         //bottom
         if p.y < NUM_TILES - 1
-            && self.horizontal_blocks.iter().all(|x| {
-                !(x.placement.lane == p.y
-                    && (x.placement.tile == p.x || x.placement.tile + 1 == p.x))
+            && self.horizontal_walls.iter().all(|w| {
+                !(w.placement.lane == p.y
+                    && (w.placement.tile == p.x || w.placement.tile + 1 == p.x))
             })
         {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
@@ -96,18 +96,18 @@ impl Grid {
 
         //left
         if p.x > 0
-            && self.vertical_blocks.iter().all(|x| {
-                !(x.placement.lane == p.x - 1
-                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
+            && self.vertical_walls.iter().all(|w| {
+                !(w.placement.lane == p.x - 1
+                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
             })
         {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
         if p.x < NUM_TILES - 1
-            && self.vertical_blocks.iter().all(|x| {
-                !(x.placement.lane == p.x
-                    && (x.placement.tile == p.y || x.placement.tile + 1 == p.y))
+            && self.vertical_walls.iter().all(|w| {
+                !(w.placement.lane == p.x
+                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
             })
         {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
@@ -150,10 +150,10 @@ impl Grid {
     fn free_block(&mut self, b: &Wall) {
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks.pop().unwrap();
+                self.horizontal_walls.pop().unwrap();
             }
             Orientation::Vertical => {
-                self.vertical_blocks.pop().unwrap();
+                self.vertical_walls.pop().unwrap();
             }
         };
     }
@@ -175,10 +175,10 @@ impl Grid {
         };
         match incoming_block.orientation {
             Orientation::Horizontal => {
-                self.vertical_blocks.iter().any(hor_clos)
+                self.vertical_walls.iter().any(hor_clos)
             }
             Orientation::Vertical => {
-                self.horizontal_blocks.iter().any(ver_clos)
+                self.horizontal_walls.iter().any(ver_clos)
             }
         }
     }
@@ -186,18 +186,18 @@ impl Grid {
     fn add_wall(&mut self, b: Wall) {
         match b.orientation {
             Orientation::Horizontal => {
-                self.horizontal_blocks.push(b);
+                self.horizontal_walls.push(b);
             }
             Orientation::Vertical => {
-                self.vertical_blocks.push(b);
+                self.vertical_walls.push(b);
             }
         }
     }
 
     fn is_block_position_free(&self, b: &Wall) -> bool {
         let target_list = match b.orientation {
-            Orientation::Horizontal => &self.horizontal_blocks,
-            Orientation::Vertical => &self.vertical_blocks,
+            Orientation::Horizontal => &self.horizontal_walls,
+            Orientation::Vertical => &self.vertical_walls,
         };
         target_list.iter().all(|t| {
             !(t.placement.lane == b.placement.lane
@@ -518,10 +518,10 @@ mod tests {
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
             Orientation::Horizontal => {
-                g.horizontal_blocks.push(*block);
+                g.horizontal_walls.push(*block);
             }
             Orientation::Vertical => {
-                g.vertical_blocks.push(*block);
+                g.vertical_walls.push(*block);
             }
         });
 
@@ -578,10 +578,10 @@ mod tests {
         let mut g = Grid::new();
         blocks.iter().for_each(|block| match block.orientation {
             Orientation::Horizontal => {
-                g.horizontal_blocks.push(*block);
+                g.horizontal_walls.push(*block);
             }
             Orientation::Vertical => {
-                g.vertical_blocks.push(*block);
+                g.vertical_walls.push(*block);
             }
         });
 
