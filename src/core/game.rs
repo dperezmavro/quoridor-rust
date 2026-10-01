@@ -73,8 +73,6 @@ impl Game {
             )
             .into_iter()
             .filter(|t| {
-                // determine orientation of two players
-
                 active_player.position.is_neighbour(&other_player.position)
                     && active_player.can_jump_over(other_player, &t.position)
                     || active_player.can_cross_over(other_player, &t.position)
