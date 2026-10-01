@@ -1,17 +1,15 @@
 mod core;
 mod ui;
 
-use crate::ui::utils::{
-    draw_block_placement_preview, draw_game_stats, draw_move_preview,
-    get_window_conf,
-};
-use core::game::{Game, Move};
+use core::game::{DEFAULT_PLAYER_ORDER, Game, Move};
 use core::player::{Player, StartingPosition};
 use core::{block, grid};
 use macroquad::prelude::*;
 use ui::utils::{
-    MouseState, draw_game_grid_base, draw_player, get_mouse_pointer_state,
-    highlight_player_options, pre_computed_grid_lines, draw_placed_block,
+    MouseState, draw_block_placement_preview, draw_game_grid_base,
+    draw_game_stats, draw_move_preview, draw_placed_block, draw_player,
+    get_mouse_pointer_state, get_window_conf, highlight_player_options,
+    pre_computed_grid_lines,
 };
 
 fn window_conf() -> Conf {
@@ -49,8 +47,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(&game.p1);
-        draw_player(&game.p2);
+        draw_player(&game.p1, game.get_player_turn() == DEFAULT_PLAYER_ORDER);
+        draw_player(&game.p2, game.get_player_turn() != DEFAULT_PLAYER_ORDER);
 
         let res = get_mouse_pointer_state();
         match &res {
