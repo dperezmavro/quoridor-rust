@@ -60,6 +60,19 @@ impl Grid {
         }
     }
 
+    pub fn get_unoccupied_reachable_neighbour_tiles(
+        &self,
+        p1_position: &Position,
+        p2_position: &Position,
+    ) -> Vec<&Tile> {
+        self.get_reachable_neighbour_tiles(p1_position)
+            .into_iter()
+            .filter(|t| {
+                t.position != *p1_position && t.position != *p2_position
+            })
+            .collect()
+    }
+
     pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         let mut available_tiles: Vec<&Tile> = Vec::new();
         //top

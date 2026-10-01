@@ -38,12 +38,32 @@ impl Player {
         }
     }
 
+    pub fn is_there(&self, position: &Position) -> bool {
+        self.position == *position
+    }
+
     pub fn consume_block(&mut self) {
         self.remaining_blocks -= 1;
     }
 
     pub fn has_remaining_blocks(&self) -> bool {
         self.remaining_blocks > 0
+    }
+
+    pub fn is_valigned(&self, p: &Player) -> bool {
+        self.position.is_valigned(&p.position)
+    }
+
+    pub fn is_haligned(&self, p: &Player) -> bool {
+        self.position.is_haligned(&p.position)
+    }
+
+    pub fn is_above(&self, p: &Player) -> bool {
+        self.position.is_above(&p.position)
+    }
+
+    pub fn is_left_of(&self, p: &Player) -> bool {
+        self.position.is_left_of(&p.position)
     }
 }
 
@@ -69,5 +89,52 @@ mod tests {
     fn test_player_blocks() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.remaining_blocks, NUM_BLOCKS);
+    }
+
+    #[test]
+    pub fn test_are_positions_haligned() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        p1.position = Position::new(1, 1);
+        let mut p2 = p1.clone();
+        p2.position = Position::new(2, 2);
+
+        assert!(!p1.is_haligned(&p2));
+
+        p2.position = Position::new(2, 1);
+        assert!(p1.is_haligned(&p2));
+    }
+
+    #[test]
+    pub fn test_is_there() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        assert!(!p1.is_there(&Position::new(1, 1)));
+        p1.position = Position::new(1, 1);
+        assert!(p1.is_there(&Position::new(1, 1)));
+    }
+
+    #[test]
+    pub fn test_are_positions_valigned() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        p1.position = Position::new(1, 1);
+        let mut p2 = p1.clone();
+        p2.position = Position::new(2, 2);
+
+        assert!(!p1.is_valigned(&p2));
+
+        p2.position = Position::new(1, 2);
+        assert!(p1.is_valigned(&p2));
+    }
+
+    #[test]
+    pub fn test_are_positions_above() {
+        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        p1.position = Position::new(1, 1);
+        let mut p2 = p1.clone();
+        p2.position = Position::new(2, 2);
+        assert!(!p1.is_above(&p2));
+
+        p2.position = Position::new(1, 2);
+        assert!(!p1.is_above(&p2));
+        assert!(p2.is_above(&p1));
     }
 }

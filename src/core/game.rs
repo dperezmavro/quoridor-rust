@@ -3,9 +3,6 @@ use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
 
-/// Number of players for this game
-const NUM_PLAYERS: u8 = 2;
-
 /// Which player goes first
 const DEFAULT_PLAYER_ORDER: u8 = 0;
 
@@ -60,65 +57,61 @@ impl Game {
         // unoccupied tiles
         let player_unoccupied_tiles = self
             .g
-            .get_reachable_neighbour_tiles(&active_player.position)
-            .into_iter()
-            .filter(|t| !self.is_position_occupied_by_player(&t.position));
+            .get_unoccupied_reachable_neighbour_tiles(
+                &active_player.position,
+                &other_player.position,
+            )
+            .into_iter();
 
         // tiles behind the player
-        let player_occupied_tiles = self
+        let alternative_jumping_tiles = self
             .g
-            .get_reachable_neighbour_tiles(&active_player.position)
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
             .into_iter()
-            .filter(|t| self.is_position_occupied_by_player(&t.position))
-            .filter(|t| t.position != active_player.position)
-            .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
             .filter(|t| {
                 // determine orientation of two players
 
-                // players vertically aligned
-                if active_player.position.x == other_player.position.x {
-                    // active_player is below other player
-                    if active_player.position.y > other_player.position.y {
-                        if t.position.y < other_player.position.y {
-                            return true;
-                        }
-                    }
+                if !&active_player.position.is_neighbour(&other_player.position)
+                {
+                    return false;
+                }
 
-                    if active_player.position.y < other_player.position.y
-                        && t.position.y > other_player.position.y
+                // discover players' orientation relative to each other
+                if active_player.is_valigned(other_player) {
+                    if (active_player.is_above(other_player)
+                        && other_player.position.is_above(&t.position))
+                        || (other_player.is_above(active_player)
+                            && t.position.is_above(&other_player.position))
                     {
                         return true;
                     }
-                } else if active_player.position.y == other_player.position.y {
+                } else if active_player.is_haligned(other_player) {
                     // players horizontally aligned
                     // player is to the right of other player
 
-                    if active_player.position.x < other_player.position.x
-                        && t.position.x > other_player.position.x
-                    {
-                        return true;
-                    }
-
-                    if active_player.position.x > other_player.position.x
-                        && t.position.x < other_player.position.x
+                    if (active_player.is_left_of(other_player)
+                        && t.position.x > other_player.position.x)
+                        || (other_player.is_left_of(active_player)
+                            && t.position.is_left_of(&other_player.position))
                     {
                         return true;
                     }
                 }
-
                 false
             });
 
         // tiles around the player
         player_unoccupied_tiles
-            .chain(player_occupied_tiles)
+            .chain(alternative_jumping_tiles)
             .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
 
     pub fn is_position_occupied_by_player(&self, p: &Position) -> bool {
-        (self.p1.position.x == p.x && self.p1.position.y == p.y)
-            || (self.p2.position.x == p.x && self.p2.position.y == p.y)
+        self.p1.is_there(p) || self.p2.is_there(p)
     }
 
     pub fn place_block(&mut self, b: Block) -> bool {

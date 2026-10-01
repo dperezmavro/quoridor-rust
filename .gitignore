@@ -1,4 +1,5 @@
 target/
 .idea/
 bin/
+progress-docs/
 tarpaulin-report.html
