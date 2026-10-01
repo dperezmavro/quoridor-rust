@@ -17,6 +17,14 @@ impl Position {
         }
         false
     }
+
+    pub fn is_valigned(&self, p: &Position) -> bool {
+        self.x == p.x
+    }
+
+    pub fn is_haligned(&self, p: &Position) -> bool {
+        self.y == p.y
+    }
 }
 
 #[cfg(test)]
@@ -45,19 +53,29 @@ mod tests {
         let p = Position::new(2, 2);
         assert!(p1.is_neighbour(&p));
     }
-    //
-    // pub fn are_positions_neighbours(
-    //     &self,
-    //     p1: &Position,
-    //     p: &Position,
-    // ) -> bool {
-    //     if p1.x == p.x || p1.y == p.y {
-    //         return ((p1.x as i32 - p.x as i32).abs()
-    //             + (p1.y as i32 - p.y as i32).abs())
-    //             == 1;
-    //     }
-    //     true
-    // }
+
+    #[test]
+    pub fn test_are_positions_haligned() {
+        let p1 = Position::new(1, 1);
+        let p = Position::new(2, 2);
+        assert!(!p1.is_haligned(&p));
+
+        let p1 = Position::new(1, 1);
+        let p = Position::new(2, 1);
+        assert!(p1.is_haligned(&p));
+    }
+
+    #[test]
+    pub fn test_are_positions_valigned() {
+        let p1 = Position::new(1, 1);
+        let p = Position::new(2, 2);
+        assert!(!p1.is_valigned(&p));
+
+        let p1 = Position::new(1, 1);
+        let p = Position::new(1, 2);
+        assert!(p1.is_valigned(&p));
+    }
+
     //
     // pub fn are_positions_valigned(&self, p1: &Position, p: &Position) -> bool {
     //     p1.x == p.x

@@ -83,10 +83,8 @@ impl Game {
                 }
 
                 // players vertically aligned
-                if self.g.are_positions_valigned(
-                    &active_player.position,
-                    &other_player.position,
-                ) {
+
+                if active_player.position.is_valigned(&other_player.position) {
                     // active_player is below other player
                     if active_player.position.y > other_player.position.y {
                         if t.position.y < other_player.position.y {
@@ -99,10 +97,10 @@ impl Game {
                     {
                         return true;
                     }
-                } else if self.g.are_positions_haligned(
-                    &active_player.position,
-                    &other_player.position,
-                ) {
+                } else if active_player
+                    .position
+                    .is_haligned(&other_player.position)
+                {
                     // players horizontally aligned
                     // player is to the right of other player
 
@@ -118,7 +116,6 @@ impl Game {
                         return true;
                     }
                 }
-
                 false
             });
 
