@@ -74,8 +74,8 @@ impl Player {
 
     pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
         self.is_haligned(p)
-            && ((self.is_left_of(p) && p.position.is_above(pos))
-            || (p.is_left_of(self) && pos.is_above(&p.position)))
+            && (self.is_left_of(p) && p.position.is_left_of(pos))
+            || (p.is_left_of(self) && pos.is_left_of(&p.position))
     }
 }
 
