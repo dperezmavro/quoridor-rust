@@ -44,15 +44,16 @@ impl Game {
         player.position = pos;
     }
 
+    fn get_players(&self) -> (&Player, &Player) {
+        if self.get_player_turn() == 0 {
+           return  (&self.p1, &self.p2);
+        }
+
+          (&self.p2, &self.p1)
+    }
+
     pub fn get_player_options(&self) -> Vec<Position> {
-        let other_player: &Player;
-        let active_player: &Player = if self.get_player_turn() == 0 {
-            other_player = &self.p2;
-            &self.p1
-        } else {
-            other_player = &self.p1;
-            &self.p2
-        };
+        let (active_player, other_player) = self.get_players();
 
         // unoccupied tiles
         let player_unoccupied_tiles = self
