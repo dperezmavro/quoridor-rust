@@ -60,6 +60,27 @@ impl Grid {
         }
     }
 
+    pub fn are_positions_neighbours(
+        &self,
+        p1: &Position,
+        p2: &Position,
+    ) -> bool {
+        if p1.x == p2.x || p1.y == p2.y {
+            return ((p1.x as i32 - p2.x as i32).abs()
+                + (p1.y as i32 - p2.y as i32).abs())
+                == 1;
+        }
+        true
+    }
+
+    pub fn are_positions_valigned(&self, p1: &Position, p2: &Position) -> bool {
+        p1.x == p2.x
+    }
+
+    pub fn are_positions_haligned(&self, p1: &Position, p2: &Position) -> bool {
+        p1.y == p2.y
+    }
+
     pub fn get_unoccupied_reachable_neighbour_tiles(
         &self,
         p1_position: &Position,

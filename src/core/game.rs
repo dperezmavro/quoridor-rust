@@ -77,8 +77,18 @@ impl Game {
             .filter(|t| {
                 // determine orientation of two players
 
+                if !self.g.are_positions_neighbours(
+                    &active_player.position,
+                    &other_player.position,
+                ) {
+                    return false;
+                }
+
                 // players vertically aligned
-                if active_player.position.x == other_player.position.x {
+                if self.g.are_positions_valigned(
+                    &active_player.position,
+                    &other_player.position,
+                ) {
                     // active_player is below other player
                     if active_player.position.y > other_player.position.y {
                         if t.position.y < other_player.position.y {
@@ -91,7 +101,10 @@ impl Game {
                     {
                         return true;
                     }
-                } else if active_player.position.y == other_player.position.y {
+                } else if self.g.are_positions_haligned(
+                    &active_player.position,
+                    &other_player.position,
+                ) {
                     // players horizontally aligned
                     // player is to the right of other player
 
