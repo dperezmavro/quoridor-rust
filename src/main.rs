@@ -6,8 +6,8 @@ use core::player::{Player, StartingPosition};
 use core::{wall, grid};
 use macroquad::prelude::*;
 use ui::utils::{
-    MouseState, draw_block_placement_preview, draw_game_grid_base,
-    draw_game_stats, draw_move_preview, draw_placed_block, draw_player,
+    MouseState, draw_wall_placement_preview, draw_game_grid_base,
+    draw_game_stats, draw_move_preview, draw_placed_wall, draw_player,
     get_mouse_pointer_state, get_window_conf, highlight_player_options,
     pre_computed_grid_lines,
 };
@@ -20,9 +20,9 @@ fn window_conf() -> Conf {
 async fn main() {
     let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
 
-    // this currently holds block + user information
-    // could block be refactored to use this?
-    let mut blocks: Vec<wall::Wall> = Vec::with_capacity(20);
+    // this currently holds wall + user information
+    // could wall be refactored to use this?
+    let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
 
     // minor optimisation
     let pre_computed_grid_lines = pre_computed_grid_lines();
@@ -41,9 +41,9 @@ async fn main() {
 
         draw_game_stats(Some(&font), game.player_wall_counts());
 
-        // draw blocks that have already been placed
-        for b in &blocks {
-            draw_placed_block(*b);
+        // draw walls that have already been placed
+        for b in &walls {
+            draw_placed_wall(*b);
         }
 
         // draw players
@@ -52,19 +52,19 @@ async fn main() {
 
         let res = get_mouse_pointer_state(mouse_position());
         match &res {
-            // hovering above a block position
-            MouseState::BlockPosition(b) => {
+            // hovering above a wall position
+            MouseState::WallPosition(b) => {
                 let turn = game.get_player_turn();
-                // hovering above a block position
+                // hovering above a wall position
                 if game.can_add_wall(*b) {
-                    draw_block_placement_preview(*b, turn);
+                    draw_wall_placement_preview(*b, turn);
                 }
 
                 if is_mouse_button_pressed(MouseButton::Left)
                     && game.can_add_wall(*b)
                 {
                     game.process_move(Move::PlaceWall(*b));
-                    blocks.push(*b);
+                    walls.push(*b);
                 }
             }
             MouseState::RowCol(pos) => {

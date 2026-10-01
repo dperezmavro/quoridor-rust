@@ -84,7 +84,7 @@ pub enum MouseState {
     RowCol(Position),
 
     /// Used when mouse is above a block position.
-    BlockPosition(Wall),
+    WallPosition(Wall),
 
     /// Mouse in border cross-section - dead region.
     InBorderCrossSection,
@@ -271,12 +271,12 @@ pub fn get_current_player_color(player_id: u8) -> Color {
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_placed_block(block: Wall) {
+pub fn draw_placed_wall(block: Wall) {
     draw_block(block, LIGHT_GREEN);
 }
 
 /// Draws a preview of where a block could go
-pub fn draw_block_placement_preview(block: Wall, player_id: u8) {
+pub fn draw_wall_placement_preview(block: Wall, player_id: u8) {
     draw_block(block, get_current_player_color(player_id));
 }
 
@@ -346,7 +346,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
         MouseState::InBorderCrossSection
     } else {
         if found_row {
-            return MouseState::BlockPosition(Wall {
+            return MouseState::WallPosition(Wall {
                 orientation: Orientation::Vertical,
                 placement: Placement {
                     tile: row as usize,
@@ -355,7 +355,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
             });
         }
 
-        MouseState::BlockPosition(Wall {
+        MouseState::WallPosition(Wall {
             orientation: Orientation::Horizontal,
             placement: Placement {
                 tile: col as usize,
@@ -529,7 +529,7 @@ mod tests {
         let mps = get_mouse_pointer_state((PADDING, PADDING + TILE_SIZE + 1.0));
         assert_eq!(
             mps,
-            MouseState::BlockPosition(Wall::new(
+            MouseState::WallPosition(Wall::new(
                 Placement::new(0, 0),
                 Orientation::Horizontal
             ))
@@ -538,7 +538,7 @@ mod tests {
         let mps = get_mouse_pointer_state((PADDING + TILE_SIZE + 1.0, PADDING));
         assert_eq!(
             mps,
-            MouseState::BlockPosition(Wall::new(
+            MouseState::WallPosition(Wall::new(
                 Placement::new(0, 0),
                 Orientation::Vertical
             ))
