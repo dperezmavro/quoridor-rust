@@ -88,9 +88,7 @@ impl Game {
                         && t.position.y < other_player.position.y
                     {
                         return true;
-                    }
-
-                    if other_player.is_above(active_player)
+                    } else if other_player.is_above(active_player)
                         && t.position.y > other_player.position.y
                     {
                         return true;
@@ -103,9 +101,7 @@ impl Game {
                         && t.position.x > other_player.position.x
                     {
                         return true;
-                    }
-
-                    if active_player.position.x > other_player.position.x
+                    } else if active_player.position.x > other_player.position.x
                         && t.position.x < other_player.position.x
                     {
                         return true;
