@@ -381,8 +381,20 @@ pub fn draw_player(p: &Player, highlight: bool) {
     let x = p.position.x;
     let y = p.position.y;
     let color = match p.starting_position {
-        StartingPosition::Top => YELLOW,
-        StartingPosition::Bottom => BLUE,
+        StartingPosition::Top => {
+            if highlight {
+                LIGHT_YELLOW
+            } else {
+                YELLOW
+            }
+        }
+        StartingPosition::Bottom => {
+            if highlight {
+                LIGHT_BLUE
+            } else {
+                BLUE
+            }
+        }
     };
 
     draw_circle(
