@@ -11,7 +11,7 @@ use core::{block, grid};
 use macroquad::prelude::*;
 use ui::utils::{
     MouseState, draw_game_grid_base, draw_player, get_mouse_pointer_state,
-    highlight_player_options, pre_computed_grid_lines,
+    highlight_player_options, pre_computed_grid_lines, draw_placed_block,
 };
 
 fn window_conf() -> Conf {
@@ -24,7 +24,7 @@ async fn main() {
 
     // this currently holds block + user information
     // could block be refactored to use this?
-    let mut blocks: Vec<(block::Block, u8)> = Vec::with_capacity(20);
+    let mut blocks: Vec<block::Block> = Vec::with_capacity(20);
 
     // minor optimisation
     let pre_computed_grid_lines = pre_computed_grid_lines();
@@ -45,7 +45,7 @@ async fn main() {
 
         // draw blocks that have already been placed
         for b in &blocks {
-            draw_block_placement_preview(b.0, b.1);
+            draw_placed_block(*b);
         }
 
         // draw players
@@ -66,7 +66,7 @@ async fn main() {
                     && game.can_add_block(*b)
                 {
                     game.process_move(Move::PlaceBlock(*b));
-                    blocks.push((*b, turn));
+                    blocks.push((*b));
                 }
             }
             MouseState::RowCol(pos) => {

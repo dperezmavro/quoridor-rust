@@ -258,6 +258,11 @@ pub fn get_current_player_color(player_id: u8) -> Color {
 }
 
 /// Draws a preview of where a block could go
+pub fn draw_placed_block(block: Block) {
+    draw_block(block, get_current_player_color(0));
+}
+
+/// Draws a preview of where a block could go
 pub fn draw_block_placement_preview(block: Block, player_id: u8) {
     draw_block(block, get_current_player_color(player_id));
 }
