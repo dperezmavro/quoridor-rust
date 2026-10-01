@@ -206,14 +206,14 @@ impl Grid {
     }
 
     pub fn place_block(&mut self, p1: &Player, p2: &Player, b: Wall) -> bool {
-        if self.can_place_block(p1, p2, b) {
+        if self.can_place_wall(p1, p2, b) {
             self.add_wall(b);
             return true;
         }
         false
     }
 
-    pub fn can_place_block(
+    pub fn can_place_wall(
         &mut self,
         p1: &Player,
         p2: &Player,
@@ -297,7 +297,7 @@ mod tests {
 
         // block that makes the grid illegal
         let b = Wall::new(Placement::new(4, 6), Orientation::Vertical);
-        assert!(!g.can_place_block(&p1, &p2, b));
+        assert!(!g.can_place_wall(&p1, &p2, b));
         assert!(!g.place_block(&p1, &p2, b));
     }
     #[test]
@@ -494,7 +494,7 @@ mod tests {
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
             t.0.iter().for_each(|block| {
-                assert!(g.can_place_block(&t.1, &t.2, *block), "{:?}", block);
+                assert!(g.can_place_wall(&t.1, &t.2, *block), "{:?}", block);
                 assert!(g.place_block(&t.1, &t.2, *block), "{:?}", block);
             });
 
@@ -819,25 +819,25 @@ mod tests {
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
         let mut grid = Grid::new();
 
-        assert!(grid.can_place_block(
+        assert!(grid.can_place_wall(
             &p1,
             &p2,
             Wall::new(Placement { tile: 4, lane: 4 }, Orientation::Horizontal)
         ));
 
-        assert!(grid.can_place_block(
+        assert!(grid.can_place_wall(
             &p1,
             &p2,
             Wall::new(Placement { tile: 4, lane: 7 }, Orientation::Horizontal)
         ));
 
-        assert!(!grid.can_place_block(
+        assert!(!grid.can_place_wall(
             &p1,
             &p2,
             Wall::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
         ));
 
-        assert!(!grid.can_place_block(
+        assert!(!grid.can_place_wall(
             &p1,
             &p2,
             Wall::new(Placement { tile: 8, lane: 4 }, Orientation::Horizontal)

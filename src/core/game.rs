@@ -16,7 +16,7 @@ pub struct Game {
 
 #[derive(Debug)]
 pub enum Move {
-    PlaceBlock(Wall),
+    PlaceWall(Wall),
     PlayerAdvance(Position),
 }
 
@@ -31,7 +31,7 @@ impl Game {
     }
 
     pub fn can_add_wall(&mut self, b: Wall) -> bool {
-        self.g.can_place_block(&self.p1, &self.p2, b)
+        self.g.can_place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn move_player(&mut self, pos: Position) {
@@ -113,13 +113,13 @@ impl Game {
         };
 
         match m {
-            Move::PlaceBlock(block) => {
+            Move::PlaceWall(wall) => {
                 if !curr_player.has_remaining_walls() {
                     return false;
                 }
 
                 curr_player.consume_wall();
-                self.place_wall(block);
+                self.place_wall(wall);
             }
             Move::PlayerAdvance(pos) => {
                 let is_move_valid = self.get_player_options().contains(&pos);
@@ -233,14 +233,14 @@ mod test {
 
         assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
 
-        assert!(g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
         assert_eq!(1, g.player_turn);
 
-        assert!(g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
@@ -252,27 +252,27 @@ mod test {
     fn test_player_block_decrement() {
         let mut g = setup_new_game();
 
-        let block_counts = g.player_wall_counts();
-        assert_eq!(NUM_WALLS, block_counts.0);
-        assert_eq!(NUM_WALLS, block_counts.1);
+        let wall_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS, wall_counts.0);
+        assert_eq!(NUM_WALLS, wall_counts.1);
 
-        assert!(g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        let block_counts = g.player_wall_counts();
-        assert_eq!(NUM_WALLS - 1, block_counts.0);
-        assert_eq!(NUM_WALLS, block_counts.1);
+        let wall_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS - 1, wall_counts.0);
+        assert_eq!(NUM_WALLS, wall_counts.1);
 
-        assert!(g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        let block_counts = g.player_wall_counts();
-        assert_eq!(NUM_WALLS - 1, block_counts.0);
-        assert_eq!(NUM_WALLS - 1, block_counts.1);
+        let wall_counts = g.player_wall_counts();
+        assert_eq!(NUM_WALLS - 1, wall_counts.0);
+        assert_eq!(NUM_WALLS - 1, wall_counts.1);
     }
 
     #[test]
@@ -292,7 +292,7 @@ mod test {
                 block_counts.1
             );
             for i in [0, 2, 4, 6] {
-                assert!(g.process_move(Move::PlaceBlock(Wall::new(
+                assert!(g.process_move(Move::PlaceWall(Wall::new(
                     Placement::new(i, col),
                     Orientation::Horizontal
                 ))));
@@ -316,7 +316,7 @@ mod test {
             block_counts.1
         );
 
-        assert!(!g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(!g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal
         ))));
@@ -324,7 +324,7 @@ mod test {
         assert!(!g.p1.has_remaining_walls());
         assert!(!g.p2.has_remaining_walls());
 
-        assert!(!g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(!g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(6, 6),
             Orientation::Horizontal
         ))));
@@ -472,7 +472,7 @@ mod test {
             Position { x: 5, y: 6 },
         ];
 
-        assert!(g.process_move(Move::PlaceBlock(Wall::new(
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(4, 4),
             Orientation::Horizontal
         ))));

@@ -63,7 +63,7 @@ async fn main() {
                 if is_mouse_button_pressed(MouseButton::Left)
                     && game.can_add_wall(*b)
                 {
-                    game.process_move(Move::PlaceBlock(*b));
+                    game.process_move(Move::PlaceWall(*b));
                     blocks.push(*b);
                 }
             }
