@@ -263,11 +263,11 @@ fn draw_bounds() {
 
 /// Draws a preview of where a block could go
 pub fn get_current_player_color(player_id: u8) -> Color {
-    let mut c = LIGHT_BLUE;
     if player_id == FIRST_PLAYER_ID {
-        c = LIGHT_YELLOW;
+        LIGHT_YELLOW
+    } else {
+        LIGHT_BLUE
     }
-    c
 }
 
 /// Draws a preview of where a block could go
