@@ -445,7 +445,6 @@ mod test {
 
         let res = g.get_player_options();
 
-        // TODO (dio): these seem flipped around for some reason...
         // TBLR
         let want = vec![
             Position { x: 4, y: 4 },
