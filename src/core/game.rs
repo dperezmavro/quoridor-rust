@@ -77,10 +77,8 @@ impl Game {
             .filter(|t| {
                 // determine orientation of two players
 
-                if !self.g.are_positions_neighbours(
-                    &active_player.position,
-                    &other_player.position,
-                ) {
+                if !&active_player.position.is_neighbour(&other_player.position)
+                {
                     return false;
                 }
 
