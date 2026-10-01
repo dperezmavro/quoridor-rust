@@ -162,7 +162,7 @@ mod test {
     }
 
     #[test]
-    fn test_cant_add_block_twice() {
+    fn test_cant_add_wall_twice() {
         let mut g = setup_new_game();
         let b = Wall {
             orientation: Orientation::Vertical,
@@ -200,7 +200,7 @@ mod test {
             placement: Placement { tile: 0, lane: 5 },
         };
 
-        // bad block
+        // bad wall
         let b3 = Wall {
             orientation: Orientation::Horizontal,
             placement: Placement { tile: 4, lane: 0 },
@@ -412,7 +412,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_blocks_vertical() {
+    fn test_jump_over_player_no_walls_vertical() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(4, 5);
         g.p2.position = Position::new(4, 6);
@@ -432,7 +432,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_jump_over_player_due_to_blocks_vertical() {
+    fn test_no_jump_over_player_due_to_walls_vertical() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -457,7 +457,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_other_player_due_to_block_vertical() {
+    fn test_no_other_player_due_to_wall_vertical() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -483,7 +483,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_blocks_horizontal() {
+    fn test_jump_over_player_no_walls_horizontal() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(4, 5);
         g.p2.position = Position::new(5, 5);
@@ -503,7 +503,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_blocks_horizontal_right_to_left() {
+    fn test_jump_over_player_no_walls_horizontal_right_to_left() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(5, 5);
         g.p2.position = Position::new(4, 5);
