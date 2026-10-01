@@ -535,6 +535,15 @@ mod tests {
             ))
         );
 
+        let mps = get_mouse_pointer_state((PADDING + TILE_SIZE + 1.0, PADDING));
+        assert_eq!(
+            mps,
+            MouseState::BlockPosition(Block::new(
+                Placement::new(0, 0),
+                Orientation::Vertical
+            ))
+        );
+
         let mps = get_mouse_pointer_state((
             PADDING + TILE_SIZE + 1.0,
             PADDING + TILE_SIZE + 1.0,
