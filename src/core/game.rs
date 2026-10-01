@@ -91,7 +91,11 @@ impl Game {
                     // players horizontally aligned
                     // player is to the right of other player
 
-                    if active_player.position.x < other_player.position.x {}
+                    if active_player.position.x < other_player.position.x
+                        && t.position.x > other_player.position.x
+                    {
+                        return true;
+                    }
                     // return true;
                 }
 
@@ -438,7 +442,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_blocks() {
+    fn test_jump_over_player_no_blocks_vertical() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(4, 5);
         g.p2.position = Position::new(4, 6);
@@ -458,7 +462,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_jump_over_player_due_to_blocks() {
+    fn test_no_jump_over_player_due_to_blocks_vertical() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -483,7 +487,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_other_player_due_to_block() {
+    fn test_no_other_player_due_to_block_vertical() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -505,6 +509,26 @@ mod test {
 
         let res = g.get_player_options();
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_jump_over_player_no_blocks_horizontal() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(4, 5);
+        g.p2.position = Position::new(5, 5);
+
+        let res = g.get_player_options();
+
+        // TBLR
+        let want = vec![
+            Position { x: 4, y: 4 },
+            Position { x: 4, y: 6 },
+            Position { x: 3, y: 5 },
+            // bottom added as extra square
+            Position { x: 6, y: 5 },
+        ];
+        assert_eq!(want.len(), res.len(), "{:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
 }
