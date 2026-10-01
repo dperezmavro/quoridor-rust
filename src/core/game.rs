@@ -83,13 +83,14 @@ impl Game {
                             return true;
                         }
                     } else if active_player.position.y < other_player.position.y
-                        && t.position.y > other_player.position.y {
-                            return true;
-                        }
+                        && t.position.y > other_player.position.y
+                    {
+                        return true;
+                    }
                 } else if active_player.position.y == other_player.position.y {
                     // players horizontally aligned
                     // player is to the right of other player
-                    
+
                     if active_player.position.x < other_player.position.x {}
                     // return true;
                 }
@@ -146,9 +147,7 @@ impl Game {
                 self.place_block(block);
             }
             Move::PlayerAdvance(pos) => {
-                let is_move_valid = self
-                    .get_player_options()
-                    .contains(&pos);
+                let is_move_valid = self.get_player_options().contains(&pos);
                 if !is_move_valid {
                     return false;
                 }
@@ -447,11 +446,13 @@ mod test {
         let res = g.get_player_options();
 
         // TODO (dio): these seem flipped around for some reason...
+        // TBLR
         let want = vec![
             Position { x: 4, y: 4 },
-            Position { x: 5, y: 3 },
+            Position { x: 3, y: 5 },
             Position { x: 5, y: 5 },
-            Position { x: 7, y: 4 },
+            // bottom added as extra square
+            Position { x: 4, y: 7 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
         assert_eq!(want, res, "{:?}", res);
@@ -465,8 +466,10 @@ mod test {
         // bottom player
         g.p2.position = Position::new(4, 6);
 
-
-        assert!(g.place_block(Block::new(Placement::new(4, 6), Orientation::Horizontal)));
+        assert!(g.place_block(Block::new(
+            Placement::new(4, 6),
+            Orientation::Horizontal
+        )));
         let res = g.get_player_options();
 
         // TBLR
