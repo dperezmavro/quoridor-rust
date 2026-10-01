@@ -2,7 +2,7 @@ use crate::core::block::Block;
 use crate::core::orientation::Orientation;
 use crate::core::player::{NUM_BLOCKS, Player};
 use crate::core::position::Position;
-use crate::core::tile::{Tile, TileState, TileType};
+use crate::core::tile::Tile;
 use std::collections::HashSet;
 
 pub const NUM_TILES: usize = 9;
@@ -16,11 +16,9 @@ pub struct Grid {
 
 fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
     let mut res = Box::new([Tile::default(); NUM_TILES]);
-    let default = Tile::default();
     for i in 0..NUM_TILES {
         res[i] = Tile {
             position: Position { x: i, y },
-            ..default
         };
     }
 
@@ -29,22 +27,14 @@ fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
 
 impl Grid {
     pub fn new() -> Self {
-        let player_1_tile = Tile::new(
-            TileType::Playable,
-            TileState::Occupied,
-            Position {
-                y: 0,
-                x: NUM_TILES / 2,
-            },
-        );
-        let player_2_tile = Tile::new(
-            TileType::Playable,
-            TileState::Occupied,
-            Position {
-                y: NUM_TILES - 1,
-                x: NUM_TILES / 2,
-            },
-        );
+        let player_1_tile = Tile::new(Position {
+            y: 0,
+            x: NUM_TILES / 2,
+        });
+        let player_2_tile = Tile::new(Position {
+            y: NUM_TILES - 1,
+            x: NUM_TILES / 2,
+        });
         let mut first_row = generate_row(0);
         first_row[NUM_TILES / 2] = player_1_tile;
         let mut last_row = generate_row(NUM_TILES - 1);
@@ -490,9 +480,6 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let mut g = Grid::new();
-            g.player_tiles[t.1.position.y][t.1.position.x].occupy();
-            g.player_tiles[t.2.position.y][t.2.position.x].occupy();
-
             t.0.iter().for_each(|block| {
                 assert!(g.can_place_block(&t.1, &t.2, *block), "{:?}", block);
                 assert!(g.place_block(&t.1, &t.2, *block), "{:?}", block);
@@ -830,13 +817,13 @@ mod tests {
             &p2,
             Block::new(Placement { tile: 4, lane: 7 }, Orientation::Horizontal)
         ));
-        //
-        // assert!(grid.can_place_block(
-        //     &p1,
-        //     &p2,
-        //     Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
-        // ));
-        //
+
+        assert!(!grid.can_place_block(
+            &p1,
+            &p2,
+            Block::new(Placement { tile: 4, lane: 8 }, Orientation::Horizontal)
+        ));
+
         assert!(!grid.can_place_block(
             &p1,
             &p2,

@@ -48,16 +48,60 @@ impl Game {
     }
 
     pub fn get_player_options(&self) -> Vec<Position> {
+        let other_player: &Player;
         let active_player: &Player = if self.get_player_turn() == 0 {
+            other_player = &self.p2;
             &self.p1
         } else {
+            other_player = &self.p1;
             &self.p2
         };
 
-        self.g
+        // unoccupied tiles
+        let player_unoccupied_tiles = self
+            .g
             .get_reachable_neighbour_tiles(&active_player.position)
-            .iter()
-            .map(|t| Position::new(t.position.y, t.position.x))
+            .into_iter()
+            .filter(|t| !self.is_position_occupied_by_player(&t.position));
+
+        // tiles behind the player
+        let player_occupied_tiles = self
+            .g
+            .get_reachable_neighbour_tiles(&active_player.position)
+            .into_iter()
+            .filter(|t| self.is_position_occupied_by_player(&t.position))
+            .filter(|t| t.position != active_player.position)
+            .flat_map(|t| self.g.get_reachable_neighbour_tiles(&t.position))
+            .filter(|t| {
+                // determine orientation of two players
+
+                // players vertically aligned
+                if active_player.position.x == other_player.position.x {
+                    // active_player is below other player
+                    if active_player.position.y > other_player.position.y {
+                        if t.position.y < other_player.position.y {
+                            return true;
+                        }
+                    } else if active_player.position.y < other_player.position.y
+                        && t.position.y > other_player.position.y
+                    {
+                        return true;
+                    }
+                } else if active_player.position.y == other_player.position.y {
+                    // players horizontally aligned
+                    // player is to the right of other player
+
+                    if active_player.position.x < other_player.position.x {}
+                    // return true;
+                }
+
+                false
+            });
+
+        // tiles around the player
+        player_unoccupied_tiles
+            .chain(player_occupied_tiles)
+            .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
 
@@ -72,6 +116,10 @@ impl Game {
 
     pub fn get_player_turn(&self) -> u8 {
         self.player_turn
+    }
+
+    pub fn get_other_player_id(&self) -> u8 {
+        self.get_player_turn() ^ 1
     }
 
     pub fn next_player(&mut self) {
@@ -99,10 +147,7 @@ impl Game {
                 self.place_block(block);
             }
             Move::PlayerAdvance(pos) => {
-                let is_move_valid = self
-                    .get_player_options()
-                    .iter()
-                    .any(|pp| pp.x == pos.y && pp.y == pos.x);
+                let is_move_valid = self.get_player_options().contains(&pos);
                 if !is_move_valid {
                     return false;
                 }
@@ -390,5 +435,77 @@ mod test {
             g.get_player_turn(),
             g.p2,
         );
+    }
+
+    #[test]
+    fn test_jump_over_player_no_blocks() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(4, 5);
+        g.p2.position = Position::new(4, 6);
+
+        let res = g.get_player_options();
+
+        // TODO (dio): these seem flipped around for some reason...
+        // TBLR
+        let want = vec![
+            Position { x: 4, y: 4 },
+            Position { x: 3, y: 5 },
+            Position { x: 5, y: 5 },
+            // bottom added as extra square
+            Position { x: 4, y: 7 },
+        ];
+        assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_no_jump_over_player_due_to_blocks() {
+        let mut g = setup_new_game();
+        // top player
+        g.p1.position = Position::new(4, 5);
+        // bottom player
+        g.p2.position = Position::new(4, 6);
+
+        assert!(g.place_block(Block::new(
+            Placement::new(4, 6),
+            Orientation::Horizontal
+        )));
+        let res = g.get_player_options();
+
+        // TBLR
+        let want = vec![
+            Position { x: 4, y: 4 },
+            Position { x: 3, y: 5 },
+            Position { x: 5, y: 5 },
+        ];
+        assert_eq!(0, g.get_player_turn());
+        assert_eq!(want.len(), res.len(), "found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_no_other_player_due_to_block() {
+        let mut g = setup_new_game();
+        // top player
+        g.p1.position = Position::new(4, 5);
+        // bottom player
+        g.p2.position = Position::new(4, 6);
+
+        // TBLR
+        let want = vec![
+            Position { x: 4, y: 7 },
+            Position { x: 3, y: 6 },
+            Position { x: 5, y: 6 },
+        ];
+
+        assert!(g.process_move(Move::PlaceBlock(Block::new(
+            Placement::new(4, 4),
+            Orientation::Horizontal
+        ))));
+        assert_eq!(1, g.get_player_turn());
+
+        let res = g.get_player_options();
+        assert_eq!(want.len(), res.len(), "found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
     }
 }

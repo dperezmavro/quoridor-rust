@@ -322,8 +322,8 @@ pub fn get_mouse_pointer_state() -> MouseState {
 
     if found_row && found_col {
         MouseState::RowCol(Position {
-            x: row as usize,
-            y: col as usize,
+            x: col as usize,
+            y: row as usize,
         })
     } else if in_horizontal_block_pos && in_vertical_block_pos {
         MouseState::InBorderCrossSection
@@ -369,7 +369,7 @@ pub fn draw_block(b: Block, c: Color) {
 }
 
 /// Draws a circle representing a player on the grid
-pub fn draw_player(p: Player) {
+pub fn draw_player(p: &Player) {
     let x = p.position.x;
     let y = p.position.y;
     let color = match p.starting_position {
@@ -389,14 +389,14 @@ pub fn draw_player(p: Player) {
     );
 }
 
-/// Highlights player options when a player is above a valid block
+/// Highlights player options around the player
 pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     for p in pos {
         draw_rectangle(
             GAME_GRID_BOX_START
-                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-            GAME_GRID_BOX_START
                 + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            GAME_GRID_BOX_START
+                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
             TILE_SIZE,
             TILE_SIZE,
             get_current_player_color(player_id),
@@ -404,11 +404,13 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     }
 }
 
-/// Draws a preview of the player-tile that the mouse is currently hovering over.
-pub fn draw_game_tile_preview(p: &Position) {
+/// Draws a preview of the player-tile
+/// that the mouse is currently hovering over.
+/// if it presents a valid move
+pub fn draw_move_preview(p: &Position) {
     draw_rectangle(
-        GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         TILE_SIZE,
         TILE_SIZE,
         Color::new(0.78, 0.48, 1.00, 0.80),
