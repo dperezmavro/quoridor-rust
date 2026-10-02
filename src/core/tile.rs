@@ -10,10 +10,3 @@ impl Tile {
         Tile { position }
     }
 }
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
-pub enum TileState {
-    Occupied,
-    #[default]
-    Free,
-}

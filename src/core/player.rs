@@ -1,7 +1,7 @@
 use crate::core::grid::NUM_TILES;
 use crate::core::position::Position;
 
-pub const NUM_BLOCKS: usize = 10;
+pub const NUM_WALLS: usize = 10;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum StartingPosition {
@@ -14,7 +14,7 @@ pub struct Player {
     pub starting_position: StartingPosition,
     pub name: String,
     pub position: Position,
-    pub remaining_blocks: usize,
+    pub remaining_walls: usize,
 }
 
 impl Player {
@@ -27,7 +27,7 @@ impl Player {
             name,
             starting_position: sp,
             position: Position::new(NUM_TILES / 2, p_y),
-            remaining_blocks: NUM_BLOCKS,
+            remaining_walls: NUM_WALLS,
         }
     }
 
@@ -42,12 +42,12 @@ impl Player {
         self.position == *position
     }
 
-    pub fn consume_block(&mut self) {
-        self.remaining_blocks -= 1;
+    pub fn consume_wall(&mut self) {
+        self.remaining_walls -= 1;
     }
 
-    pub fn has_remaining_blocks(&self) -> bool {
-        self.remaining_blocks > 0
+    pub fn has_remaining_walls(&self) -> bool {
+        self.remaining_walls > 0
     }
 
     pub fn is_valigned(&self, p: &Player) -> bool {
@@ -115,16 +115,16 @@ mod tests {
     }
 
     #[test]
-    fn test_player_black() {
+    fn test_player_position() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
         assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, NUM_TILES - 1);
     }
 
     #[test]
-    fn test_player_blocks() {
+    fn test_player_walls() {
         let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
-        assert_eq!(p.remaining_blocks, NUM_BLOCKS);
+        assert_eq!(p.remaining_walls, NUM_WALLS);
     }
 
     #[test]
