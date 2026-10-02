@@ -1,7 +1,7 @@
-use crate::core::wall::Wall;
 use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
+use crate::core::wall::Wall;
 
 /// Which player goes first
 pub const DEFAULT_PLAYER_ORDER: u8 = 0;
@@ -140,13 +140,13 @@ impl Game {
 mod test {
     use super::*;
 
-    use crate::core::wall::Wall;
     use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::tile::Tile;
+    use crate::core::wall::Wall;
 
     #[test]
     fn test_default() {
@@ -281,16 +281,8 @@ mod test {
         let wall_counts = g.player_wall_counts();
         let mut total_wall_placed = 0;
         for col in 0..=4 {
-            assert!(
-                g.p1.has_remaining_walls(),
-                "remaining: {}",
-                wall_counts.0
-            );
-            assert!(
-                g.p2.has_remaining_walls(),
-                "remaining: {}",
-                wall_counts.1
-            );
+            assert!(g.p1.has_remaining_walls(), "remaining: {}", wall_counts.0);
+            assert!(g.p2.has_remaining_walls(), "remaining: {}", wall_counts.1);
             for i in [0, 2, 4, 6] {
                 assert!(g.process_move(Move::PlaceWall(Wall::new(
                     Placement::new(i, col),
@@ -300,21 +292,10 @@ mod test {
             }
         }
 
-        assert_eq!(
-            20, total_wall_placed,
-            "total {total_wall_placed}"
-        );
+        assert_eq!(20, total_wall_placed, "total {total_wall_placed}");
 
-        assert!(
-            !g.p1.has_remaining_walls(),
-            "remaining: {}",
-            wall_counts.0
-        );
-        assert!(
-            !g.p2.has_remaining_walls(),
-            "remaining: {}",
-            wall_counts.1
-        );
+        assert!(!g.p1.has_remaining_walls(), "remaining: {}", wall_counts.0);
+        assert!(!g.p2.has_remaining_walls(), "remaining: {}", wall_counts.1);
 
         assert!(!g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(6, 6),
@@ -354,10 +335,7 @@ mod test {
     #[test]
     fn test_get_player_options_with_walls() {
         let mut g = setup_new_game();
-        g.place_wall(Wall::new(
-            Placement::new(6, 6),
-            Orientation::Horizontal,
-        ));
+        g.place_wall(Wall::new(Placement::new(6, 6), Orientation::Horizontal));
 
         // player 1
         assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
@@ -368,10 +346,7 @@ mod test {
 
         // new game - wall in from of the players
         let mut g = setup_new_game();
-        g.place_wall(Wall::new(
-            Placement::new(3, 0),
-            Orientation::Horizontal,
-        ));
+        g.place_wall(Wall::new(Placement::new(3, 0), Orientation::Horizontal));
 
         // player 1
         assert_eq!(
@@ -379,10 +354,7 @@ mod test {
             g.get_player_options().len()
         );
 
-        g.place_wall(Wall::new(
-            Placement::new(3, 7),
-            Orientation::Horizontal,
-        ));
+        g.place_wall(Wall::new(Placement::new(3, 7), Orientation::Horizontal));
         // player 2
         g.next_player();
         assert_eq!(

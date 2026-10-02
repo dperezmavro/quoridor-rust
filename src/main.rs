@@ -3,11 +3,11 @@ mod ui;
 
 use core::game::{DEFAULT_PLAYER_ORDER, Game, Move};
 use core::player::{Player, StartingPosition};
-use core::{wall, grid};
+use core::{grid, wall};
 use macroquad::prelude::*;
 use ui::utils::{
-    MouseState, draw_wall_placement_preview, draw_game_grid_base,
-    draw_game_stats, draw_move_preview, draw_placed_wall, draw_player,
+    MouseState, draw_game_grid_base, draw_game_stats, draw_move_preview,
+    draw_placed_wall, draw_player, draw_wall_placement_preview,
     get_mouse_pointer_state, get_window_conf, highlight_player_options,
     pre_computed_grid_lines,
 };

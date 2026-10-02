@@ -1,8 +1,8 @@
-use crate::core::wall::Wall;
 use crate::core::orientation::Orientation;
 use crate::core::player::{NUM_WALLS, Player};
 use crate::core::position::Position;
 use crate::core::tile::Tile;
+use crate::core::wall::Wall;
 use std::collections::HashSet;
 
 pub const NUM_TILES: usize = 9;
@@ -170,16 +170,11 @@ impl Grid {
         // testing for an existing horizontal wall
         let ver_clos = |x1: &Wall| -> bool {
             x1.placement.tile == incoming_wall.placement.lane
-                && x1.placement.lane.abs_diff(incoming_wall.placement.tile)
-                    == 0
+                && x1.placement.lane.abs_diff(incoming_wall.placement.tile) == 0
         };
         match incoming_wall.orientation {
-            Orientation::Horizontal => {
-                self.vertical_walls.iter().any(hor_clos)
-            }
-            Orientation::Vertical => {
-                self.horizontal_walls.iter().any(ver_clos)
-            }
+            Orientation::Horizontal => self.vertical_walls.iter().any(hor_clos),
+            Orientation::Vertical => self.horizontal_walls.iter().any(ver_clos),
         }
     }
 

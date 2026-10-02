@@ -1,11 +1,11 @@
 use macroquad::prelude::*;
 
-use crate::core::wall::Wall;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
+use crate::core::wall::Wall;
 
 /// Width of grid line - this is re-used by the walls
 pub const GRID_LINE_WIDTH: f32 = 12.0;
@@ -452,9 +452,9 @@ pub fn draw_move_preview(p: &Position) {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::wall::Wall;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
+    use crate::core::wall::Wall;
     use crate::ui::utils::{
         GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
         MouseState, PADDING, TILE_SIZE, get_current_player_color,
