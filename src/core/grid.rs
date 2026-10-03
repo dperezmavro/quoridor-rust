@@ -163,7 +163,7 @@ impl Grid {
         false
     }
 
-    fn free_wall(&mut self, b: &Wall) {
+    fn pop_last_wall(&mut self, b: &Wall) {
         match b.orientation {
             Orientation::Horizontal => {
                 self.horizontal_walls.pop().unwrap();
@@ -242,7 +242,7 @@ impl Grid {
 
             let res = self.can_player_reach_goal(p1)
                 && self.can_player_reach_goal(p2);
-            self.free_wall(&b);
+            self.pop_last_wall(&b);
             return res;
         }
         false
