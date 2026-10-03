@@ -74,55 +74,39 @@ impl Grid {
     }
 
     fn tiles_north(&self, pos: &Position) -> bool {
-        if pos.y > 0
+        pos.y > 0
             && self.horizontal_walls.iter().all(|w| {
                 !(w.placement.lane == pos.y - 1
                     && (w.placement.tile == pos.x
                         || w.placement.tile + 1 == pos.x))
             })
-        {
-            return true;
-        }
-        false
     }
 
     fn tiles_south(&self, pos: &Position) -> bool {
-        if pos.y < NUM_TILES - 1
+        pos.y < NUM_TILES - 1
             && self.horizontal_walls.iter().all(|w| {
                 !(w.placement.lane == pos.y
                     && (w.placement.tile == pos.x
                         || w.placement.tile + 1 == pos.x))
             })
-        {
-            return true;
-        }
-        false
     }
 
     fn tiles_west(&self, pos: &Position) -> bool {
-        if pos.x > 0
+        pos.x > 0
             && self.vertical_walls.iter().all(|w| {
                 !(w.placement.lane == pos.x - 1
                     && (w.placement.tile == pos.y
                         || w.placement.tile + 1 == pos.y))
             })
-        {
-            return true;
-        }
-        false
     }
 
     fn tiles_east(&self, pos: &Position) -> bool {
-        if pos.x < NUM_TILES - 1
+        pos.x < NUM_TILES - 1
             && self.vertical_walls.iter().all(|w| {
                 !(w.placement.lane == pos.x
                     && (w.placement.tile == pos.y
                         || w.placement.tile + 1 == pos.y))
             })
-        {
-            return true;
-        }
-        false
     }
 
     pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
