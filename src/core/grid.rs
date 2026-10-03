@@ -99,6 +99,32 @@ impl Grid {
         false
     }
 
+    fn tiles_west(&self, pos: &Position) -> bool {
+        if pos.x > 0
+            && self.vertical_walls.iter().all(|w| {
+                !(w.placement.lane == pos.x - 1
+                    && (w.placement.tile == pos.y
+                        || w.placement.tile + 1 == pos.y))
+            })
+        {
+            return true;
+        }
+        false
+    }
+
+    fn tiles_east(&self, pos: &Position) -> bool {
+        if pos.x < NUM_TILES - 1
+            && self.vertical_walls.iter().all(|w| {
+                !(w.placement.lane == pos.x
+                    && (w.placement.tile == pos.y
+                        || w.placement.tile + 1 == pos.y))
+            })
+        {
+            return true;
+        }
+        false
+    }
+
     pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         let mut available_tiles: Vec<&Tile> = Vec::new();
 
@@ -110,22 +136,11 @@ impl Grid {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
         }
 
-        //left
-        if p.x > 0
-            && self.vertical_walls.iter().all(|w| {
-                !(w.placement.lane == p.x - 1
-                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
-            })
-        {
+        if self.tiles_west(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
         // right
-        if p.x < NUM_TILES - 1
-            && self.vertical_walls.iter().all(|w| {
-                !(w.placement.lane == p.x
-                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
-            })
-        {
+        if self.tiles_east(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
         }
 
