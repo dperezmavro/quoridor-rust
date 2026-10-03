@@ -145,7 +145,6 @@ mod test {
     use crate::core::placement::Placement;
     use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
-    use crate::core::tile::Tile;
     use crate::core::wall::Wall;
 
     #[test]
@@ -217,14 +216,6 @@ mod test {
         // this should fail
         assert!(!g.can_add_wall(b3));
         assert!(!g.place_wall(b3));
-
-        let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
-        assert_eq!(
-            2,
-            tile_vec.clone().len(),
-            "{:?}",
-            tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
-        );
     }
 
     #[test]

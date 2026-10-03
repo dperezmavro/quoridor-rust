@@ -109,7 +109,8 @@ impl Grid {
             })
     }
 
-    pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
+    // Used for finding out all available neighbours
+    fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         let mut available_tiles: Vec<&Tile> = Vec::new();
 
         if self.tiles_north(p) {
