@@ -123,7 +123,7 @@ impl Grid {
         if self.tiles_west(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
-        // right
+
         if self.tiles_east(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
         }
