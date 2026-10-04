@@ -18,4 +18,9 @@ impl Wall {
             placement,
         }
     }
+
+    pub fn covers_placement(&self, x: usize, y: usize) -> bool {
+        self.placement.lane == x
+            && (self.placement.tile == y || self.placement.tile + 1 == y)
+    }
 }
