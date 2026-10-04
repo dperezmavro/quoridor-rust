@@ -60,10 +60,32 @@ mod tests {
 
     #[test]
     fn test_intersect() {
-        let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
-        let b2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
+        let w1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
+        let w2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
 
-        assert!(b1.intersects(&b2));
-        assert!(b2.intersects(&b1));
+        assert!(w1.intersects(&w2));
+        assert!(w2.intersects(&w1));
+    }
+
+    #[test]
+    fn test_t_juntion() {
+        let w1 = Wall::new(Placement::new(4, 6), Orientation::Horizontal);
+        let intersecting_wall =
+            Wall::new(Placement::new(6, 4), Orientation::Vertical);
+
+        // construct a grid of walls around the horizontal block
+        for tile in 5..=7 {
+            for lane in 3..=5 {
+                let w = Wall::new(
+                    Placement::new(tile, lane),
+                    Orientation::Vertical,
+                );
+                if w == intersecting_wall {
+                    assert!(w1.intersects(&w), "intersects for wall {:?}", w);
+                } else {
+                    assert!(!w1.intersects(&w), "intersects for wall {:?}", w);
+                }
+            }
+        }
     }
 }
