@@ -104,8 +104,7 @@ impl Game {
             })
             .collect();
 
-        let co_tile_set: HashSet<&Tile> =
-            HashSet::from_iter(cross_over_tiles.clone().into_iter());
+        tile_set.extend(cross_over_tiles.clone().into_iter());
 
         let can_jump_over = jump_over_tiles.len() > 0;
         let vert_diagonal_chain = other_player_unoccupied_tiles
@@ -113,8 +112,7 @@ impl Game {
             .filter(|t| {
                 !can_jump_over
                     && active_player.is_neighbour(other_player)
-                    && !(co_tile_set.contains(&&Tile::new(t.position))
-                        || tile_set.contains(&&Tile::new(t.position)))
+                    && !tile_set.contains(&&Tile::new(t.position))
             })
             .filter(|t| {
                 t.position.is_y_aligned(&other_player.position)
