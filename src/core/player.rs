@@ -71,12 +71,15 @@ impl Player {
     }
 
     pub fn can_jump_over(&self, p: &Player, pos: &Position) -> bool {
-        self.is_x_aligned(p) && (self.is_above(p) && p.position.is_above(pos))
+        self.is_neighbour(p)
+            && self.is_x_aligned(p)
+            && (self.is_above(p) && p.position.is_above(pos))
             || (p.is_above(self) && pos.is_above(&p.position))
     }
 
     pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
-        self.is_y_aligned(p)
+        self.is_neighbour(p)
+            && self.is_y_aligned(p)
             && (self.is_left_of(p) && p.position.is_left_of(pos))
             || (p.is_left_of(self) && pos.is_left_of(&p.position))
     }

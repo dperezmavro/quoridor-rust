@@ -82,6 +82,7 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
+            .filter(|_t| active_player.is_neighbour(other_player))
             .filter(|t| active_player.can_jump_over(other_player, &t.position))
             .collect();
 
@@ -103,11 +104,9 @@ impl Game {
         let can_jump_over = !jump_over_tiles.is_empty();
         let vert_diagonal_chain = other_player_unoccupied_tiles
             .clone()
-            .filter(|t| {
-                !can_jump_over
-                    && active_player.is_neighbour(other_player)
-                    && !tile_set.contains(&&Tile::new(t.position))
-            })
+            .filter(|_t| active_player.is_neighbour(other_player))
+            .filter(|_t| !can_jump_over)
+            .filter(|t| !tile_set.contains(&&Tile::new(t.position)))
             .filter(|t| {
                 t.position.is_y_aligned(&other_player.position)
                     && (other_player.position.is_left_of(&t.position)
@@ -117,11 +116,9 @@ impl Game {
         let can_cross_over = !cross_over_tiles.is_empty();
         let horiz_diagonal_chain = other_player_unoccupied_tiles
             .clone()
-            .filter(|t| {
-                !can_cross_over
-                    && active_player.is_neighbour(other_player)
-                    && !tile_set.contains(&&Tile::new(t.position))
-            })
+            .filter(|_t| active_player.is_neighbour(other_player))
+            .filter(|t| !can_cross_over)
+            .filter(|t| !tile_set.contains(&&Tile::new(t.position)))
             .filter(|t| {
                 t.position.is_x_aligned(&other_player.position)
                     && (other_player.position.is_above(&t.position)
@@ -653,5 +650,14 @@ mod test {
         ];
         assert_eq!(want.len(), res.len(), "positions found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn non_adjacent_jump() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(4, 2);
+        g.p2.position = Position::new(4, 6);
+        let res = g.get_player_options();
+        assert!(!res.contains(&Position::new(4, 7)), "{:?}", res);
     }
 }
