@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn test_t_juntion() {
+    fn test_t_junction() {
         let w1 = Wall::new(Placement::new(4, 6), Orientation::Horizontal);
         let intersecting_wall =
             Wall::new(Placement::new(6, 4), Orientation::Vertical);
