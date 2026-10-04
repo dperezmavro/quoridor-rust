@@ -118,7 +118,7 @@ impl Game {
         let horiz_diagonal_chain = other_player_unoccupied_tiles
             .clone()
             .filter(|_t| active_player.is_neighbour(other_player))
-            .filter(|t| !can_cross_over)
+            .filter(|_t| !can_cross_over)
             .filter(|t| !tile_set.contains(&&Tile::new(t.position)))
             .filter(|t| {
                 t.position.is_x_aligned(&other_player.position)
