@@ -96,6 +96,7 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
+            .filter(|_t| active_player.is_neighbour(other_player))
             .filter(|t| active_player.can_cross_over(other_player, &t.position))
             .collect();
 
