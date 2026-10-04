@@ -75,22 +75,29 @@ impl Game {
             .filter(|t| {
                 // test vertical and diagonal
                 let mut diagonal = false;
-                let can_jo =
-                    active_player.can_jump_over(other_player, &t.position);
-                if !can_jo {
-                    diagonal = t.position.is_left_of(&other_player.position)
-                        || other_player.position.is_left_of(&t.position);
-                } else {
-                    println!(
-                        "ignoring diagonals {:?} because can_jo",
-                        t.position
-                    );
+                let mut can_jo = false;
+                let mut can_co = false;
+                if active_player.position.is_x_aligned(&t.position) {
+                    can_jo =
+                        active_player.can_jump_over(other_player, &t.position);
+                    if !can_jo {
+                        println!(
+                            "adding diagonal {:?} because !can_jo: {:?} - {:?}",
+                            t.position, active_player, other_player
+                        );
+                        diagonal = (t
+                            .position
+                            .is_left_of(&other_player.position)
+                            || other_player.position.is_left_of(&t.position));
+                    }
                 }
 
-                let can_co =
-                    active_player.can_cross_over(other_player, &t.position);
+                if active_player.position.is_y_aligned(&t.position) {
+                    can_co =
+                        active_player.can_cross_over(other_player, &t.position);
+                }
 
-                can_jo || can_co
+                can_jo || can_co || diagonal
             });
 
         // tiles around the player
