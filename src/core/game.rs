@@ -82,10 +82,7 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
-            .filter(|t| {
-                println!("jo - add tile: {:?}", t.position);
-                active_player.can_jump_over(other_player, &t.position)
-            })
+            .filter(|t| active_player.can_jump_over(other_player, &t.position))
             .collect();
 
         let mut tile_set: HashSet<&Tile> =
@@ -98,10 +95,7 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
-            .filter(|t| {
-                println!("co - add tile: {:?}", t.position);
-                active_player.can_cross_over(other_player, &t.position)
-            })
+            .filter(|t| active_player.can_cross_over(other_player, &t.position))
             .collect();
 
         tile_set.extend(cross_over_tiles.clone().into_iter());
