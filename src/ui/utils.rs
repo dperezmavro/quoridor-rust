@@ -346,22 +346,16 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
         MouseState::InBorderCrossSection
     } else {
         if found_row {
-            return MouseState::WallPosition(Wall {
-                orientation: Orientation::Vertical,
-                placement: Placement {
-                    tile: row as usize,
-                    lane: lane as usize,
-                },
-            });
+            return MouseState::WallPosition(Wall::new(
+                Placement::new(row as usize, lane as usize),
+                Orientation::Vertical,
+            ));
         }
 
-        MouseState::WallPosition(Wall {
-            orientation: Orientation::Horizontal,
-            placement: Placement {
-                tile: col as usize,
-                lane: lane as usize,
-            },
-        })
+        MouseState::WallPosition(Wall::new(
+            Placement::new(col as usize, lane as usize),
+            Orientation::Horizontal,
+        ))
     }
 }
 

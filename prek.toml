@@ -31,11 +31,15 @@ hooks = [
         files = "\\.rs$",
         stages = ["pre-commit"]
     },
-    #    {
-    #        id = "check-clippy",
-    #        name = "Run clippy",
-    #        entry = "cargo clippy --all-targets -- -D warnings",
-    #        language = "system",
-    #        stages = ["pre-commit"]
-    #    }
+    {
+        id = "check-clippy",
+        name = "cargo clippy",
+        # Fails on any rustc or clippy warning, so CI and local commits stay warning-free.
+        entry = "cargo clippy --all-targets -- -D warnings",
+        language = "system",
+        types = ["rust"],
+        # Clippy checks the whole crate; file names appended by prek would be passed to rustc.
+        pass_filenames = false,
+        stages = ["pre-commit"]
+    }
 ]
