@@ -170,23 +170,16 @@ impl Grid {
         };
     }
 
-    fn does_intersect_existing_walls(&self, incoming_wall: &Wall) -> bool {
-        // applied to an incoming horizontal wall
-        // testing for an existing vertical wall
-        let hor_clos = |x1: &Wall| -> bool {
-            x1.placement.tile == incoming_wall.placement.lane
-                && x1.placement.lane == incoming_wall.placement.tile
-        };
-
-        // applied to an incoming vertical wall
-        // testing for an existing horizontal wall
-        let ver_clos = |x1: &Wall| -> bool {
-            x1.placement.tile == incoming_wall.placement.lane
-                && x1.placement.lane.abs_diff(incoming_wall.placement.tile) == 0
-        };
+    fn intersects_existing_walls(&self, incoming_wall: &Wall) -> bool {
         match incoming_wall.orientation {
-            Orientation::Horizontal => self.vertical_walls.iter().any(hor_clos),
-            Orientation::Vertical => self.horizontal_walls.iter().any(ver_clos),
+            Orientation::Horizontal => self
+                .vertical_walls
+                .iter()
+                .any(|w| w.intersects(incoming_wall)),
+            Orientation::Vertical => self
+                .horizontal_walls
+                .iter()
+                .any(|w| w.intersects(incoming_wall)),
         }
     }
 
@@ -231,8 +224,7 @@ impl Grid {
         {
             return false;
         }
-        if !self.does_intersect_existing_walls(&b)
-            && self.is_wall_position_free(&b)
+        if !self.intersects_existing_walls(&b) && self.is_wall_position_free(&b)
         {
             self.add_wall(b);
 
@@ -613,11 +605,11 @@ mod tests {
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
-        assert!(!g.does_intersect_existing_walls(&b1));
+        assert!(!g.intersects_existing_walls(&b1));
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(!g.does_intersect_existing_walls(&b2));
+        assert!(!g.intersects_existing_walls(&b2));
         assert!(g.place_wall(&p1, &p2, b2));
-        assert!(!g.does_intersect_existing_walls(&b3));
+        assert!(!g.intersects_existing_walls(&b3));
         assert!(g.place_wall(&p1, &p2, b3));
     }
 
@@ -634,21 +626,21 @@ mod tests {
         let b1 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
         let b2 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
     }
 
@@ -678,9 +670,9 @@ mod tests {
             placement: Placement::new(5, 6),
         };
         assert!(g.place_wall(p1, p2, *b1));
-        assert!(!g.does_intersect_existing_walls(b2));
-        assert!(!g.does_intersect_existing_walls(b3));
-        assert!(!g.does_intersect_existing_walls(b4));
+        assert!(!g.intersects_existing_walls(b2));
+        assert!(!g.intersects_existing_walls(b3));
+        assert!(!g.intersects_existing_walls(b4));
     }
 
     #[test]

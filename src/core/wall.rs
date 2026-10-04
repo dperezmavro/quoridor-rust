@@ -23,4 +23,17 @@ impl Wall {
         self.placement.lane == x
             && (self.placement.tile == y || self.placement.tile + 1 == y)
     }
+
+    pub fn intersects(&self, w: &Wall) -> bool {
+        match w.orientation {
+            Orientation::Horizontal => {
+                self.placement.tile == w.placement.lane
+                    && self.placement.lane == w.placement.tile
+            }
+            Orientation::Vertical => {
+                self.placement.tile == w.placement.lane
+                    && self.placement.lane.abs_diff(w.placement.tile) == 0
+            }
+        }
+    }
 }
