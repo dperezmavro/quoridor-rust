@@ -435,7 +435,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_jump_over_player_due_to_walls_vertical() {
+    fn test_no_vertical_jump_over_player_due_to_horizontal_walls() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -453,6 +453,9 @@ mod test {
             Position { x: 4, y: 4 },
             Position { x: 3, y: 5 },
             Position { x: 5, y: 5 },
+            // aditional diagonal wall
+            Position { x: 3, y: 6 },
+            Position { x: 5, y: 6 },
         ];
         assert_eq!(0, g.get_player_turn());
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
