@@ -599,8 +599,6 @@ mod test {
 
     #[test]
     fn test_vertical_diagonals_with_corner() {
-        // TODO (dio) : test edges/boundaries
-
         let mut g = setup_new_game();
         g.p1.position = Position::new(6, 1);
         g.p2.position = Position::new(6, 2);
@@ -627,8 +625,6 @@ mod test {
 
     #[test]
     fn test_horizontal_diagonals_with_corner() {
-        // TODO (dio) : test edges/boundaries
-
         let mut g = setup_new_game();
         g.p1.position = Position::new(6, 2);
         g.p2.position = Position::new(5, 2);

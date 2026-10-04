@@ -65,7 +65,7 @@ impl Grid {
         p1_position: &Position,
         p2_position: &Position,
     ) -> Vec<&Tile> {
-        self.reachable_neighbours(p1_position)
+        self.get_reachable_neighbour_tiles(p1_position)
             .into_iter()
             .filter(|t| {
                 t.position != *p1_position && t.position != *p2_position
@@ -106,7 +106,7 @@ impl Grid {
     }
 
     // Used for finding out all available neighbours
-    fn reachable_neighbours(&self, p: &Position) -> Vec<&Tile> {
+    fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         let mut available_tiles: Vec<&Tile> = Vec::new();
 
         if self.tiles_north(p) {
@@ -141,7 +141,7 @@ impl Grid {
             }
 
             visited.insert(curr_pos);
-            let neighbors = self.reachable_neighbours(curr_pos);
+            let neighbors = self.get_reachable_neighbour_tiles(curr_pos);
 
             for t in neighbors {
                 if t.position.y == p.goal_row() {
@@ -338,8 +338,8 @@ mod tests {
 
         tests.iter().for_each(|t| {
             let grid = Grid::new();
-            let result =
-                grid.reachable_neighbours(&Position { x: t.0, y: t.1 });
+            let result = grid
+                .get_reachable_neighbour_tiles(&Position { x: t.0, y: t.1 });
             assert_eq!(t.2, result.len());
         });
     }
@@ -351,11 +351,11 @@ mod tests {
 
         // place horizontal wall
         let mut g = Grid::new();
-        let result = g.reachable_neighbours(&Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(result.len(), 2);
         let b = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         assert!(g.place_wall(&p1, &p2, b));
-        let result = g.reachable_neighbours(&Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(1, result.len());
         assert_eq!(result[0].position, Position::new(1, 0));
 
@@ -363,7 +363,7 @@ mod tests {
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(0, 0), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b));
-        let result = g.reachable_neighbours(&Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(1, result.len());
         assert_eq!(Position::new(0, 1), result[0].position);
 
@@ -371,7 +371,7 @@ mod tests {
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(4, 0), Orientation::Horizontal);
         assert!(g.place_wall(&p1, &p2, b));
-        let result = g.reachable_neighbours(&Position::new(4, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // // only bottom and right
         assert_eq!(Position::new(3, 0), result[0].position);
@@ -381,7 +381,7 @@ mod tests {
         let mut g = Grid::new();
         let b = Wall::new(Placement::new(0, 3), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b));
-        let result = g.reachable_neighbours(&Position::new(4, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // only bottom and right
         assert_eq!(Position::new(4, 1), result[0].position);
@@ -401,7 +401,7 @@ mod tests {
         let mut g = Grid::new();
         assert!(g.place_wall(&p1, &p2, b1));
         assert!(g.place_wall(&p1, &p2, b2));
-        let result = g.reachable_neighbours(&p1.position);
+        let result = g.get_reachable_neighbour_tiles(&p1.position);
         assert_eq!(1, result.len());
         // only bottom and right
         assert_eq!(Position::new(4, 1), result[0].position);
@@ -409,7 +409,7 @@ mod tests {
         let mut g = Grid::new();
         assert!(g.place_wall(&p1, &p2, b1));
         assert!(g.place_wall(&p1, &p2, b2));
-        let result = g.reachable_neighbours(&p3.position);
+        let result = g.get_reachable_neighbour_tiles(&p3.position);
         assert_eq!(2, result.len());
         assert_eq!(
             vec![Position::new(4, 0), Position::new(4, 2)],
@@ -420,7 +420,7 @@ mod tests {
     #[test]
     fn get_reachable_neighbour_tiles_assert() {
         let g = Grid::new();
-        let result = g.reachable_neighbours(&Position::new(0, 0));
+        let result = g.get_reachable_neighbour_tiles(&Position::new(0, 0));
         assert_eq!(2, result.len());
         assert_eq!(0, result[0].position.x);
         assert_eq!(1, result[0].position.y);
@@ -583,7 +583,7 @@ mod tests {
         let p1 = Player::new(String::from("t"), StartingPosition::Top);
         let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
 
-        let _neighbours = g.reachable_neighbours(&p1.position);
+        let _neighbours = g.get_reachable_neighbour_tiles(&p1.position);
         assert!(!g.can_player_reach_goal(&p1));
         assert!(!g.can_player_reach_goal(&p2));
     }
