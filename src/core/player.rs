@@ -31,7 +31,7 @@ impl Player {
         }
     }
 
-    pub fn get_y_goal(&self) -> usize {
+    pub fn goal_row(&self) -> usize {
         match self.starting_position {
             StartingPosition::Top => NUM_TILES - 1,
             StartingPosition::Bottom => 0,

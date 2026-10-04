@@ -144,7 +144,7 @@ impl Grid {
             let neighbors = self.get_reachable_neighbour_tiles(curr_pos);
 
             for t in neighbors {
-                if t.position.y == p.get_y_goal() {
+                if t.position.y == p.goal_row() {
                     return true;
                 }
 
