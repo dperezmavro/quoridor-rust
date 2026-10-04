@@ -56,11 +56,19 @@ impl Game {
         let (active_player, other_player) = self.get_players();
 
         // unoccupied tiles
-        let player_unoccupied_tiles = self
+        let active_player_unoccupied_tiles = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
                 &active_player.position,
                 &other_player.position,
+            )
+            .into_iter();
+
+        let other_player_unoccupied_tiles = self
+            .g
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
             )
             .into_iter();
 
@@ -84,51 +92,30 @@ impl Game {
             .filter(|t| {
                 active_player.can_cross_over(other_player, &t.position)
             });
-        //
-        // let alternative_jumping_tiles = self
-        //     .g
-        //     .get_unoccupied_reachable_neighbour_tiles(
-        //         &other_player.position,
-        //         &active_player.position,
-        //     )
-        //     .into_iter()
-        //     .filter(|t| {
-        //         // test vertical and diagonal
-        //         let mut diagonal = false;
-        //         let mut can_jo = false;
-        //         let mut can_co = false;
-        //         if active_player.position.is_x_aligned(&t.position) {
-        //             can_jo =
-        //                 active_player.can_jump_over(other_player, &t.position);
-        //             if !can_jo {
-        //                 println!(
-        //                     "adding diagonal {:?} because !can_jo: {:?} - {:?}",
-        //                     t.position, active_player, other_player
-        //                 );
-        //                 diagonal = t
-        //                     .position
-        //                     .is_left_of(&other_player.position)
-        //                     || other_player.position.is_left_of(&t.position);
-        //             } else {
-        //                 println!(
-        //                     "ignoring position {:?} because can_jo",
-        //                     t.position
-        //                 );
-        //             }
-        //         }
-        //
-        //         if active_player.position.is_y_aligned(&t.position) {
-        //             can_co =
-        //                 active_player.can_cross_over(other_player, &t.position);
-        //         }
-        //
-        //         can_jo || can_co || diagonal
-        //     });
 
+        let can_jump_over = jump_over_tiles.clone().count() > 0;
+        let vert_diagonal_chain = other_player_unoccupied_tiles
+            .clone()
+            .filter(|t| !can_jump_over)
+            .filter(|t| active_player.is_neighbour(other_player))
+            .filter(|t| {
+                t.position.is_y_aligned(&other_player.position)
+                    && (other_player.position.is_left_of(&t.position)
+                        || t.position.is_left_of(&other_player.position))
+            });
+        // if !can_jump_over {
+        //     println!(
+        //         "can_jo false: need to inspect {:?}",
+        //         other_player_unoccupied_tiles
+        //     );
+        // } else {
+        //     println!("can_jo fine, ignoring diagonal");
+        // }
         // tiles around the player
-        player_unoccupied_tiles
-            .chain(cross_over_tiles)
-            .chain(jump_over_tiles)
+        active_player_unoccupied_tiles
+            .chain(cross_over_tiles.clone())
+            .chain(jump_over_tiles.clone())
+            .chain(vert_diagonal_chain)
             .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
@@ -364,7 +351,12 @@ mod test {
         let mut g = setup_new_game();
 
         // player 1
-        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+        assert_eq!(
+            DEFAULT_STARTING_NEIGHBOURS,
+            g.get_player_options().len(),
+            "found neighbours: {:?}",
+            g.get_player_options()
+        );
 
         // player 2
         g.next_player();
