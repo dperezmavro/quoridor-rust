@@ -96,8 +96,9 @@ impl Game {
         let can_jump_over = jump_over_tiles.clone().count() > 0;
         let vert_diagonal_chain = other_player_unoccupied_tiles
             .clone()
-            .filter(|t| !can_jump_over)
-            .filter(|t| active_player.is_neighbour(other_player))
+            .filter(|_t| {
+                !can_jump_over && active_player.is_neighbour(other_player)
+            })
             .filter(|t| {
                 t.position.is_y_aligned(&other_player.position)
                     && (other_player.position.is_left_of(&t.position)
@@ -475,6 +476,9 @@ mod test {
             Position { x: 4, y: 7 },
             Position { x: 3, y: 6 },
             Position { x: 5, y: 6 },
+            // diagonal since wall behind p1
+            Position { x: 3, y: 5 },
+            Position { x: 5, y: 5 },
         ];
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
@@ -509,7 +513,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_walls_horizontal_right_to_left() {
+    fn test_cross_over_player_no_walls_horizontal_right_to_left() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(5, 5);
         g.p2.position = Position::new(4, 5);

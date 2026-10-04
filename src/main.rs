@@ -4,7 +4,7 @@ mod ui;
 use crate::core::position::Position;
 use core::game::{Game, Move, STARTING_PLAYER_ID};
 use core::player::{Player, StartingPosition};
-use core::{grid, wall};
+use core::{grid, orientation::Orientation, placement::Placement, wall};
 use macroquad::prelude::*;
 use ui::utils::{
     MouseState, draw_game_grid_base, draw_game_stats, draw_move_preview,
@@ -38,6 +38,9 @@ async fn main() {
     // TODO (dio) = this is for testing
     p1.position = Position::new(6, 1);
     p2.position = Position::new(6, 2);
+
+    p1.position = Position::new(4, 5);
+    p2.position = Position::new(4, 6);
     // TODO end testing block
 
     let mut game = Game::new(grid, p1, p2);
@@ -48,6 +51,10 @@ async fn main() {
     //     Orientation::Horizontal,
     // )));
     // walls.push(Wall::new(Placement::new(6, 0), Orientation::Horizontal));
+
+    let w = wall::Wall::new(Placement::new(4, 4), Orientation::Horizontal);
+    game.process_move(Move::PlaceWall(w.clone()));
+    walls.push(w.clone());
     // // TODO end testing block
 
     loop {
