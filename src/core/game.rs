@@ -72,7 +72,6 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
-            // .filter(|t| active_player.is_neighbour(&other_player)) // used to filter only if players are next to each other
             .filter(|t| {
                 // test vertical and diagonal
                 let mut diagonal = false;
