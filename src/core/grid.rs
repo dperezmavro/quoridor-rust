@@ -170,16 +170,14 @@ impl Grid {
         };
     }
 
-    fn intersects_existing_walls(&self, incoming_wall: &Wall) -> bool {
-        match incoming_wall.orientation {
-            Orientation::Horizontal => self
-                .vertical_walls
-                .iter()
-                .any(|w| w.intersects(incoming_wall)),
-            Orientation::Vertical => self
-                .horizontal_walls
-                .iter()
-                .any(|w| w.intersects(incoming_wall)),
+    fn intersects_existing_walls(&self, wall: &Wall) -> bool {
+        match wall.orientation {
+            Orientation::Horizontal => {
+                self.vertical_walls.iter().any(|w| w.intersects(wall))
+            }
+            Orientation::Vertical => {
+                self.horizontal_walls.iter().any(|w| w.intersects(wall))
+            }
         }
     }
 
