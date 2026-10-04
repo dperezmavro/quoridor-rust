@@ -1,7 +1,9 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
+use crate::core::tile::Tile;
 use crate::core::wall::Wall;
+use std::collections::HashSet;
 
 /// Which player goes first
 pub const STARTING_PLAYER_ID: u8 = 0;
@@ -56,7 +58,7 @@ impl Game {
         let (active_player, other_player) = self.get_players();
 
         // unoccupied tiles
-        let player_unoccupied_tiles = self
+        let active_player_unoccupied_tiles = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
                 &active_player.position,
@@ -64,23 +66,58 @@ impl Game {
             )
             .into_iter();
 
+        let other_player_unoccupied_tiles = self
+            .g
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
+            .into_iter();
+
         // tiles behind the player
-        let alternative_jumping_tiles = self
+        let jump_over_tiles: Vec<&Tile> = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
                 &other_player.position,
                 &active_player.position,
             )
             .into_iter()
+            .filter(|t| active_player.can_jump_over(other_player, &t.position))
+            .collect();
+
+        let mut tile_set: HashSet<&Tile> =
+            HashSet::from_iter(jump_over_tiles.clone());
+
+        let cross_over_tiles: Vec<&Tile> = self
+            .g
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
+            .into_iter()
+            .filter(|t| active_player.can_cross_over(other_player, &t.position))
+            .collect();
+
+        tile_set.extend(cross_over_tiles.clone());
+
+        let can_jump_over = !jump_over_tiles.is_empty();
+        let vert_diagonal_chain = other_player_unoccupied_tiles
+            .clone()
             .filter(|t| {
-                active_player.position.is_neighbour(&other_player.position)
-                    && active_player.can_jump_over(other_player, &t.position)
-                    || active_player.can_cross_over(other_player, &t.position)
+                !can_jump_over
+                    && active_player.is_neighbour(other_player)
+                    && !tile_set.contains(&&Tile::new(t.position))
+            })
+            .filter(|t| {
+                t.position.is_y_aligned(&other_player.position)
+                    && (other_player.position.is_left_of(&t.position)
+                        || t.position.is_left_of(&other_player.position))
             });
 
-        // tiles around the player
-        player_unoccupied_tiles
-            .chain(alternative_jumping_tiles)
+        active_player_unoccupied_tiles
+            .chain(cross_over_tiles.clone())
+            .chain(jump_over_tiles.clone())
+            .chain(vert_diagonal_chain)
             .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
@@ -140,12 +177,20 @@ impl Game {
 mod test {
     use super::*;
 
-    use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::wall::Wall;
+
+    fn setup_new_game() -> Game {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        Game::new(grid, p1, p2)
+    }
+    const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
 
     #[test]
     fn test_default() {
@@ -302,21 +347,17 @@ mod test {
         ))));
     }
 
-    fn setup_new_game() -> Game {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        Game::new(grid, p1, p2)
-    }
-    const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
-
     #[test]
     fn test_get_player_options() {
         let mut g = setup_new_game();
 
         // player 1
-        assert_eq!(DEFAULT_STARTING_NEIGHBOURS, g.get_player_options().len());
+        assert_eq!(
+            DEFAULT_STARTING_NEIGHBOURS,
+            g.get_player_options().len(),
+            "found neighbours: {:?}",
+            g.get_player_options()
+        );
 
         // player 2
         g.next_player();
@@ -395,7 +436,7 @@ mod test {
     }
 
     #[test]
-    fn test_no_jump_over_player_due_to_walls_vertical() {
+    fn test_no_vertical_jump_over_player_due_to_horizontal_walls() {
         let mut g = setup_new_game();
         // top player
         g.p1.position = Position::new(4, 5);
@@ -413,6 +454,9 @@ mod test {
             Position { x: 4, y: 4 },
             Position { x: 3, y: 5 },
             Position { x: 5, y: 5 },
+            // aditional diagonal wall
+            Position { x: 3, y: 6 },
+            Position { x: 5, y: 6 },
         ];
         assert_eq!(0, g.get_player_turn());
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
@@ -432,6 +476,9 @@ mod test {
             Position { x: 4, y: 7 },
             Position { x: 3, y: 6 },
             Position { x: 5, y: 6 },
+            // diagonal since wall behind p1
+            Position { x: 3, y: 5 },
+            Position { x: 5, y: 5 },
         ];
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
@@ -446,7 +493,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_walls_horizontal() {
+    fn test_cross_over_player_no_walls_horizontal() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(4, 5);
         g.p2.position = Position::new(5, 5);
@@ -461,12 +508,12 @@ mod test {
             // right added as extra square
             Position { x: 6, y: 5 },
         ];
-        assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want.len(), res.len(), "res = {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
 
     #[test]
-    fn test_jump_over_player_no_walls_horizontal_right_to_left() {
+    fn test_cross_over_player_no_walls_horizontal_right_to_left() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(5, 5);
         g.p2.position = Position::new(4, 5);
@@ -482,6 +529,60 @@ mod test {
             Position { x: 3, y: 5 },
         ];
         assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_diagonals_vertically() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(6, 1);
+        g.p2.position = Position::new(6, 2);
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(6, 0),
+            Orientation::Horizontal,
+        ))));
+
+        let res = g.get_player_options();
+
+        // (T)BLR
+        let want = vec![
+            Position { x: 6, y: 3 },
+            Position { x: 5, y: 2 },
+            Position { x: 7, y: 2 },
+            // diagonals added as extra squares
+            Position { x: 5, y: 1 },
+            Position { x: 7, y: 1 },
+        ];
+        assert_eq!(want.len(), res.len(), "positions found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_diagonals_with_corner() {
+        // TODO (dio) : test edges/boundaries
+
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(6, 1);
+        g.p2.position = Position::new(6, 2);
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(6, 0),
+            Orientation::Horizontal,
+        ))));
+
+        g.place_wall(Wall::new(Placement::new(1, 5), Orientation::Vertical));
+
+        let res = g.get_player_options();
+
+        // BR of TBLR
+        let want = vec![
+            Position { x: 6, y: 3 },
+            Position { x: 7, y: 2 },
+            // diagonals added as extra squares
+            Position { x: 7, y: 1 },
+        ];
+        assert_eq!(want.len(), res.len(), "positions found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
 }

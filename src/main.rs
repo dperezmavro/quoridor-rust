@@ -28,6 +28,7 @@ async fn main() {
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
+
     let p1 = Player::new(String::from("p1"), StartingPosition::Top);
     let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
 

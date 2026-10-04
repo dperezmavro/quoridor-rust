@@ -503,7 +503,6 @@ mod tests {
     #[test]
     fn test_can_player_reach_goal_disallowed_wall_formations_from_correct_position()
      {
-        struct TestCase(Player, Player);
         let walls = [
             Wall::new(Placement::new(0, 3), Orientation::Horizontal),
             Wall::new(Placement::new(2, 3), Orientation::Horizontal),
@@ -534,7 +533,6 @@ mod tests {
 
     #[test]
     fn test_can_place_wall_after_players_move() {
-        struct TestCase(Player, Player);
         let walls = [
             Wall::new(Placement::new(0, 3), Orientation::Horizontal),
             Wall::new(Placement::new(2, 3), Orientation::Horizontal),
@@ -563,7 +561,6 @@ mod tests {
 
     #[test]
     fn test_can_not_player_reach_goal_disallowed_wall_formations() {
-        struct TestCase(Player, Player);
         let walls = [
             Wall::new(Placement::new(0, 3), Orientation::Horizontal),
             Wall::new(Placement::new(2, 3), Orientation::Horizontal),
