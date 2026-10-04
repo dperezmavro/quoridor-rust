@@ -4,7 +4,7 @@ use crate::core::position::Position;
 use crate::core::wall::Wall;
 
 /// Which player goes first
-pub const DEFAULT_PLAYER_ORDER: u8 = 0;
+pub const STARTING_PLAYER_ID: u8 = 0;
 
 #[derive(Debug)]
 pub struct Game {
@@ -26,7 +26,7 @@ impl Game {
             g,
             p1,
             p2,
-            player_turn: DEFAULT_PLAYER_ORDER,
+            player_turn: STARTING_PLAYER_ID,
         }
     }
 
@@ -45,7 +45,7 @@ impl Game {
     }
 
     fn get_players(&self) -> (&Player, &Player) {
-        if self.get_player_turn() == DEFAULT_PLAYER_ORDER {
+        if self.get_player_turn() == STARTING_PLAYER_ID {
             return (&self.p1, &self.p2);
         }
 
@@ -145,7 +145,6 @@ mod test {
     use crate::core::placement::Placement;
     use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
-    use crate::core::tile::Tile;
     use crate::core::wall::Wall;
 
     #[test]
@@ -217,21 +216,13 @@ mod test {
         // this should fail
         assert!(!g.can_add_wall(b3));
         assert!(!g.place_wall(b3));
-
-        let tile_vec = g.g.get_reachable_neighbour_tiles(&g.p1.position);
-        assert_eq!(
-            2,
-            tile_vec.clone().len(),
-            "{:?}",
-            tile_vec.clone().iter().collect::<Vec<&&Tile>>(),
-        );
     }
 
     #[test]
     fn test_player_index_changed() {
         let mut g = setup_new_game();
 
-        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+        assert_eq!(STARTING_PLAYER_ID, g.player_turn);
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
@@ -245,7 +236,7 @@ mod test {
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(DEFAULT_PLAYER_ORDER, g.player_turn);
+        assert_eq!(STARTING_PLAYER_ID, g.player_turn);
     }
 
     #[test]

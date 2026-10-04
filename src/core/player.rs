@@ -50,12 +50,12 @@ impl Player {
         self.remaining_walls > 0
     }
 
-    pub fn is_valigned(&self, p: &Player) -> bool {
-        self.position.is_valigned(&p.position)
+    pub fn is_x_aligned(&self, p: &Player) -> bool {
+        self.position.is_x_aligned(&p.position)
     }
 
-    pub fn is_haligned(&self, p: &Player) -> bool {
-        self.position.is_haligned(&p.position)
+    pub fn is_y_aligned(&self, p: &Player) -> bool {
+        self.position.is_y_aligned(&p.position)
     }
 
     pub fn is_above(&self, p: &Player) -> bool {
@@ -67,13 +67,13 @@ impl Player {
     }
 
     pub fn can_jump_over(&self, p: &Player, pos: &Position) -> bool {
-        self.is_valigned(p)
+        self.is_x_aligned(p)
             && ((self.is_above(p) && p.position.is_above(pos))
                 || (p.is_above(self) && pos.is_above(&p.position)))
     }
 
     pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
-        self.is_haligned(p)
+        self.is_y_aligned(p)
             && (self.is_left_of(p) && p.position.is_left_of(pos))
             || (p.is_left_of(self) && pos.is_left_of(&p.position))
     }
@@ -134,10 +134,10 @@ mod tests {
         let mut p2 = p1.clone();
         p2.position = Position::new(2, 2);
 
-        assert!(!p1.is_haligned(&p2));
+        assert!(!p1.is_y_aligned(&p2));
 
         p2.position = Position::new(2, 1);
-        assert!(p1.is_haligned(&p2));
+        assert!(p1.is_y_aligned(&p2));
     }
 
     #[test]
@@ -155,10 +155,10 @@ mod tests {
         let mut p2 = p1.clone();
         p2.position = Position::new(2, 2);
 
-        assert!(!p1.is_valigned(&p2));
+        assert!(!p1.is_x_aligned(&p2));
 
         p2.position = Position::new(1, 2);
-        assert!(p1.is_valigned(&p2));
+        assert!(p1.is_x_aligned(&p2));
     }
 
     #[test]

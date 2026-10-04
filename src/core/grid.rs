@@ -73,43 +73,55 @@ impl Grid {
             .collect()
     }
 
-    pub fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
+    fn tiles_north(&self, pos: &Position) -> bool {
+        pos.y > 0
+            && self
+                .horizontal_walls
+                .iter()
+                .all(|w| !w.covers_placement(pos.y - 1, pos.x))
+    }
+
+    fn tiles_south(&self, pos: &Position) -> bool {
+        pos.y < NUM_TILES - 1
+            && self
+                .horizontal_walls
+                .iter()
+                .all(|w| !w.covers_placement(pos.y, pos.x))
+    }
+
+    fn tiles_west(&self, pos: &Position) -> bool {
+        pos.x > 0
+            && self
+                .vertical_walls
+                .iter()
+                .all(|w| !w.covers_placement(pos.x - 1, pos.y))
+    }
+
+    fn tiles_east(&self, pos: &Position) -> bool {
+        pos.x < NUM_TILES - 1
+            && self
+                .vertical_walls
+                .iter()
+                .all(|w| !w.covers_placement(pos.x, pos.y))
+    }
+
+    // Used for finding out all available neighbours
+    fn get_reachable_neighbour_tiles(&self, p: &Position) -> Vec<&Tile> {
         let mut available_tiles: Vec<&Tile> = Vec::new();
-        //top
-        if p.y > 0
-            && self.horizontal_walls.iter().all(|w| {
-                !(w.placement.lane == p.y - 1
-                    && (w.placement.tile == p.x || w.placement.tile + 1 == p.x))
-            })
-        {
+
+        if self.tiles_north(p) {
             available_tiles.push(&self.player_tiles[p.y - 1][p.x]);
         }
-        //bottom
-        if p.y < NUM_TILES - 1
-            && self.horizontal_walls.iter().all(|w| {
-                !(w.placement.lane == p.y
-                    && (w.placement.tile == p.x || w.placement.tile + 1 == p.x))
-            })
-        {
+
+        if self.tiles_south(p) {
             available_tiles.push(&self.player_tiles[p.y + 1][p.x]);
         }
 
-        //left
-        if p.x > 0
-            && self.vertical_walls.iter().all(|w| {
-                !(w.placement.lane == p.x - 1
-                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
-            })
-        {
+        if self.tiles_west(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x - 1]);
         }
-        // right
-        if p.x < NUM_TILES - 1
-            && self.vertical_walls.iter().all(|w| {
-                !(w.placement.lane == p.x
-                    && (w.placement.tile == p.y || w.placement.tile + 1 == p.y))
-            })
-        {
+
+        if self.tiles_east(p) {
             available_tiles.push(&self.player_tiles[p.y][p.x + 1]);
         }
 
@@ -147,7 +159,7 @@ impl Grid {
         false
     }
 
-    fn free_wall(&mut self, b: &Wall) {
+    fn pop_last_wall(&mut self, b: &Wall) {
         match b.orientation {
             Orientation::Horizontal => {
                 self.horizontal_walls.pop().unwrap();
@@ -158,23 +170,14 @@ impl Grid {
         };
     }
 
-    fn does_intersect_existing_walls(&self, incoming_wall: &Wall) -> bool {
-        // applied to an incoming horizontal wall
-        // testing for an existing vertical wall
-        let hor_clos = |x1: &Wall| -> bool {
-            x1.placement.tile == incoming_wall.placement.lane
-                && x1.placement.lane == incoming_wall.placement.tile
-        };
-
-        // applied to an incoming vertical wall
-        // testing for an existing horizontal wall
-        let ver_clos = |x1: &Wall| -> bool {
-            x1.placement.tile == incoming_wall.placement.lane
-                && x1.placement.lane.abs_diff(incoming_wall.placement.tile) == 0
-        };
-        match incoming_wall.orientation {
-            Orientation::Horizontal => self.vertical_walls.iter().any(hor_clos),
-            Orientation::Vertical => self.horizontal_walls.iter().any(ver_clos),
+    fn intersects_existing_walls(&self, wall: &Wall) -> bool {
+        match wall.orientation {
+            Orientation::Horizontal => {
+                self.vertical_walls.iter().any(|w| w.intersects(wall))
+            }
+            Orientation::Vertical => {
+                self.horizontal_walls.iter().any(|w| w.intersects(wall))
+            }
         }
     }
 
@@ -219,14 +222,13 @@ impl Grid {
         {
             return false;
         }
-        if !self.does_intersect_existing_walls(&b)
-            && self.is_wall_position_free(&b)
+        if !self.intersects_existing_walls(&b) && self.is_wall_position_free(&b)
         {
             self.add_wall(b);
 
             let res = self.can_player_reach_goal(p1)
                 && self.can_player_reach_goal(p2);
-            self.free_wall(&b);
+            self.pop_last_wall(&b);
             return res;
         }
         false
@@ -601,11 +603,11 @@ mod tests {
         let p1 = Player::new(String::new(), StartingPosition::Top);
         let p2 = Player::new(String::new(), StartingPosition::Bottom);
 
-        assert!(!g.does_intersect_existing_walls(&b1));
+        assert!(!g.intersects_existing_walls(&b1));
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(!g.does_intersect_existing_walls(&b2));
+        assert!(!g.intersects_existing_walls(&b2));
         assert!(g.place_wall(&p1, &p2, b2));
-        assert!(!g.does_intersect_existing_walls(&b3));
+        assert!(!g.intersects_existing_walls(&b3));
         assert!(g.place_wall(&p1, &p2, b3));
     }
 
@@ -622,21 +624,21 @@ mod tests {
         let b1 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(3, 4), Orientation::Vertical);
         let b2 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         let b2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
         assert!(g.place_wall(&p1, &p2, b1));
-        assert!(g.does_intersect_existing_walls(&b2));
+        assert!(g.intersects_existing_walls(&b2));
         assert!(!g.place_wall(&p1, &p2, b2));
     }
 
@@ -666,9 +668,9 @@ mod tests {
             placement: Placement::new(5, 6),
         };
         assert!(g.place_wall(p1, p2, *b1));
-        assert!(!g.does_intersect_existing_walls(b2));
-        assert!(!g.does_intersect_existing_walls(b3));
-        assert!(!g.does_intersect_existing_walls(b4));
+        assert!(!g.intersects_existing_walls(b2));
+        assert!(!g.intersects_existing_walls(b3));
+        assert!(!g.intersects_existing_walls(b4));
     }
 
     #[test]
