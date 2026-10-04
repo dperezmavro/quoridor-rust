@@ -1,7 +1,7 @@
 mod core;
 mod ui;
 
-use core::game::{DEFAULT_PLAYER_ORDER, Game, Move};
+use core::game::{Game, Move, STARTING_PLAYER_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
 use macroquad::prelude::*;
@@ -47,8 +47,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(&game.p1, game.get_player_turn() == DEFAULT_PLAYER_ORDER);
-        draw_player(&game.p2, game.get_player_turn() != DEFAULT_PLAYER_ORDER);
+        draw_player(&game.p1, game.get_player_turn() == STARTING_PLAYER_ID);
+        draw_player(&game.p2, game.get_player_turn() != STARTING_PLAYER_ID);
 
         let res = get_mouse_pointer_state(mouse_position());
         match &res {
