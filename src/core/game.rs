@@ -559,6 +559,32 @@ mod test {
     }
 
     #[test]
+    fn test_diagonals_horizontally() {
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(5, 2);
+        g.p2.position = Position::new(6, 2);
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(2, 4),
+            Orientation::Vertical,
+        ))));
+
+        let res = g.get_player_options();
+
+        // TBL(R) + diagonals
+        let want = vec![
+            Position { x: 6, y: 1 },
+            Position { x: 6, y: 3 },
+            Position { x: 7, y: 2 },
+            // diagonals added as extra squares
+            Position { x: 5, y: 1 },
+            Position { x: 5, y: 3 },
+        ];
+        assert_eq!(want.len(), res.len(), "positions found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
     fn test_diagonals_with_corner() {
         // TODO (dio) : test edges/boundaries
 
