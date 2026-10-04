@@ -1,7 +1,6 @@
 mod core;
 mod ui;
 
-use crate::core::position::Position;
 use core::game::{Game, Move, STARTING_PLAYER_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
@@ -30,26 +29,10 @@ async fn main() {
 
     let grid = grid::Grid::new();
 
-    // TODO remove player mutability after testing
-    let mut p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-    // TODO end testing block
-
-    // TODO (dio) = this is for testing
-    p1.position = Position::new(6, 1);
-    p2.position = Position::new(6, 2);
-
-    p1.position = Position::new(4, 5);
-    p2.position = Position::new(5, 5);
-    // TODO end testing block
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
 
     let mut game = Game::new(grid, p1, p2);
-
-    // // TODO (dio) = this is for testing
-    // let w = wall::Wall::new(Placement::new(4, 4), Orientation::Horizontal);
-    // game.process_move(Move::PlaceWall(w.clone()));
-    // walls.push(w.clone());
-    // // TODO end testing block
 
     loop {
         clear_background(GRAY);

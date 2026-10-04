@@ -86,7 +86,7 @@ impl Game {
             .collect();
 
         let mut tile_set: HashSet<&Tile> =
-            HashSet::from_iter(jump_over_tiles.clone().into_iter());
+            HashSet::from_iter(jump_over_tiles.clone());
 
         let cross_over_tiles: Vec<&Tile> = self
             .g
@@ -98,9 +98,9 @@ impl Game {
             .filter(|t| active_player.can_cross_over(other_player, &t.position))
             .collect();
 
-        tile_set.extend(cross_over_tiles.clone().into_iter());
+        tile_set.extend(cross_over_tiles.clone());
 
-        let can_jump_over = jump_over_tiles.len() > 0;
+        let can_jump_over = !jump_over_tiles.is_empty();
         let vert_diagonal_chain = other_player_unoccupied_tiles
             .clone()
             .filter(|t| {
