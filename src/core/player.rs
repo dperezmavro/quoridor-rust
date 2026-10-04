@@ -42,6 +42,10 @@ impl Player {
         self.position == *position
     }
 
+    pub fn is_neighbour(&self, p: &Player) -> bool {
+        self.position.is_neighbour(&p.position)
+    }
+
     pub fn consume_wall(&mut self) {
         self.remaining_walls -= 1;
     }
@@ -67,9 +71,15 @@ impl Player {
     }
 
     pub fn can_jump_over(&self, p: &Player, pos: &Position) -> bool {
-        self.is_x_aligned(p)
-            && ((self.is_above(p) && p.position.is_above(pos))
-                || (p.is_above(self) && pos.is_above(&p.position)))
+        if !self.is_x_aligned(p) {
+            return false;
+        }
+
+        // get the diagonal here
+        let res = (self.is_above(p) && p.position.is_above(pos))
+            || (p.is_above(self) && pos.is_above(&p.position));
+
+        res
     }
 
     pub fn can_cross_over(&self, p: &Player, pos: &Position) -> bool {
