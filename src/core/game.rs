@@ -3,6 +3,7 @@ use crate::core::player::Player;
 use crate::core::position::Position;
 use crate::core::tile::Tile;
 use crate::core::wall::Wall;
+use std::collections::HashSet;
 
 /// Which player goes first
 pub const STARTING_PLAYER_ID: u8 = 0;
@@ -87,6 +88,9 @@ impl Game {
             })
             .collect();
 
+        let mut tile_set: HashSet<&Tile> =
+            HashSet::from_iter(jump_over_tiles.clone().into_iter());
+
         let cross_over_tiles: Vec<&Tile> = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
@@ -100,15 +104,17 @@ impl Game {
             })
             .collect();
 
+        let co_tile_set: HashSet<&Tile> =
+            HashSet::from_iter(cross_over_tiles.clone().into_iter());
+
         let can_jump_over = jump_over_tiles.len() > 0;
         let vert_diagonal_chain = other_player_unoccupied_tiles
             .clone()
             .filter(|t| {
                 !can_jump_over
                     && active_player.is_neighbour(other_player)
-                    // TODO (dio): purely used to test uniqueness, should use set
-                    && !(cross_over_tiles.contains(&&Tile::new(t.position))
-                        || jump_over_tiles.contains(&&Tile::new(t.position)))
+                    && !(co_tile_set.contains(&&Tile::new(t.position))
+                        || tile_set.contains(&&Tile::new(t.position)))
             })
             .filter(|t| {
                 t.position.is_y_aligned(&other_player.position)
