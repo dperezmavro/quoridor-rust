@@ -1,6 +1,7 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
+use crate::core::tile::Tile;
 use crate::core::wall::Wall;
 
 /// Which player goes first
@@ -73,16 +74,7 @@ impl Game {
             .into_iter();
 
         // tiles behind the player
-        let jump_over_tiles = self
-            .g
-            .get_unoccupied_reachable_neighbour_tiles(
-                &other_player.position,
-                &active_player.position,
-            )
-            .into_iter()
-            .filter(|t| active_player.can_jump_over(other_player, &t.position));
-
-        let cross_over_tiles = self
+        let jump_over_tiles: Vec<&Tile> = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
                 &other_player.position,
@@ -90,29 +82,40 @@ impl Game {
             )
             .into_iter()
             .filter(|t| {
-                active_player.can_cross_over(other_player, &t.position)
-            });
+                println!("jo - add tile: {:?}", t.position);
+                active_player.can_jump_over(other_player, &t.position)
+            })
+            .collect();
 
-        let can_jump_over = jump_over_tiles.clone().count() > 0;
+        let cross_over_tiles: Vec<&Tile> = self
+            .g
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
+            .into_iter()
+            .filter(|t| {
+                println!("co - add tile: {:?}", t.position);
+                active_player.can_cross_over(other_player, &t.position)
+            })
+            .collect();
+
+        let can_jump_over = jump_over_tiles.len() > 0;
         let vert_diagonal_chain = other_player_unoccupied_tiles
             .clone()
-            .filter(|_t| {
-                !can_jump_over && active_player.is_neighbour(other_player)
+            .filter(|t| {
+                !can_jump_over
+                    && active_player.is_neighbour(other_player)
+                    // TODO (dio): purely used to test uniqueness, should use set
+                    && !(cross_over_tiles.contains(&&Tile::new(t.position))
+                        || jump_over_tiles.contains(&&Tile::new(t.position)))
             })
             .filter(|t| {
                 t.position.is_y_aligned(&other_player.position)
                     && (other_player.position.is_left_of(&t.position)
                         || t.position.is_left_of(&other_player.position))
             });
-        // if !can_jump_over {
-        //     println!(
-        //         "can_jo false: need to inspect {:?}",
-        //         other_player_unoccupied_tiles
-        //     );
-        // } else {
-        //     println!("can_jo fine, ignoring diagonal");
-        // }
-        // tiles around the player
+
         active_player_unoccupied_tiles
             .chain(cross_over_tiles.clone())
             .chain(jump_over_tiles.clone())
@@ -176,12 +179,20 @@ impl Game {
 mod test {
     use super::*;
 
-    use crate::core::grid::Grid;
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::player::{NUM_WALLS, StartingPosition};
     use crate::core::position::Position;
     use crate::core::wall::Wall;
+
+    fn setup_new_game() -> Game {
+        let grid = Grid::new();
+        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
+        let p2: Player =
+            Player::new(String::from("b"), StartingPosition::Bottom);
+        Game::new(grid, p1, p2)
+    }
+    const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
 
     #[test]
     fn test_default() {
@@ -338,15 +349,6 @@ mod test {
         ))));
     }
 
-    fn setup_new_game() -> Game {
-        let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
-        Game::new(grid, p1, p2)
-    }
-    const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
-
     #[test]
     fn test_get_player_options() {
         let mut g = setup_new_game();
@@ -493,7 +495,7 @@ mod test {
     }
 
     #[test]
-    fn test_jump_over_player_no_walls_horizontal() {
+    fn test_cross_over_player_no_walls_horizontal() {
         let mut g = setup_new_game();
         g.p1.position = Position::new(4, 5);
         g.p2.position = Position::new(5, 5);
@@ -508,7 +510,7 @@ mod test {
             // right added as extra square
             Position { x: 6, y: 5 },
         ];
-        assert_eq!(want.len(), res.len(), "{:?}", res);
+        assert_eq!(want.len(), res.len(), "res = {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
 
