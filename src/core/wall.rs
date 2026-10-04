@@ -37,3 +37,33 @@ impl Wall {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::orientation::Orientation;
+    use crate::core::placement::Placement;
+    use crate::core::wall::Wall;
+
+    #[test]
+    fn test_not_intersect() {
+        let b1 = Wall::new(Placement::new(0, 1), Orientation::Horizontal);
+        let b2 = Wall::new(Placement::new(0, 1), Orientation::Vertical);
+        let b3 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
+
+        assert!(!b2.intersects(&b3));
+        assert!(!b3.intersects(&b2));
+        assert!(!b1.intersects(&b2));
+        assert!(!b2.intersects(&b1));
+        assert!(!b1.intersects(&b3));
+        assert!(!b3.intersects(&b1));
+    }
+
+    #[test]
+    fn test_intersect() {
+        let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
+        let b2 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
+
+        assert!(b1.intersects(&b2));
+        assert!(b2.intersects(&b1));
+    }
+}
