@@ -18,11 +18,11 @@ impl Position {
         false
     }
 
-    pub fn is_valigned(&self, p: &Position) -> bool {
+    pub fn is_x_aligned(&self, p: &Position) -> bool {
         self.x == p.x
     }
 
-    pub fn is_haligned(&self, p: &Position) -> bool {
+    pub fn is_y_aligned(&self, p: &Position) -> bool {
         self.y == p.y
     }
 
@@ -66,22 +66,22 @@ mod tests {
     pub fn test_are_positions_haligned() {
         let p1 = Position::new(1, 1);
         let p = Position::new(2, 2);
-        assert!(!p1.is_haligned(&p));
+        assert!(!p1.is_y_aligned(&p));
 
         let p1 = Position::new(1, 1);
         let p = Position::new(2, 1);
-        assert!(p1.is_haligned(&p));
+        assert!(p1.is_y_aligned(&p));
     }
 
     #[test]
     pub fn test_are_positions_valigned() {
         let p1 = Position::new(1, 1);
         let p = Position::new(2, 2);
-        assert!(!p1.is_valigned(&p));
+        assert!(!p1.is_x_aligned(&p));
 
         let p1 = Position::new(1, 1);
         let p = Position::new(1, 2);
-        assert!(p1.is_valigned(&p));
+        assert!(p1.is_x_aligned(&p));
     }
 
     #[test]
