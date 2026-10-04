@@ -65,7 +65,16 @@ impl Game {
             .into_iter();
 
         // tiles behind the player
-        let alternative_jumping_tiles = self
+        let jump_over_tiles = self
+            .g
+            .get_unoccupied_reachable_neighbour_tiles(
+                &other_player.position,
+                &active_player.position,
+            )
+            .into_iter()
+            .filter(|t| active_player.can_jump_over(other_player, &t.position));
+
+        let cross_over_tiles = self
             .g
             .get_unoccupied_reachable_neighbour_tiles(
                 &other_player.position,
@@ -73,36 +82,53 @@ impl Game {
             )
             .into_iter()
             .filter(|t| {
-                // test vertical and diagonal
-                let mut diagonal = false;
-                let mut can_jo = false;
-                let mut can_co = false;
-                if active_player.position.is_x_aligned(&t.position) {
-                    can_jo =
-                        active_player.can_jump_over(other_player, &t.position);
-                    if !can_jo {
-                        println!(
-                            "adding diagonal {:?} because !can_jo: {:?} - {:?}",
-                            t.position, active_player, other_player
-                        );
-                        diagonal = (t
-                            .position
-                            .is_left_of(&other_player.position)
-                            || other_player.position.is_left_of(&t.position));
-                    }
-                }
-
-                if active_player.position.is_y_aligned(&t.position) {
-                    can_co =
-                        active_player.can_cross_over(other_player, &t.position);
-                }
-
-                can_jo || can_co || diagonal
+                active_player.can_cross_over(other_player, &t.position)
             });
+        //
+        // let alternative_jumping_tiles = self
+        //     .g
+        //     .get_unoccupied_reachable_neighbour_tiles(
+        //         &other_player.position,
+        //         &active_player.position,
+        //     )
+        //     .into_iter()
+        //     .filter(|t| {
+        //         // test vertical and diagonal
+        //         let mut diagonal = false;
+        //         let mut can_jo = false;
+        //         let mut can_co = false;
+        //         if active_player.position.is_x_aligned(&t.position) {
+        //             can_jo =
+        //                 active_player.can_jump_over(other_player, &t.position);
+        //             if !can_jo {
+        //                 println!(
+        //                     "adding diagonal {:?} because !can_jo: {:?} - {:?}",
+        //                     t.position, active_player, other_player
+        //                 );
+        //                 diagonal = t
+        //                     .position
+        //                     .is_left_of(&other_player.position)
+        //                     || other_player.position.is_left_of(&t.position);
+        //             } else {
+        //                 println!(
+        //                     "ignoring position {:?} because can_jo",
+        //                     t.position
+        //                 );
+        //             }
+        //         }
+        //
+        //         if active_player.position.is_y_aligned(&t.position) {
+        //             can_co =
+        //                 active_player.can_cross_over(other_player, &t.position);
+        //         }
+        //
+        //         can_jo || can_co || diagonal
+        //     });
 
         // tiles around the player
         player_unoccupied_tiles
-            .chain(alternative_jumping_tiles)
+            .chain(cross_over_tiles)
+            .chain(jump_over_tiles)
             .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
