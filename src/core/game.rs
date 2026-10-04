@@ -72,22 +72,26 @@ impl Game {
                 &active_player.position,
             )
             .into_iter()
-            .filter(|t| active_player.is_neighbour(&other_player)) // used to filter only if players are next to each other
+            // .filter(|t| active_player.is_neighbour(&other_player)) // used to filter only if players are next to each other
             .filter(|t| {
                 // test vertical and diagonal
                 let mut diagonal = false;
                 let can_jo =
                     active_player.can_jump_over(other_player, &t.position);
                 if !can_jo {
-                    println!("discarding positions: {:?}", t.position);
                     diagonal = t.position.is_left_of(&other_player.position)
                         || other_player.position.is_left_of(&t.position);
+                } else {
+                    println!(
+                        "ignoring diagonals {:?} because can_jo",
+                        t.position
+                    );
                 }
 
                 let can_co =
                     active_player.can_cross_over(other_player, &t.position);
 
-                can_jo || can_co || diagonal
+                can_jo || can_co
             });
 
         // tiles around the player
@@ -503,11 +507,6 @@ mod test {
         g.p1.position = Position::new(6, 1);
         g.p2.position = Position::new(6, 2);
 
-        // TODO (dio): test this with a t-junction as well
-        // where p2 is in the corner so has no left or right
-        //    ..._____
-        //    ...| p2...
-        //    .....p1....
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(6, 0),
             Orientation::Horizontal,
@@ -522,6 +521,34 @@ mod test {
             Position { x: 7, y: 2 },
             // diagonals added as extra squares
             Position { x: 5, y: 1 },
+            Position { x: 7, y: 1 },
+        ];
+        assert_eq!(want.len(), res.len(), "positions found: {:?}", res);
+        assert_eq!(want, res, "{:?}", res);
+    }
+
+    #[test]
+    fn test_diagonals_with_corner() {
+        // TODO (dio) : test edges/boundaries
+
+        let mut g = setup_new_game();
+        g.p1.position = Position::new(6, 1);
+        g.p2.position = Position::new(6, 2);
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(6, 0),
+            Orientation::Horizontal,
+        ))));
+
+        g.place_wall(Wall::new(Placement::new(1, 5), Orientation::Vertical));
+
+        let res = g.get_player_options();
+
+        // BR of TBLR
+        let want = vec![
+            Position { x: 6, y: 3 },
+            Position { x: 7, y: 2 },
+            // diagonals added as extra squares
             Position { x: 7, y: 1 },
         ];
         assert_eq!(want.len(), res.len(), "positions found: {:?}", res);

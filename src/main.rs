@@ -1,6 +1,7 @@
 mod core;
 mod ui;
 
+use crate::core::position::Position;
 use core::game::{Game, Move, STARTING_PLAYER_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
@@ -28,10 +29,26 @@ async fn main() {
     let pre_computed_grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+
+    // TODO remove player mutability after testing
+    let mut p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let mut p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    // TODO end testing block
+
+    // TODO (dio) = this is for testing
+    p1.position = Position::new(6, 1);
+    p2.position = Position::new(6, 2);
+    // TODO end testing block
 
     let mut game = Game::new(grid, p1, p2);
+
+    // // TODO (dio) = this is for testing
+    // game.process_move(Move::PlaceWall(Wall::new(
+    //     Placement::new(6, 0),
+    //     Orientation::Horizontal,
+    // )));
+    // walls.push(Wall::new(Placement::new(6, 0), Orientation::Horizontal));
+    // // TODO end testing block
 
     loop {
         clear_background(GRAY);
