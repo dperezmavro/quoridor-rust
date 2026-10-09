@@ -355,7 +355,7 @@ mod tests {
         assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_positions(&Position::new(0, 0));
         assert_eq!(1, result.len());
-        assert_eq!(result[0].position, Position::new(1, 0));
+        assert_eq!(result[0], Position::new(1, 0));
 
         // place vertical wall
         let mut g = Grid::new();
@@ -363,7 +363,7 @@ mod tests {
         assert!(g.place_wall(&p1, &p2, b));
         let result = g.get_reachable_neighbour_positions(&Position::new(0, 0));
         assert_eq!(1, result.len());
-        assert_eq!(Position::new(0, 1), result[0].position);
+        assert_eq!(Position::new(0, 1), result[0]);
 
         // place vertical wall mid-grid
         let mut g = Grid::new();
@@ -372,8 +372,8 @@ mod tests {
         let result = g.get_reachable_neighbour_positions(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // // only bottom and right
-        assert_eq!(Position::new(3, 0), result[0].position);
-        assert_eq!(Position::new(5, 0), result[1].position);
+        assert_eq!(Position::new(3, 0), result[0]);
+        assert_eq!(Position::new(5, 0), result[1]);
 
         // place vertical wall mid-grid
         let mut g = Grid::new();
@@ -382,8 +382,8 @@ mod tests {
         let result = g.get_reachable_neighbour_positions(&Position::new(4, 0));
         assert_eq!(2, result.len());
         // only bottom and right
-        assert_eq!(Position::new(4, 1), result[0].position);
-        assert_eq!(Position::new(5, 0), result[1].position);
+        assert_eq!(Position::new(4, 1), result[0]);
+        assert_eq!(Position::new(5, 0), result[1]);
     }
 
     #[test]
@@ -402,7 +402,7 @@ mod tests {
         let result = g.get_reachable_neighbour_positions(&p1.position);
         assert_eq!(1, result.len());
         // only bottom and right
-        assert_eq!(Position::new(4, 1), result[0].position);
+        assert_eq!(Position::new(4, 1), result[0]);
 
         let mut g = Grid::new();
         assert!(g.place_wall(&p1, &p2, b1));
@@ -411,7 +411,7 @@ mod tests {
         assert_eq!(2, result.len());
         assert_eq!(
             vec![Position::new(4, 0), Position::new(4, 2)],
-            result.iter().map(|t| t.position).collect::<Vec<Position>>()
+            result.into_iter().collect::<Vec<Position>>()
         );
     }
 
@@ -420,11 +420,11 @@ mod tests {
         let g = Grid::new();
         let result = g.get_reachable_neighbour_positions(&Position::new(0, 0));
         assert_eq!(2, result.len());
-        assert_eq!(0, result[0].position.x);
-        assert_eq!(1, result[0].position.y);
+        assert_eq!(0, result[0].x);
+        assert_eq!(1, result[0].y);
 
-        assert_eq!(1, result[1].position.x);
-        assert_eq!(0, result[1].position.y);
+        assert_eq!(1, result[1].x);
+        assert_eq!(0, result[1].y);
     }
 
     /********************************************/
