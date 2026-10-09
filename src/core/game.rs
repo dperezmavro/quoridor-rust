@@ -78,7 +78,7 @@ impl Game {
             other_player_unoccupied_positions
                 .clone()
                 .filter(|_| active_player.is_neighbour(other_player))
-                .filter(|p| active_player.can_jump_over(other_player, &p))
+                .filter(|p| active_player.can_jump_over(other_player, p))
                 .collect();
 
         let mut position_set: HashSet<Position> =

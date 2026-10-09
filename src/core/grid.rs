@@ -90,7 +90,7 @@ impl Grid {
         let mut visited: HashSet<Position> = HashSet::new();
         let mut positions_for_exploring: HashSet<Position> = HashSet::new();
 
-        positions_for_exploring.insert(p.position.clone());
+        positions_for_exploring.insert(p.position);
 
         while !positions_for_exploring.is_empty() {
             let curr_pos =
@@ -99,7 +99,7 @@ impl Grid {
                 continue;
             }
 
-            visited.insert(curr_pos.clone());
+            visited.insert(curr_pos);
             let neighbors = self.get_reachable_neighbour_positions(&curr_pos);
 
             for pos in neighbors {
@@ -108,7 +108,7 @@ impl Grid {
                 }
 
                 if !visited.contains(&pos) {
-                    positions_for_exploring.insert(pos.clone());
+                    positions_for_exploring.insert(pos);
                 }
             }
 
