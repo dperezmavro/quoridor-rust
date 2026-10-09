@@ -4,9 +4,3 @@ use crate::core::position::Position;
 pub struct Tile {
     pub position: Position,
 }
-
-impl Tile {
-    pub fn new(position: Position) -> Self {
-        Tile { position }
-    }
-}

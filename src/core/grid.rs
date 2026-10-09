@@ -27,14 +27,18 @@ fn generate_row(y: usize) -> Box<[Tile; NUM_TILES]> {
 
 impl Grid {
     pub fn new() -> Self {
-        let player_1_tile = Tile::new(Position {
-            y: 0,
-            x: NUM_TILES / 2,
-        });
-        let player_2_tile = Tile::new(Position {
-            y: NUM_TILES - 1,
-            x: NUM_TILES / 2,
-        });
+        let player_1_tile = Tile {
+            position: Position {
+                y: 0,
+                x: NUM_TILES / 2,
+            },
+        };
+        let player_2_tile = Tile {
+            position: Position {
+                y: NUM_TILES - 1,
+                x: NUM_TILES / 2,
+            },
+        };
         let mut first_row = generate_row(0);
         first_row[NUM_TILES / 2] = player_1_tile;
         let mut last_row = generate_row(NUM_TILES - 1);
