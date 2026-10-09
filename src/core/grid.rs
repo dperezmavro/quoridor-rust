@@ -105,7 +105,6 @@ impl Grid {
         let mut available_positions: Vec<Position> = Vec::new();
 
         if self.positions_north(p) {
-            // available_positions.push(&self.player_tiles[p.y - 1][p.x]);
             available_positions.push(Position::new(p.x, p.y - 1));
         }
 
