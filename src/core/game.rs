@@ -71,13 +71,13 @@ impl Game {
                 &other_player.position,
                 &active_player.position,
             )
+            .filter(|_| active_player.is_neighbour(other_player))
             .into_iter();
 
         // tiles behind the player
         let jump_over_positions: Vec<Position> =
             other_player_unoccupied_positions
                 .clone()
-                .filter(|_| active_player.is_neighbour(other_player))
                 .filter(|p| active_player.can_jump_over(other_player, &p))
                 .collect();
 
@@ -87,7 +87,6 @@ impl Game {
         let cross_over_position: Vec<Position> =
             other_player_unoccupied_positions
                 .clone()
-                .filter(|_| active_player.is_neighbour(other_player))
                 .filter(|p| active_player.can_cross_over(other_player, p))
                 .collect();
 
@@ -96,7 +95,6 @@ impl Game {
         let can_jump_over = !jump_over_positions.is_empty();
         let vert_diagonal_chain = other_player_unoccupied_positions
             .clone()
-            .filter(|_| active_player.is_neighbour(other_player))
             .filter(|_| !can_jump_over)
             .filter(|p| !position_set.contains(p))
             .filter(|p| {
