@@ -1,7 +1,6 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
 use crate::core::position::Position;
-use crate::core::tile::Tile;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
 
@@ -58,80 +57,71 @@ impl Game {
         let (active_player, other_player) = self.get_players();
 
         // unoccupied tiles
-        let active_player_unoccupied_tiles = self
+        let active_player_unoccupied_positions = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &active_player.position,
                 &other_player.position,
             )
             .into_iter();
 
-        let other_player_unoccupied_tiles = self
+        let other_player_unoccupied_positions = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &other_player.position,
                 &active_player.position,
             )
             .into_iter();
 
         // tiles behind the player
-        let jump_over_tiles: Vec<&Tile> = self
-            .g
-            .get_unoccupied_reachable_neighbour_tiles(
-                &other_player.position,
-                &active_player.position,
-            )
-            .into_iter()
-            .filter(|_t| active_player.is_neighbour(other_player))
-            .filter(|t| active_player.can_jump_over(other_player, &t.position))
-            .collect();
+        let jump_over_positions: Vec<Position> =
+            other_player_unoccupied_positions
+                .clone()
+                .filter(|_| active_player.is_neighbour(other_player))
+                .filter(|p| active_player.can_jump_over(other_player, p))
+                .collect();
 
-        let mut tile_set: HashSet<&Tile> =
-            HashSet::from_iter(jump_over_tiles.clone());
+        let mut position_set: HashSet<Position> =
+            HashSet::from_iter(jump_over_positions.clone());
 
-        let cross_over_tiles: Vec<&Tile> = self
-            .g
-            .get_unoccupied_reachable_neighbour_tiles(
-                &other_player.position,
-                &active_player.position,
-            )
-            .into_iter()
-            .filter(|_t| active_player.is_neighbour(other_player))
-            .filter(|t| active_player.can_cross_over(other_player, &t.position))
-            .collect();
+        let cross_over_position: Vec<Position> =
+            other_player_unoccupied_positions
+                .clone()
+                .filter(|_| active_player.is_neighbour(other_player))
+                .filter(|p| active_player.can_cross_over(other_player, p))
+                .collect();
 
-        tile_set.extend(cross_over_tiles.clone());
+        position_set.extend(cross_over_position.clone());
 
-        let can_jump_over = !jump_over_tiles.is_empty();
-        let vert_diagonal_chain = other_player_unoccupied_tiles
+        let can_jump_over = !jump_over_positions.is_empty();
+        let vert_diagonal_chain = other_player_unoccupied_positions
             .clone()
-            .filter(|_t| active_player.is_neighbour(other_player))
-            .filter(|_t| !can_jump_over)
-            .filter(|t| !tile_set.contains(&&Tile::new(t.position)))
-            .filter(|t| {
-                t.position.is_y_aligned(&other_player.position)
-                    && (other_player.position.is_left_of(&t.position)
-                        || t.position.is_left_of(&other_player.position))
+            .filter(|_| active_player.is_neighbour(other_player))
+            .filter(|_| !can_jump_over)
+            .filter(|p| !position_set.contains(p))
+            .filter(|p| {
+                p.is_y_aligned(&other_player.position)
+                    && (other_player.position.is_left_of(p)
+                        || p.is_left_of(&other_player.position))
             });
 
-        let can_cross_over = !cross_over_tiles.is_empty();
-        let horiz_diagonal_chain = other_player_unoccupied_tiles
+        let can_cross_over = !cross_over_position.is_empty();
+        let horiz_diagonal_chain = other_player_unoccupied_positions
             .clone()
-            .filter(|_t| active_player.is_neighbour(other_player))
-            .filter(|_t| !can_cross_over)
-            .filter(|t| !tile_set.contains(&&Tile::new(t.position)))
-            .filter(|t| {
-                t.position.is_x_aligned(&other_player.position)
-                    && (other_player.position.is_above(&t.position)
-                        || t.position.is_above(&other_player.position))
+            .filter(|_| active_player.is_neighbour(other_player))
+            .filter(|_| !can_cross_over)
+            .filter(|p| !position_set.contains(p))
+            .filter(|p| {
+                p.is_x_aligned(&other_player.position)
+                    && (other_player.position.is_above(p)
+                        || p.is_above(&other_player.position))
             });
 
-        active_player_unoccupied_tiles
-            .chain(cross_over_tiles.clone())
-            .chain(jump_over_tiles.clone())
+        active_player_unoccupied_positions
+            .chain(cross_over_position)
+            .chain(jump_over_positions)
             .chain(vert_diagonal_chain)
             .chain(horiz_diagonal_chain)
-            .map(|t| Position::new(t.position.x, t.position.y))
             .collect()
     }
 

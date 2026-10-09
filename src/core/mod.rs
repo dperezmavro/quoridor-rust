@@ -9,6 +9,5 @@ pub mod orientation;
 pub mod placement;
 pub mod player;
 pub mod position;
-mod tile;
 /// A wall, used to stop players from advancing position.
 pub mod wall;
