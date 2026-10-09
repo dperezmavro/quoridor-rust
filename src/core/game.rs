@@ -74,30 +74,22 @@ impl Game {
             .into_iter();
 
         // tiles behind the player
-        let jump_over_positions: Vec<Position> = self
-            .g
-            .get_unoccupied_reachable_neighbour_positions(
-                &other_player.position,
-                &active_player.position,
-            )
-            .into_iter()
-            .filter(|_| active_player.is_neighbour(other_player))
-            .filter(|p| active_player.can_jump_over(other_player, &p))
-            .collect();
+        let jump_over_positions: Vec<Position> =
+            other_player_unoccupied_positions
+                .clone()
+                .filter(|_| active_player.is_neighbour(other_player))
+                .filter(|p| active_player.can_jump_over(other_player, &p))
+                .collect();
 
         let mut position_set: HashSet<Position> =
             HashSet::from_iter(jump_over_positions.clone());
 
-        let cross_over_position: Vec<Position> = self
-            .g
-            .get_unoccupied_reachable_neighbour_positions(
-                &other_player.position,
-                &active_player.position,
-            )
-            .into_iter()
-            .filter(|_| active_player.is_neighbour(other_player))
-            .filter(|p| active_player.can_cross_over(other_player, p))
-            .collect();
+        let cross_over_position: Vec<Position> =
+            other_player_unoccupied_positions
+                .clone()
+                .filter(|_| active_player.is_neighbour(other_player))
+                .filter(|p| active_player.can_cross_over(other_player, p))
+                .collect();
 
         position_set.extend(cross_over_position.clone());
 
