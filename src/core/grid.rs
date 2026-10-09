@@ -12,30 +12,8 @@ pub struct Grid {
     vertical_walls: Vec<Wall>,
 }
 
-fn generate_row(y: usize) -> Box<[Position; NUM_TILES]> {
-    let mut res = Box::new([Position::default(); NUM_TILES]);
-    for i in 0..NUM_TILES {
-        res[i] = Position { x: i, y };
-    }
-
-    res
-}
-
 impl Grid {
     pub fn new() -> Self {
-        let player_1_pos = Position {
-            y: 0,
-            x: NUM_TILES / 2,
-        };
-        let player_2_pos = Position {
-            y: NUM_TILES - 1,
-            x: NUM_TILES / 2,
-        };
-        let mut first_row = generate_row(0);
-        first_row[NUM_TILES / 2] = player_1_pos;
-        let mut last_row = generate_row(NUM_TILES - 1);
-        last_row[NUM_TILES / 2] = player_2_pos;
-
         Self {
             horizontal_walls: Vec::with_capacity(NUM_WALLS),
             vertical_walls: Vec::with_capacity(NUM_WALLS),
