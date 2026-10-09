@@ -57,7 +57,7 @@ impl Grid {
         }
     }
 
-    pub fn get_unoccupied_reachable_neighbour_tiles(
+    pub fn get_unoccupied_reachable_neighbour_positions(
         &self,
         p1_position: &Position,
         p2_position: &Position,
@@ -68,7 +68,7 @@ impl Grid {
             .collect()
     }
 
-    fn tiles_north(&self, pos: &Position) -> bool {
+    fn positions_north(&self, pos: &Position) -> bool {
         pos.y > 0
             && self
                 .horizontal_walls
@@ -76,7 +76,7 @@ impl Grid {
                 .all(|w| !w.covers_placement(pos.y - 1, pos.x))
     }
 
-    fn tiles_south(&self, pos: &Position) -> bool {
+    fn positions_south(&self, pos: &Position) -> bool {
         pos.y < NUM_TILES - 1
             && self
                 .horizontal_walls
@@ -104,12 +104,12 @@ impl Grid {
     fn get_reachable_neighbour_positions(&self, p: &Position) -> Vec<Position> {
         let mut available_positions: Vec<Position> = Vec::new();
 
-        if self.tiles_north(p) {
+        if self.positions_north(p) {
             // available_positions.push(&self.player_tiles[p.y - 1][p.x]);
             available_positions.push(Position::new(p.x, p.y - 1));
         }
 
-        if self.tiles_south(p) {
+        if self.positions_south(p) {
             available_positions.push(Position::new(p.x, p.y + 1));
         }
 
@@ -125,19 +125,19 @@ impl Grid {
     }
 
     pub fn can_player_reach_goal(&self, p: &Player) -> bool {
-        let mut visited: HashSet<&Position> = HashSet::new();
-        let mut positions_for_exploring: HashSet<&Position> = HashSet::new();
+        let mut visited: HashSet<Position> = HashSet::new();
+        let mut positions_for_exploring: HashSet<Position> = HashSet::new();
 
-        positions_for_exploring.insert(&p.position);
+        positions_for_exploring.insert(p.position.clone());
 
         while !positions_for_exploring.is_empty() {
             let curr_pos =
                 positions_for_exploring.iter().cloned().next().unwrap();
-            if visited.contains(curr_pos) {
+            if visited.contains(&curr_pos) {
                 continue;
             }
 
-            visited.insert(curr_pos);
+            visited.insert(curr_pos.clone());
             let neighbors = self.get_reachable_neighbour_positions(&curr_pos);
 
             for pos in neighbors {
@@ -146,11 +146,11 @@ impl Grid {
                 }
 
                 if !visited.contains(&pos) {
-                    positions_for_exploring.insert(&pos);
+                    positions_for_exploring.insert(pos.clone());
                 }
             }
 
-            positions_for_exploring.remove(curr_pos);
+            positions_for_exploring.remove(&curr_pos);
         }
 
         false

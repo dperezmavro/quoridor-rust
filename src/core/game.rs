@@ -59,7 +59,7 @@ impl Game {
         // unoccupied tiles
         let active_player_unoccupied_positions = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &active_player.position,
                 &other_player.position,
             )
@@ -67,7 +67,7 @@ impl Game {
 
         let other_player_unoccupied_positions = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &other_player.position,
                 &active_player.position,
             )
@@ -76,7 +76,7 @@ impl Game {
         // tiles behind the player
         let jump_over_positions: Vec<Position> = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &other_player.position,
                 &active_player.position,
             )
@@ -90,7 +90,7 @@ impl Game {
 
         let cross_over_position: Vec<Position> = self
             .g
-            .get_unoccupied_reachable_neighbour_tiles(
+            .get_unoccupied_reachable_neighbour_positions(
                 &other_player.position,
                 &active_player.position,
             )
