@@ -8,7 +8,6 @@ pub const NUM_TILES: usize = 9;
 
 #[derive(Debug)]
 pub struct Grid {
-    pub player_tiles: Box<[Box<[Position; NUM_TILES]>; NUM_TILES]>,
     horizontal_walls: Vec<Wall>,
     vertical_walls: Vec<Wall>,
 }
@@ -37,21 +36,7 @@ impl Grid {
         let mut last_row = generate_row(NUM_TILES - 1);
         last_row[NUM_TILES / 2] = player_2_pos;
 
-        let player_tiles: Box<[Box<[Position; NUM_TILES]>; NUM_TILES]> =
-            Box::new([
-                first_row,
-                generate_row(1),
-                generate_row(2),
-                generate_row(3),
-                generate_row(4),
-                generate_row(5),
-                generate_row(6),
-                generate_row(7),
-                last_row,
-            ]);
-
         Self {
-            player_tiles,
             horizontal_walls: Vec::with_capacity(NUM_WALLS),
             vertical_walls: Vec::with_capacity(NUM_WALLS),
         }
@@ -84,7 +69,7 @@ impl Grid {
                 .all(|w| !w.covers_placement(pos.y, pos.x))
     }
 
-    fn tiles_west(&self, pos: &Position) -> bool {
+    fn positions_west(&self, pos: &Position) -> bool {
         pos.x > 0
             && self
                 .vertical_walls
@@ -92,7 +77,7 @@ impl Grid {
                 .all(|w| !w.covers_placement(pos.x - 1, pos.y))
     }
 
-    fn tiles_east(&self, pos: &Position) -> bool {
+    fn positions_east(&self, pos: &Position) -> bool {
         pos.x < NUM_TILES - 1
             && self
                 .vertical_walls
@@ -112,11 +97,11 @@ impl Grid {
             available_positions.push(Position::new(p.x, p.y + 1));
         }
 
-        if self.tiles_west(p) {
+        if self.positions_west(p) {
             available_positions.push(Position::new(p.x - 1, p.y));
         }
 
-        if self.tiles_east(p) {
+        if self.positions_east(p) {
             available_positions.push(Position::new(p.x + 1, p.y));
         }
 
