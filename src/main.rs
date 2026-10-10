@@ -17,6 +17,10 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    game_loop().await;
+}
+
+async fn game_loop() {
     let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
 
     // this currently holds wall + user information
