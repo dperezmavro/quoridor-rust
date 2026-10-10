@@ -25,12 +25,24 @@ impl PlayerTurn {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum GameState {
+    GameOngoing,
+    GameFinished,
+}
+
+impl GameState {
+}
+
 #[derive(Debug)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
     player_turn: PlayerTurn,
+    pub state: GameState,
+    pub p1_score: usize,
+    pub p2_score: usize,
 }
 
 #[derive(Debug)]
@@ -45,6 +57,9 @@ impl Game {
             p1,
             p2,
             player_turn: PlayerTurn::Player1,
+            state: GameState::GameOngoing,
+            p1_score: 0,
+            p2_score: 0,
         }
     }
 
@@ -170,6 +185,9 @@ impl Game {
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
+        if self.state == GameState::GameFinished {
+            return false;
+        }
         let curr_player: &mut Player =
             if self.player_turn == PlayerTurn::Player1 {
                 &mut self.p1
