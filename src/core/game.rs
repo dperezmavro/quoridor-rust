@@ -7,12 +7,30 @@ use std::collections::HashSet;
 /// Which player goes first
 pub const STARTING_PLAYER_ID: u8 = 0;
 
+pub const PLAYER_1_ID: u8 = 0;
+pub const PLAYER_2_ID: u8 = 1;
+
+#[derive(Debug, PartialEq)]
+enum PlayerTurn {
+    Player1,
+    Player2,
+}
+
+impl PlayerTurn {
+    pub fn get_id(&self) -> u8 {
+        match &self {
+            PlayerTurn::Player1 => PLAYER_1_ID,
+            PlayerTurn::Player2 => PLAYER_2_ID,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
     pub g: Grid,
-    player_turn: u8,
+    player_turn: PlayerTurn,
 }
 
 #[derive(Debug)]
@@ -20,14 +38,13 @@ pub enum Move {
     PlaceWall(Wall),
     PlayerAdvance(Position),
 }
-
 impl Game {
     pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
         Self {
             g,
             p1,
             p2,
-            player_turn: STARTING_PLAYER_ID,
+            player_turn: PlayerTurn::Player1,
         }
     }
 
@@ -134,11 +151,18 @@ impl Game {
     }
 
     pub fn get_player_turn(&self) -> u8 {
-        self.player_turn
+        self.player_turn.get_id()
     }
 
     pub fn next_player(&mut self) {
-        self.player_turn ^= 1;
+        match self.player_turn {
+            PlayerTurn::Player1 => {
+                self.player_turn = PlayerTurn::Player2;
+            }
+            PlayerTurn::Player2 => {
+                self.player_turn = PlayerTurn::Player1;
+            }
+        }
     }
 
     pub fn player_wall_counts(&self) -> (usize, usize) {
@@ -146,7 +170,7 @@ impl Game {
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
-        let curr_player: &mut Player = if self.player_turn == 0 {
+        let curr_player: &mut Player = if self.player_turn == PlayerTurn::Player1 {
             &mut self.p1
         } else {
             &mut self.p2
@@ -178,6 +202,7 @@ impl Game {
 
 #[cfg(test)]
 mod test {
+    use crate::core::game::PlayerTurn::{Player1, Player2};
     use super::*;
 
     use crate::core::orientation::Orientation;
@@ -270,21 +295,22 @@ mod test {
     fn test_player_index_changed() {
         let mut g = setup_new_game();
 
-        assert_eq!(STARTING_PLAYER_ID, g.player_turn);
+        assert_eq!(Player1, g.player_turn);
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(1, g.player_turn);
+        assert_eq!(Player2, g.player_turn);
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(STARTING_PLAYER_ID, g.player_turn);
+        assert_eq!(Player1, g.player_turn);
+
     }
 
     #[test]
