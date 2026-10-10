@@ -118,3 +118,36 @@ where
         ui.next_frame().await
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    struct MockUi {}
+
+    impl UIHandler for MockUi {
+        async fn new() -> Self {
+            Self {}
+        }
+
+        fn draw_game_base(&self, _remaining_walls: (usize, usize)) {}
+
+        fn mouse_position(&self) -> (f32, f32) {
+            (0.0, 0.0)
+        }
+
+        fn is_mouse_button_pressed(&self) -> bool {
+            false
+        }
+
+        async fn next_frame(&self) {}
+    }
+
+    use super::*;
+    use tokio;
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn test_game_loop() {
+        let mut g = new_game();
+        let mui = MockUi::new().await;
+        game_loop(&mut g, mui);
+    }
+}
