@@ -19,15 +19,11 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let grid = grid::Grid::new();
-
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
     let mut p1_score: usize = 0;
     let mut p2_score: usize = 0;
 
-    let mut game = Game::new(grid, p1.clone(), p2.clone());
     loop {
+        let mut game = new_game();
         game_loop(&mut game).await;
         let winner_id = game.get_player_turn();
         if winner_id == PLAYER_1_ID {
@@ -39,9 +35,16 @@ async fn main() {
         println!(
             "Player {winner_id} wins this round! Scores: P1 {p1_score}, P2 {p2_score}"
         );
-        let grid = grid::Grid::new();
-        game = Game::new(grid, p1.clone(), p2.clone());
+        game = new_game();
     }
+}
+
+fn new_game() -> Game {
+    let grid = grid::Grid::new();
+
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    Game::new(grid, p1, p2)
 }
 
 async fn game_loop(game: &mut Game) {
@@ -116,19 +119,11 @@ async fn game_loop(game: &mut Game) {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::game::Game;
-    use crate::core::grid;
-    use crate::core::player::{Player, StartingPosition};
-    use crate::game_loop;
+    use crate::new_game;
 
     #[test]
     fn test_game_loop() {
-        let grid = grid::Grid::new();
-
-        let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-        let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-
-        let mut game = Game::new(grid, p1, p2);
+        let _game = new_game();
 
         //     game_loop(&mut game).await;
     }
