@@ -1,7 +1,7 @@
 mod core;
 mod ui;
 
-use core::game::{Game, Move, STARTING_PLAYER_ID};
+use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
 use macroquad::prelude::*;
@@ -11,7 +11,6 @@ use ui::utils::{
     get_mouse_pointer_state, get_window_conf, highlight_player_options,
     pre_computed_grid_lines,
 };
-
 fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
 }
@@ -25,7 +24,7 @@ async fn main() {
     let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
 
     // minor optimisation
-    let pre_computed_grid_lines = pre_computed_grid_lines();
+    let grid_lines = pre_computed_grid_lines();
 
     let grid = grid::Grid::new();
 
@@ -38,7 +37,7 @@ async fn main() {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
-        draw_game_grid_base(&pre_computed_grid_lines);
+        draw_game_grid_base(&grid_lines);
 
         draw_game_stats(Some(&font), game.player_wall_counts());
 
@@ -48,8 +47,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(&game.p1, game.get_player_turn() == STARTING_PLAYER_ID);
-        draw_player(&game.p2, game.get_player_turn() != STARTING_PLAYER_ID);
+        draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
+        draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
 
         let res = get_mouse_pointer_state(mouse_position());
         let turn = game.get_player_turn();

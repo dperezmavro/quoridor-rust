@@ -4,10 +4,9 @@ use crate::core::position::Position;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
 
-/// Which player goes first
-pub const STARTING_PLAYER_ID: u8 = 0;
-
+/// ID for player 1
 pub const PLAYER_1_ID: u8 = 0;
+/// ID for player 2
 pub const PLAYER_2_ID: u8 = 1;
 
 #[derive(Debug, PartialEq)]
@@ -86,7 +85,7 @@ impl Game {
     }
 
     fn get_players(&self) -> (&Player, &Player) {
-        if self.get_player_turn() == STARTING_PLAYER_ID {
+        if self.get_player_turn() == PLAYER_1_ID {
             return (&self.p1, &self.p2);
         }
 
