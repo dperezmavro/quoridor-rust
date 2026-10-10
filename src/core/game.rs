@@ -31,8 +31,7 @@ pub enum GameState {
     GameFinished,
 }
 
-impl GameState {
-}
+impl GameState {}
 
 #[derive(Debug)]
 pub struct Game {
@@ -68,13 +67,22 @@ impl Game {
     }
 
     pub fn move_player(&mut self, pos: Position) {
-        let player: &mut Player = if self.get_player_turn() == 0 {
+        let player: &mut Player = if self.get_player_turn() == PLAYER_1_ID {
             &mut self.p1
         } else {
             &mut self.p2
         };
 
         player.position = pos;
+
+        if player.position.y == player.goal_row() {
+            self.state = GameState::GameFinished;
+            if self.get_player_turn() == crate::core::game::PLAYER_1_ID {
+                self.p1_score += 1;
+            } else {
+                self.p2_score += 1;
+            }
+        }
     }
 
     fn get_players(&self) -> (&Player, &Player) {
@@ -188,6 +196,7 @@ impl Game {
         if self.state == GameState::GameFinished {
             return false;
         }
+
         let curr_player: &mut Player =
             if self.player_turn == PlayerTurn::Player1 {
                 &mut self.p1
