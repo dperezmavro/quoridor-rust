@@ -700,4 +700,47 @@ mod test {
         let res = g.get_player_options();
         assert!(!res.contains(&Position::new(4, 7)), "{:?}", res);
     }
+
+    #[test]
+    fn test_game_finishes() {
+        let mut g = setup_new_game();
+
+        assert!(g.process_move(Move::PlayerAdvance(Position {
+            x: g.p1.position.x + 1,
+            ..g.p1.position
+        })),);
+
+        assert!(g.process_move(Move::PlayerAdvance(Position {
+            x: g.p2.position.x - 1,
+            ..g.p2.position
+        })),);
+
+        for i in 0..=6 {
+            assert!(
+                g.process_move(Move::PlayerAdvance(Position {
+                    y: g.p1.position.y + 1,
+                    ..g.p1.position
+                })),
+                "i: {i}"
+            );
+
+            assert!(
+                g.process_move(Move::PlayerAdvance(Position {
+                    y: g.p2.position.y - 1,
+                    ..g.p2.position
+                })),
+                "i: {i}"
+            );
+        }
+
+        assert!(g.process_move(Move::PlayerAdvance(Position {
+            y: g.p1.position.y + 1,
+            ..g.p1.position
+        })));
+
+        assert!(!g.process_move(Move::PlayerAdvance(Position {
+            y: g.p2.position.y - 1,
+            ..g.p2.position
+        })));
+    }
 }
