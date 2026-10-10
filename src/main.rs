@@ -2,15 +2,15 @@ mod core;
 mod ui;
 
 use crate::core::game::GameState;
+use crate::ui::utils::Ui;
 use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
-use macroquad::prelude::*;
+use macroquad::prelude::Conf;
 use ui::utils::{
-    MouseState, draw_game_grid_base, draw_game_stats, draw_move_preview,
-    draw_placed_wall, draw_player, draw_wall_placement_preview,
-    get_mouse_pointer_state, get_window_conf, highlight_player_options,
-    pre_computed_grid_lines,
+    MouseState, draw_move_preview, draw_placed_wall, draw_player,
+    draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
+    highlight_player_options,
 };
 
 fn window_conf() -> Conf {
@@ -24,7 +24,8 @@ async fn main() {
 
     loop {
         let mut game = new_game();
-        game_loop(&mut game).await;
+        let ui: Ui = Ui::new().await;
+        game_loop(&mut game, &ui).await;
         let winner_id = game.get_player_turn();
         if winner_id == PLAYER_1_ID {
             p1_score += 1;
@@ -47,23 +48,13 @@ fn new_game() -> Game {
     Game::new(grid, p1, p2)
 }
 
-async fn game_loop(game: &mut Game) {
-    let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
-
+async fn game_loop(game: &mut Game, ui: &Ui) {
     // this currently holds wall + user information
     // could wall be refactored to use this?
     let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
 
-    // minor optimisation
-    let grid_lines = pre_computed_grid_lines();
-
     loop {
-        clear_background(GRAY);
-
-        // draws borders, grid, padding and
-        draw_game_grid_base(&grid_lines);
-
-        draw_game_stats(Some(&font), game.player_wall_counts());
+        ui.draw_game_base(game.player_wall_counts());
 
         // draw walls that have already been placed
         for b in &walls {
@@ -74,7 +65,7 @@ async fn game_loop(game: &mut Game) {
         draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
         draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
 
-        let res = get_mouse_pointer_state(mouse_position());
+        let res = get_mouse_pointer_state(ui.mouse_position());
         let turn = game.get_player_turn();
         match &res {
             // hovering above a wall position
@@ -84,9 +75,7 @@ async fn game_loop(game: &mut Game) {
                     draw_wall_placement_preview(*b, turn);
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left)
-                    && game.can_add_wall(*b)
-                {
+                if ui.is_mouse_button_pressed() && game.can_add_wall(*b) {
                     game.process_move(Move::PlaceWall(*b));
                     walls.push(*b);
                 }
@@ -101,7 +90,7 @@ async fn game_loop(game: &mut Game) {
                     draw_move_preview(pos);
                 }
 
-                if is_mouse_button_pressed(MouseButton::Left) {
+                if ui.is_mouse_button_pressed() {
                     game.process_move(Move::PlayerAdvance(*pos));
                 }
             }
@@ -113,18 +102,6 @@ async fn game_loop(game: &mut Game) {
             return;
         }
 
-        next_frame().await
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::new_game;
-
-    #[test]
-    fn test_game_loop() {
-        let _game = new_game();
-
-        //     game_loop(&mut game).await;
+        ui.next_frame().await
     }
 }

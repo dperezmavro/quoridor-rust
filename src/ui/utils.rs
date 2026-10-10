@@ -106,7 +106,7 @@ pub fn get_window_conf(title: String) -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
-pub fn pre_computed_grid_lines() -> Vec<Rect> {
+fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .flat_map(|x| {
             let base_offset: f32 =
@@ -139,7 +139,7 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
+pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -149,7 +149,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
     );
 
     let h1_params = TextParams {
-        font: f,
+        font,
         font_size: FONT_SIZE_H1,
         color: BLACK,
         ..Default::default()
@@ -163,7 +163,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         let h1_string = h;
         let h1_text_centre = get_text_center(
             h1_string.clone(),
-            f,
+            font,
             h1_params.font_size,
             1.0,
             0.0,
@@ -204,7 +204,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         }
         let h3_string_text_centre = get_text_center(
             h3_string.clone(),
-            f,
+            font,
             h3_params.font_size,
             1.0,
             0.0,
@@ -220,6 +220,42 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         next_line_offset +=
             2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
     });
+}
+
+pub struct Ui {
+    font: Font,
+    grid_lines: Vec<Rect>,
+}
+
+impl Ui {
+    pub async fn new() -> Self {
+        let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
+        Ui {
+            font,
+            grid_lines: pre_computed_grid_lines(),
+        }
+    }
+
+    pub fn draw_game_base(&self, player_wall_counts: (usize, usize)) {
+        clear_background(GRAY);
+
+        // draws borders, grid, padding and
+        draw_game_grid_base(&self.grid_lines);
+
+        draw_game_stats(Some(&self.font), player_wall_counts);
+    }
+
+    pub fn mouse_position(&self) -> (f32, f32) {
+        macroquad::input::mouse_position()
+    }
+
+    pub fn is_mouse_button_pressed(&self) -> bool {
+        macroquad::input::is_mouse_button_pressed(MouseButton::Left)
+    }
+
+    pub async fn next_frame(&self) {
+        next_frame().await
+    }
 }
 
 /// Draws the grid
