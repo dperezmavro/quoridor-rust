@@ -39,8 +39,6 @@ pub struct Game {
     pub g: Grid,
     player_turn: PlayerTurn,
     pub state: GameState,
-    pub p1_score: usize,
-    pub p2_score: usize,
 }
 
 #[derive(Debug)]
@@ -56,8 +54,6 @@ impl Game {
             p2,
             player_turn: PlayerTurn::Player1,
             state: GameState::GameOngoing,
-            p1_score: 0,
-            p2_score: 0,
         }
     }
 
@@ -76,11 +72,6 @@ impl Game {
 
         if player.position.y == player.goal_row() {
             self.state = GameState::GameFinished;
-            if self.get_player_turn() == crate::core::game::PLAYER_1_ID {
-                self.p1_score += 1;
-            } else {
-                self.p2_score += 1;
-            }
         }
     }
 

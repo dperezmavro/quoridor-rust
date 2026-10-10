@@ -1,6 +1,7 @@
 mod core;
 mod ui;
 
+use crate::core::game::GameState;
 use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
@@ -11,6 +12,7 @@ use ui::utils::{
     get_mouse_pointer_state, get_window_conf, highlight_player_options,
     pre_computed_grid_lines,
 };
+
 fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
 }
@@ -21,9 +23,21 @@ async fn main() {
 
     let p1 = Player::new(String::from("p1"), StartingPosition::Top);
     let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    let mut p1_score: usize = 0;
+    let mut p2_score: usize = 0;
 
-    let game = &mut Game::new(grid, p1, p2);
-    game_loop(game).await;
+    let mut game = Game::new(grid, p1.clone(), p2.clone());
+    loop {
+        game_loop(&mut game).await;
+        let winner = game.get_player_turn();
+        if winner == PLAYER_1_ID {
+            p1_score += 1;
+        } else {
+            p2_score += 1;
+        }
+        let grid = grid::Grid::new();
+        game = Game::new(grid, p1.clone(), p2.clone());
+    }
 }
 
 async fn game_loop(game: &mut Game) {
@@ -88,6 +102,30 @@ async fn game_loop(game: &mut Game) {
             _ => {}
         }
 
+        if game.state == GameState::GameFinished {
+            return;
+        }
+
         next_frame().await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::game::Game;
+    use crate::core::grid;
+    use crate::core::player::{Player, StartingPosition};
+    use crate::game_loop;
+
+    #[test]
+    fn test_game_loop() {
+        let grid = grid::Grid::new();
+
+        let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+        let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+
+        let mut game = Game::new(grid, p1, p2);
+
+        //     game_loop(&mut game).await;
     }
 }
