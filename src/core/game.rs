@@ -170,11 +170,12 @@ impl Game {
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
-        let curr_player: &mut Player = if self.player_turn == PlayerTurn::Player1 {
-            &mut self.p1
-        } else {
-            &mut self.p2
-        };
+        let curr_player: &mut Player =
+            if self.player_turn == PlayerTurn::Player1 {
+                &mut self.p1
+            } else {
+                &mut self.p2
+            };
 
         match m {
             Move::PlaceWall(wall) => {
@@ -202,8 +203,8 @@ impl Game {
 
 #[cfg(test)]
 mod test {
-    use crate::core::game::PlayerTurn::{Player1, Player2};
     use super::*;
+    use crate::core::game::PlayerTurn::{Player1, Player2};
 
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
@@ -310,7 +311,6 @@ mod test {
         ))));
 
         assert_eq!(Player1, g.player_turn);
-
     }
 
     #[test]
