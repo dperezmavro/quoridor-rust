@@ -1,7 +1,8 @@
 mod core;
 mod ui;
 
-use core::game::{Game, Move, STARTING_PLAYER_ID};
+use crate::core::game::GameState;
+use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
 use macroquad::prelude::*;
@@ -18,6 +19,35 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let mut p1_score: usize = 0;
+    let mut p2_score: usize = 0;
+
+    loop {
+        let mut game = new_game();
+        game_loop(&mut game).await;
+        let winner_id = game.get_player_turn();
+        if winner_id == PLAYER_1_ID {
+            p1_score += 1;
+        } else {
+            p2_score += 1;
+        }
+
+        println!(
+            "Player {winner_id} wins this round! Scores: P1 {p1_score}, P2 {p2_score}"
+        );
+        game = new_game();
+    }
+}
+
+fn new_game() -> Game {
+    let grid = grid::Grid::new();
+
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    Game::new(grid, p1, p2)
+}
+
+async fn game_loop(game: &mut Game) {
     let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
 
     // this currently holds wall + user information
@@ -25,20 +55,13 @@ async fn main() {
     let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
 
     // minor optimisation
-    let pre_computed_grid_lines = pre_computed_grid_lines();
-
-    let grid = grid::Grid::new();
-
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-
-    let mut game = Game::new(grid, p1, p2);
+    let grid_lines = pre_computed_grid_lines();
 
     loop {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
-        draw_game_grid_base(&pre_computed_grid_lines);
+        draw_game_grid_base(&grid_lines);
 
         draw_game_stats(Some(&font), game.player_wall_counts());
 
@@ -48,8 +71,8 @@ async fn main() {
         }
 
         // draw players
-        draw_player(&game.p1, game.get_player_turn() == STARTING_PLAYER_ID);
-        draw_player(&game.p2, game.get_player_turn() != STARTING_PLAYER_ID);
+        draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
+        draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
 
         let res = get_mouse_pointer_state(mouse_position());
         let turn = game.get_player_turn();
@@ -69,10 +92,10 @@ async fn main() {
                 }
             }
             MouseState::RowCol(pos) => {
-                let pleyer_options = game.get_player_options();
-                highlight_player_options(turn, &pleyer_options);
+                let player_options = game.get_player_options();
+                highlight_player_options(turn, &player_options);
 
-                if pleyer_options.contains(pos)
+                if player_options.contains(pos)
                     && !game.is_position_occupied_by_player(pos)
                 {
                     draw_move_preview(pos);
@@ -86,6 +109,22 @@ async fn main() {
             _ => {}
         }
 
+        if game.state == GameState::GameFinished {
+            return;
+        }
+
         next_frame().await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::new_game;
+
+    #[test]
+    fn test_game_loop() {
+        let _game = new_game();
+
+        //     game_loop(&mut game).await;
     }
 }
