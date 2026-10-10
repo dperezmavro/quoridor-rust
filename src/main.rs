@@ -29,12 +29,16 @@ async fn main() {
     let mut game = Game::new(grid, p1.clone(), p2.clone());
     loop {
         game_loop(&mut game).await;
-        let winner = game.get_player_turn();
-        if winner == PLAYER_1_ID {
+        let winner_id = game.get_player_turn();
+        if winner_id == PLAYER_1_ID {
             p1_score += 1;
         } else {
             p2_score += 1;
         }
+
+        println!(
+            "Player {winner_id} wins this round! Scores: P1 {p1_score}, P2 {p2_score}"
+        );
         let grid = grid::Grid::new();
         game = Game::new(grid, p1.clone(), p2.clone());
     }

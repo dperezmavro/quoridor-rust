@@ -61,7 +61,7 @@ impl Game {
         self.g.can_place_wall(&self.p1, &self.p2, b)
     }
 
-    pub fn move_player(&mut self, pos: Position) {
+    pub fn move_player(&mut self, pos: Position) -> bool {
         let player: &mut Player = if self.get_player_turn() == PLAYER_1_ID {
             &mut self.p1
         } else {
@@ -70,9 +70,7 @@ impl Game {
 
         player.position = pos;
 
-        if player.position.y == player.goal_row() {
-            self.state = GameState::GameFinished;
-        }
+        player.position.y == player.goal_row()
     }
 
     fn get_players(&self) -> (&Player, &Player) {
@@ -208,7 +206,12 @@ impl Game {
                 if !is_move_valid {
                     return false;
                 }
-                self.move_player(pos);
+
+                let was_winning_move = self.move_player(pos);
+                if was_winning_move {
+                    self.state = GameState::GameFinished;
+                    return true;
+                }
             }
         }
 
