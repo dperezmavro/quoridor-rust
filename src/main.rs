@@ -17,10 +17,16 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    game_loop().await;
+    let grid = grid::Grid::new();
+
+    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
+    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+
+    let game = &mut Game::new(grid, p1, p2);
+    game_loop(game).await;
 }
 
-async fn game_loop() {
+async fn game_loop(game: &mut Game) {
     let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
 
     // this currently holds wall + user information
@@ -29,13 +35,6 @@ async fn game_loop() {
 
     // minor optimisation
     let grid_lines = pre_computed_grid_lines();
-
-    let grid = grid::Grid::new();
-
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-
-    let mut game = Game::new(grid, p1, p2);
 
     loop {
         clear_background(GRAY);
@@ -72,10 +71,10 @@ async fn game_loop() {
                 }
             }
             MouseState::RowCol(pos) => {
-                let pleyer_options = game.get_player_options();
-                highlight_player_options(turn, &pleyer_options);
+                let player_options = game.get_player_options();
+                highlight_player_options(turn, &player_options);
 
-                if pleyer_options.contains(pos)
+                if player_options.contains(pos)
                     && !game.is_position_occupied_by_player(pos)
                 {
                     draw_move_preview(pos);
