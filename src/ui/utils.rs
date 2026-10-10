@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+use crate::UIHandler;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
@@ -227,8 +228,8 @@ pub struct Ui {
     grid_lines: Vec<Rect>,
 }
 
-impl Ui {
-    pub async fn new() -> Self {
+impl UIHandler for Ui {
+    async fn new() -> Self {
         let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
         Ui {
             font,
@@ -236,24 +237,24 @@ impl Ui {
         }
     }
 
-    pub fn draw_game_base(&self, player_wall_counts: (usize, usize)) {
+    fn draw_game_base(&self, remaining_walls: (usize, usize)) {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
         draw_game_grid_base(&self.grid_lines);
 
-        draw_game_stats(Some(&self.font), player_wall_counts);
+        draw_game_stats(Some(&self.font), remaining_walls);
     }
 
-    pub fn mouse_position(&self) -> (f32, f32) {
+    fn mouse_position(&self) -> (f32, f32) {
         macroquad::input::mouse_position()
     }
 
-    pub fn is_mouse_button_pressed(&self) -> bool {
+    fn is_mouse_button_pressed(&self) -> bool {
         macroquad::input::is_mouse_button_pressed(MouseButton::Left)
     }
 
-    pub async fn next_frame(&self) {
+    async fn next_frame(&self) {
         next_frame().await
     }
 }

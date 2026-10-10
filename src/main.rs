@@ -25,7 +25,7 @@ async fn main() {
     loop {
         let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        game_loop(&mut game, &ui).await;
+        game_loop(&mut game, ui).await;
         let winner_id = game.get_player_turn();
         if winner_id == PLAYER_1_ID {
             p1_score += 1;
@@ -48,7 +48,20 @@ fn new_game() -> Game {
     Game::new(grid, p1, p2)
 }
 
-async fn game_loop(game: &mut Game, ui: &Ui) {
+trait UIHandler {
+    async fn new() -> Self;
+    fn draw_game_base(&self, remaining_walls: (usize, usize));
+
+    fn mouse_position(&self) -> (f32, f32);
+
+    fn is_mouse_button_pressed(&self) -> bool;
+
+    async fn next_frame(&self);
+}
+async fn game_loop<T>(game: &mut Game, ui: T)
+where
+    T: UIHandler,
+{
     // this currently holds wall + user information
     // could wall be refactored to use this?
     let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
