@@ -314,6 +314,7 @@ fn draw_backdrop() {
     );
 }
 
+/// Used for highlighting tiles
 fn draw_tile_at(p: Position) {
     draw_rectangle(
         PADDING + (p.x as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
@@ -433,6 +434,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
     }
 }
 
+// TODO dio: make part of UiHandler
 /// Draws a wall - wrapper method for the macroquad method
 pub fn draw_wall(b: Wall, c: Color) {
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
@@ -453,6 +455,7 @@ pub fn draw_wall(b: Wall, c: Color) {
     draw_rectangle(x, y, w, h, c);
 }
 
+// TODO dio: make part of UiHandler
 /// Highlights player options around the player
 pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     for p in pos {
@@ -468,10 +471,12 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     }
 }
 
+// TODO dio: make part of UiHandler
 /// Draws a preview of the player-tile
 /// that the mouse is currently hovering over.
 /// if it presents a valid move
 pub fn draw_move_preview(p: &Position) {
+    // TODO dio: maybe make this part of the ui handler and DI ui handler as a dependency of this function instead
     draw_rectangle(
         GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
