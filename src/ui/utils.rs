@@ -294,7 +294,6 @@ impl UIHandler for Ui {
             color,
         );
     }
-
 }
 
 /// Draws the grid

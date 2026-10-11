@@ -146,7 +146,7 @@ mod tests {
 
         async fn next_frame(&self) {}
 
-        fn draw_player(&self, p: &Player, highlight: bool){}
+        fn draw_player(&self, p: &Player, highlight: bool) {}
     }
 
     use super::*;
