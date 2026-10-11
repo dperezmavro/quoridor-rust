@@ -6,9 +6,10 @@ use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
+use crate::ui::ui_handler::UIHandler;
 
 /// Width of grid line - this is re-used by the walls
-pub const GRID_LINE_WIDTH: f32 = 12.0;
+pub const WALL_WIDTH: f32 = 12.0;
 
 /// Size of border around the playable board
 const BORDER_WIDTH: f32 = 2.0;
@@ -23,7 +24,7 @@ const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 const PLAYER_PADDING: f32 = 3.0;
 
 /// Size of each tile, in pixes.
-pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
+pub const TILE_SIZE: f32 = WALL_WIDTH * 5.0;
 
 /// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
@@ -36,7 +37,7 @@ const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 
 /// Total length of the game grid
 const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
-    + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
+    + (NUM_GRID_LINES_PER_DIM as f32 * WALL_WIDTH);
 
 /// Total length of all the elements, including padding
 const TOTAL_LEN: f32 = GAME_GRID_LEN + GAME_STATS_BOX_WIDTH + (3.0 * PADDING);
@@ -106,23 +107,23 @@ pub fn get_window_conf(title: String) -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
-pub fn pre_computed_grid_lines() -> Vec<Rect> {
+fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .flat_map(|x| {
             let base_offset: f32 =
-                (x + 1) as f32 * TILE_SIZE + (x as f32 * GRID_LINE_WIDTH);
+                (x + 1) as f32 * TILE_SIZE + (x as f32 * WALL_WIDTH);
             vec![
                 Rect {
                     x: PADDING + base_offset,
                     y: PADDING,
-                    w: GRID_LINE_WIDTH,
+                    w: WALL_WIDTH,
                     h: GAME_GRID_LEN,
                 },
                 Rect {
                     x: PADDING,
                     y: PADDING + base_offset,
                     w: GAME_GRID_LEN,
-                    h: GRID_LINE_WIDTH,
+                    h: WALL_WIDTH,
                 },
             ]
         })
@@ -139,7 +140,7 @@ pub fn draw_game_grid_base(vec: &Vec<Rect>) {
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
+pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -149,7 +150,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
     );
 
     let h1_params = TextParams {
-        font: f,
+        font,
         font_size: FONT_SIZE_H1,
         color: BLACK,
         ..Default::default()
@@ -163,7 +164,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         let h1_string = h;
         let h1_text_centre = get_text_center(
             h1_string.clone(),
-            f,
+            font,
             h1_params.font_size,
             1.0,
             0.0,
@@ -204,7 +205,7 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         }
         let h3_string_text_centre = get_text_center(
             h3_string.clone(),
-            f,
+            font,
             h3_params.font_size,
             1.0,
             0.0,
@@ -220,6 +221,94 @@ pub fn draw_game_stats(f: Option<&Font>, wall_counts: (usize, usize)) {
         next_line_offset +=
             2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
     });
+}
+
+pub struct Ui {
+    font: Font,
+    grid_lines: Vec<Rect>,
+}
+
+impl UIHandler for Ui {
+    async fn new() -> Self {
+        let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
+        Ui {
+            font,
+            grid_lines: pre_computed_grid_lines(),
+        }
+    }
+
+    fn draw_game_base(&self, remaining_walls: (usize, usize)) {
+        clear_background(GRAY);
+
+        // draws borders, grid, padding and
+        draw_game_grid_base(&self.grid_lines);
+
+        draw_game_stats(Some(&self.font), remaining_walls);
+    }
+
+    fn mouse_position(&self) -> (f32, f32) {
+        macroquad::input::mouse_position()
+    }
+
+    fn is_mouse_button_pressed(&self) -> bool {
+        macroquad::input::is_mouse_button_pressed(MouseButton::Left)
+    }
+
+    async fn next_frame(&self) {
+        next_frame().await
+    }
+
+    fn draw_rectangle(
+        &self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        color: macroquad::color::Color,
+    ) {
+        draw_rectangle(x, y, w, h, color);
+    }
+
+    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        draw_circle(x, y, r, color);
+    }
+
+    /// Draws a circle representing a player on the grid
+    fn draw_player(&self, p: &Player, highlight: bool) {
+        let x = p.position.x;
+        let y = p.position.y;
+        let color = match p.starting_position {
+            StartingPosition::Top => {
+                if highlight {
+                    LIGHT_YELLOW
+                } else {
+                    YELLOW
+                }
+            }
+            StartingPosition::Bottom => {
+                if highlight {
+                    LIGHT_BLUE
+                } else {
+                    BLUE
+                }
+            }
+        };
+
+        if highlight {
+            draw_tile_at(p.position);
+        }
+
+        self.draw_circle(
+            GAME_GRID_BOX_START
+                + ((x as f32) * (TILE_SIZE + WALL_WIDTH))
+                + PLAYER_RADIUS,
+            GAME_GRID_BOX_START
+                + ((y as f32) * (TILE_SIZE + WALL_WIDTH))
+                + PLAYER_RADIUS,
+            PLAYER_FINAL_SIZE,
+            color,
+        );
+    }
 }
 
 /// Draws the grid
@@ -240,10 +329,11 @@ fn draw_backdrop() {
     );
 }
 
+/// Used for highlighting tiles
 fn draw_tile_at(p: Position) {
     draw_rectangle(
-        PADDING + (p.x as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
-        PADDING + (p.y as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
+        PADDING + (p.x as f32 * (WALL_WIDTH + TILE_SIZE)),
+        PADDING + (p.y as f32 * (WALL_WIDTH + TILE_SIZE)),
         TILE_SIZE,
         TILE_SIZE,
         WHITE,
@@ -271,13 +361,19 @@ pub fn get_current_player_color(player_id: u8) -> Color {
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_placed_wall(wall: Wall) {
-    draw_wall(wall, LIGHT_GREEN);
+pub fn draw_placed_wall<T>(uih: &T, wall: Wall)
+where
+    T: UIHandler,
+{
+    draw_wall(uih, wall, LIGHT_GREEN);
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_wall_placement_preview(wall: Wall, player_id: u8) {
-    draw_wall(wall, get_current_player_color(player_id));
+pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: u8)
+where
+    T: UIHandler,
+{
+    draw_wall(uih, wall, get_current_player_color(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -308,15 +404,13 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
     for y in 0..NUM_TILES {
         let tile_base = GAME_GRID_BOX_START
             + (y as f32 * TILE_SIZE)
-            + (y as f32 * GRID_LINE_WIDTH);
+            + (y as f32 * WALL_WIDTH);
 
         if mouse_position.0 >= tile_base {
             if mouse_position.0 <= tile_base + TILE_SIZE {
                 col = y as u16;
                 found_col = true;
-            } else if mouse_position.0
-                <= tile_base + TILE_SIZE + GRID_LINE_WIDTH
-            {
+            } else if mouse_position.0 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 in_horizontal_wall_pos = true;
                 lane = y as u16;
             }
@@ -327,9 +421,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
             if mouse_position.1 <= tile_base + TILE_SIZE {
                 row = y as u16;
                 found_row = true;
-            } else if mouse_position.1
-                <= tile_base + TILE_SIZE + GRID_LINE_WIDTH
-            {
+            } else if mouse_position.1 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 // detect if it is in wall
                 in_vertical_wall_pos = true;
                 lane = y as u16;
@@ -360,70 +452,40 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
 }
 
 /// Draws a wall - wrapper method for the macroquad method
-pub fn draw_wall(b: Wall, c: Color) {
+pub fn draw_wall<T>(uih: &T, b: Wall, c: Color)
+where
+    T: UIHandler,
+{
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
+
     let dim_1: f32 = GAME_GRID_BOX_START
         + (b.placement.tile as f32 * TILE_SIZE)
-        + (b.placement.tile as f32 * GRID_LINE_WIDTH);
+        + (b.placement.tile as f32 * WALL_WIDTH);
     let dim_2: f32 = GAME_GRID_BOX_START
         + ((b.placement.lane + 1) as f32 * TILE_SIZE)
-        + (b.placement.lane as f32 * GRID_LINE_WIDTH);
-    let long_side: f32 = (TILE_SIZE * 2.0) + GRID_LINE_WIDTH;
+        + (b.placement.lane as f32 * WALL_WIDTH);
+    let long_side: f32 = (TILE_SIZE * 2.0) + WALL_WIDTH;
 
     let (x, y, w, h) = match b.orientation {
-        Orientation::Horizontal => (dim_1, dim_2, long_side, GRID_LINE_WIDTH),
-        Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
+        Orientation::Horizontal => (dim_1, dim_2, long_side, WALL_WIDTH),
+        Orientation::Vertical => (dim_2, dim_1, WALL_WIDTH, long_side),
     };
-    draw_rectangle(x, y, w, h, c);
-}
-
-/// Draws a circle representing a player on the grid
-pub fn draw_player(p: &Player, highlight: bool) {
-    let x = p.position.x;
-    let y = p.position.y;
-    let color = match p.starting_position {
-        StartingPosition::Top => {
-            if highlight {
-                LIGHT_YELLOW
-            } else {
-                YELLOW
-            }
-        }
-        StartingPosition::Bottom => {
-            if highlight {
-                LIGHT_BLUE
-            } else {
-                BLUE
-            }
-        }
-    };
-
-    if highlight {
-        draw_tile_at(p.position);
-    }
-
-    draw_circle(
-        GAME_GRID_BOX_START
-            + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
-            + PLAYER_RADIUS,
-        GAME_GRID_BOX_START
-            + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
-            + PLAYER_RADIUS,
-        PLAYER_FINAL_SIZE,
-        color,
-    );
+    uih.draw_rectangle(x, y, w, h, c);
 }
 
 /// Highlights player options around the player
-pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
+pub fn highlight_player_options<T>(uih: &T, player_id: u8, pos: &Vec<Position>)
+where
+    T: UIHandler,
+{
+    const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
+
     for p in pos {
-        draw_rectangle(
-            GAME_GRID_BOX_START
-                + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-            GAME_GRID_BOX_START
-                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        uih.draw_rectangle(
+            GAME_GRID_BOX_START + ((p.x as f32) * OFFSET),
+            GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
             TILE_SIZE,
             TILE_SIZE,
             get_current_player_color(player_id),
@@ -434,10 +496,14 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
 /// Draws a preview of the player-tile
 /// that the mouse is currently hovering over.
 /// if it presents a valid move
-pub fn draw_move_preview(p: &Position) {
-    draw_rectangle(
-        GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-        GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+pub fn draw_move_preview<T>(uih: &T, p: &Position)
+where
+    T: UIHandler,
+{
+    const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
+    uih.draw_rectangle(
+        GAME_GRID_BOX_START + ((p.x as f32) * OFFSET),
+        GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
         TILE_SIZE,
         TILE_SIZE,
         Color::new(0.78, 0.48, 1.00, 0.80),
