@@ -120,11 +120,15 @@ where
 #[cfg(test)]
 mod tests {
 
-    struct MockUiHandler {}
+    struct MockUiHandler {
+        click_coordinates: RefCell<Vec<(f32, f32)>>,
+    }
 
     impl UIHandler for MockUiHandler {
         async fn new() -> Self {
-            Self {}
+            Self {
+                click_coordinates: RefCell::new(vec![(0.0, 0.0)]),
+            }
         }
 
         fn draw_game_base(&self, _remaining_walls: (usize, usize)) {}
@@ -132,12 +136,13 @@ mod tests {
         fn mouse_position(&self) -> (f32, f32) {
             println!("in mouse_position");
 
+            // self.click_coordinates.get_mut().pop().unwrap()
             (0.0, 0.0)
         }
 
         fn is_mouse_button_pressed(&self) -> bool {
             println!("in mouse button_pressed");
-            false
+            true
         }
 
         async fn next_frame(&self) {}
@@ -164,11 +169,12 @@ mod tests {
 
     use super::*;
     use macroquad::color::Color;
+    use std::cell::RefCell;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_game_loop() {
         let mut g = new_game();
         let mui = MockUiHandler::new().await;
-        game_loop(&mut g, mui);
+        game_loop(&mut g, mui).await;
     }
 }
