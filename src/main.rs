@@ -62,7 +62,7 @@ where
 
         // draw walls that have already been placed
         for b in &walls {
-            draw_placed_wall(*b);
+            draw_placed_wall(&ui, *b);
         }
 
         // draw players
@@ -76,7 +76,7 @@ where
             MouseState::WallPosition(b) => {
                 // hovering above a wall position
                 if game.can_add_wall(*b) {
-                    draw_wall_placement_preview(*b, turn);
+                    draw_wall_placement_preview(&ui, *b, turn);
                 }
 
                 if ui.is_mouse_button_pressed() && game.can_add_wall(*b) {
@@ -86,12 +86,12 @@ where
             }
             MouseState::RowCol(pos) => {
                 let player_options = game.get_player_options();
-                highlight_player_options(turn, &player_options);
+                highlight_player_options(&ui, turn, &player_options);
 
                 if player_options.contains(pos)
                     && !game.is_position_occupied_by_player(pos)
                 {
-                    draw_move_preview(pos);
+                    draw_move_preview(&ui, pos);
                 }
 
                 if ui.is_mouse_button_pressed() {
@@ -138,9 +138,25 @@ mod tests {
         fn draw_player(&self, _p: &Player, _highlight: bool) {
             println!("in mouse button_pressed");
         }
+
+        fn draw_rectangle(
+            &self,
+            _x: f32,
+            _y: f32,
+            _w: f32,
+            _h: f32,
+            _color: macroquad::color::Color,
+        ) {
+            println!("in draw_rectangle");
+        }
+
+        fn draw_circle(&self, _x: f32, _y: f32, _r: f32, _color: Color) {
+            println!("in draw_circle");
+        }
     }
 
     use super::*;
+    use macroquad::color::Color;
     use tokio;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

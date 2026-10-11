@@ -258,6 +258,21 @@ impl UIHandler for Ui {
         next_frame().await
     }
 
+    fn draw_rectangle(
+        &self,
+        x: f32,
+        y: f32,
+        w: f32,
+        h: f32,
+        color: macroquad::color::Color,
+    ) {
+        draw_rectangle(x, y, w, h, color);
+    }
+
+    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        draw_circle(x, y, r, color);
+    }
+
     /// Draws a circle representing a player on the grid
     fn draw_player(&self, p: &Player, highlight: bool) {
         let x = p.position.x;
@@ -283,7 +298,7 @@ impl UIHandler for Ui {
             draw_tile_at(p.position);
         }
 
-        draw_circle(
+        self.draw_circle(
             GAME_GRID_BOX_START
                 + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
                 + PLAYER_RADIUS,
@@ -346,13 +361,19 @@ pub fn get_current_player_color(player_id: u8) -> Color {
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_placed_wall(wall: Wall) {
-    draw_wall(wall, LIGHT_GREEN);
+pub fn draw_placed_wall<T>(uih: &T, wall: Wall)
+where
+    T: UIHandler,
+{
+    draw_wall(uih, wall, LIGHT_GREEN);
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_wall_placement_preview(wall: Wall, player_id: u8) {
-    draw_wall(wall, get_current_player_color(player_id));
+pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: u8)
+where
+    T: UIHandler,
+{
+    draw_wall(uih, wall, get_current_player_color(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -434,9 +455,11 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
     }
 }
 
-// TODO dio: make part of UiHandler
 /// Draws a wall - wrapper method for the macroquad method
-pub fn draw_wall(b: Wall, c: Color) {
+pub fn draw_wall<T>(uih: &T, b: Wall, c: Color)
+where
+    T: UIHandler,
+{
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
@@ -452,14 +475,16 @@ pub fn draw_wall(b: Wall, c: Color) {
         Orientation::Horizontal => (dim_1, dim_2, long_side, GRID_LINE_WIDTH),
         Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
     };
-    draw_rectangle(x, y, w, h, c);
+    uih.draw_rectangle(x, y, w, h, c);
 }
 
-// TODO dio: make part of UiHandler
 /// Highlights player options around the player
-pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
+pub fn highlight_player_options<T>(uih: &T, player_id: u8, pos: &Vec<Position>)
+where
+    T: UIHandler,
+{
     for p in pos {
-        draw_rectangle(
+        uih.draw_rectangle(
             GAME_GRID_BOX_START
                 + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
             GAME_GRID_BOX_START
@@ -471,13 +496,14 @@ pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
     }
 }
 
-// TODO dio: make part of UiHandler
 /// Draws a preview of the player-tile
 /// that the mouse is currently hovering over.
 /// if it presents a valid move
-pub fn draw_move_preview(p: &Position) {
-    // TODO dio: maybe make this part of the ui handler and DI ui handler as a dependency of this function instead
-    draw_rectangle(
+pub fn draw_move_preview<T>(uih: &T, p: &Position)
+where
+    T: UIHandler,
+{
+    uih.draw_rectangle(
         GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
         TILE_SIZE,
