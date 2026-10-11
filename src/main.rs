@@ -113,9 +113,9 @@ where
 #[cfg(test)]
 mod tests {
 
-    struct MockUi {}
+    struct MockUiHandler {}
 
-    impl UIHandler for MockUi {
+    impl UIHandler for MockUiHandler {
         async fn new() -> Self {
             Self {}
         }
@@ -135,7 +135,9 @@ mod tests {
 
         async fn next_frame(&self) {}
 
-        fn draw_player(&self, p: &Player, highlight: bool) {}
+        fn draw_player(&self, _p: &Player, _highlight: bool) {
+            println!("in mouse button_pressed");
+        }
     }
 
     use super::*;
@@ -144,7 +146,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_game_loop() {
         let mut g = new_game();
-        let mui = MockUi::new().await;
+        let mui = MockUiHandler::new().await;
         game_loop(&mut g, mui);
     }
 }
