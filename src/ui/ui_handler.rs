@@ -13,14 +13,7 @@ pub trait UIHandler {
 
     fn draw_player(&self, p: &Player, highlight: bool);
 
-    fn draw_rectangle(
-        &self,
-        x: f32,
-        y: f32,
-        w: f32,
-        h: f32,
-        color: macroquad::color::Color,
-    );
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color);
 
     fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color);
 }

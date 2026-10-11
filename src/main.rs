@@ -157,7 +157,6 @@ mod tests {
 
     use super::*;
     use macroquad::color::Color;
-    use tokio;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_game_loop() {

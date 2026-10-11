@@ -9,7 +9,7 @@ use crate::core::wall::Wall;
 use crate::ui::ui_handler::UIHandler;
 
 /// Width of grid line - this is re-used by the walls
-pub const GRID_LINE_WIDTH: f32 = 12.0;
+pub const WALL_WIDTH: f32 = 12.0;
 
 /// Size of border around the playable board
 const BORDER_WIDTH: f32 = 2.0;
@@ -24,7 +24,7 @@ const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 const PLAYER_PADDING: f32 = 3.0;
 
 /// Size of each tile, in pixes.
-pub const TILE_SIZE: f32 = GRID_LINE_WIDTH * 5.0;
+pub const TILE_SIZE: f32 = WALL_WIDTH * 5.0;
 
 /// How big to draw the players
 const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
@@ -37,7 +37,7 @@ const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
 
 /// Total length of the game grid
 const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
-    + (NUM_GRID_LINES_PER_DIM as f32 * GRID_LINE_WIDTH);
+    + (NUM_GRID_LINES_PER_DIM as f32 * WALL_WIDTH);
 
 /// Total length of all the elements, including padding
 const TOTAL_LEN: f32 = GAME_GRID_LEN + GAME_STATS_BOX_WIDTH + (3.0 * PADDING);
@@ -111,19 +111,19 @@ fn pre_computed_grid_lines() -> Vec<Rect> {
     let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
         .flat_map(|x| {
             let base_offset: f32 =
-                (x + 1) as f32 * TILE_SIZE + (x as f32 * GRID_LINE_WIDTH);
+                (x + 1) as f32 * TILE_SIZE + (x as f32 * WALL_WIDTH);
             vec![
                 Rect {
                     x: PADDING + base_offset,
                     y: PADDING,
-                    w: GRID_LINE_WIDTH,
+                    w: WALL_WIDTH,
                     h: GAME_GRID_LEN,
                 },
                 Rect {
                     x: PADDING,
                     y: PADDING + base_offset,
                     w: GAME_GRID_LEN,
-                    h: GRID_LINE_WIDTH,
+                    h: WALL_WIDTH,
                 },
             ]
         })
@@ -300,10 +300,10 @@ impl UIHandler for Ui {
 
         self.draw_circle(
             GAME_GRID_BOX_START
-                + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
+                + ((x as f32) * (TILE_SIZE + WALL_WIDTH))
                 + PLAYER_RADIUS,
             GAME_GRID_BOX_START
-                + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
+                + ((y as f32) * (TILE_SIZE + WALL_WIDTH))
                 + PLAYER_RADIUS,
             PLAYER_FINAL_SIZE,
             color,
@@ -332,8 +332,8 @@ fn draw_backdrop() {
 /// Used for highlighting tiles
 fn draw_tile_at(p: Position) {
     draw_rectangle(
-        PADDING + (p.x as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
-        PADDING + (p.y as f32 * (GRID_LINE_WIDTH + TILE_SIZE)),
+        PADDING + (p.x as f32 * (WALL_WIDTH + TILE_SIZE)),
+        PADDING + (p.y as f32 * (WALL_WIDTH + TILE_SIZE)),
         TILE_SIZE,
         TILE_SIZE,
         WHITE,
@@ -404,15 +404,13 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
     for y in 0..NUM_TILES {
         let tile_base = GAME_GRID_BOX_START
             + (y as f32 * TILE_SIZE)
-            + (y as f32 * GRID_LINE_WIDTH);
+            + (y as f32 * WALL_WIDTH);
 
         if mouse_position.0 >= tile_base {
             if mouse_position.0 <= tile_base + TILE_SIZE {
                 col = y as u16;
                 found_col = true;
-            } else if mouse_position.0
-                <= tile_base + TILE_SIZE + GRID_LINE_WIDTH
-            {
+            } else if mouse_position.0 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 in_horizontal_wall_pos = true;
                 lane = y as u16;
             }
@@ -423,9 +421,7 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
             if mouse_position.1 <= tile_base + TILE_SIZE {
                 row = y as u16;
                 found_row = true;
-            } else if mouse_position.1
-                <= tile_base + TILE_SIZE + GRID_LINE_WIDTH
-            {
+            } else if mouse_position.1 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 // detect if it is in wall
                 in_vertical_wall_pos = true;
                 lane = y as u16;
@@ -463,17 +459,18 @@ where
     if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
         return;
     }
+
     let dim_1: f32 = GAME_GRID_BOX_START
         + (b.placement.tile as f32 * TILE_SIZE)
-        + (b.placement.tile as f32 * GRID_LINE_WIDTH);
+        + (b.placement.tile as f32 * WALL_WIDTH);
     let dim_2: f32 = GAME_GRID_BOX_START
         + ((b.placement.lane + 1) as f32 * TILE_SIZE)
-        + (b.placement.lane as f32 * GRID_LINE_WIDTH);
-    let long_side: f32 = (TILE_SIZE * 2.0) + GRID_LINE_WIDTH;
+        + (b.placement.lane as f32 * WALL_WIDTH);
+    let long_side: f32 = (TILE_SIZE * 2.0) + WALL_WIDTH;
 
     let (x, y, w, h) = match b.orientation {
-        Orientation::Horizontal => (dim_1, dim_2, long_side, GRID_LINE_WIDTH),
-        Orientation::Vertical => (dim_2, dim_1, GRID_LINE_WIDTH, long_side),
+        Orientation::Horizontal => (dim_1, dim_2, long_side, WALL_WIDTH),
+        Orientation::Vertical => (dim_2, dim_1, WALL_WIDTH, long_side),
     };
     uih.draw_rectangle(x, y, w, h, c);
 }
@@ -483,12 +480,12 @@ pub fn highlight_player_options<T>(uih: &T, player_id: u8, pos: &Vec<Position>)
 where
     T: UIHandler,
 {
+    const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
+
     for p in pos {
         uih.draw_rectangle(
-            GAME_GRID_BOX_START
-                + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-            GAME_GRID_BOX_START
-                + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+            GAME_GRID_BOX_START + ((p.x as f32) * OFFSET),
+            GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
             TILE_SIZE,
             TILE_SIZE,
             get_current_player_color(player_id),
@@ -503,9 +500,10 @@ pub fn draw_move_preview<T>(uih: &T, p: &Position)
 where
     T: UIHandler,
 {
+    const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
     uih.draw_rectangle(
-        GAME_GRID_BOX_START + ((p.x as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
-        GAME_GRID_BOX_START + ((p.y as f32) * (TILE_SIZE + GRID_LINE_WIDTH)),
+        GAME_GRID_BOX_START + ((p.x as f32) * OFFSET),
+        GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
         TILE_SIZE,
         TILE_SIZE,
         Color::new(0.78, 0.48, 1.00, 0.80),
