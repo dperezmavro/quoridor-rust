@@ -7,6 +7,7 @@ use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
 use core::{grid, wall};
 use macroquad::prelude::Conf;
+use ui::ui_handler::UIHandler;
 use ui::utils::{
     MouseState, draw_move_preview, draw_placed_wall,
     draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
@@ -48,18 +49,6 @@ fn new_game() -> Game {
     Game::new(grid, p1, p2)
 }
 
-trait UIHandler {
-    async fn new() -> Self;
-    fn draw_game_base(&self, remaining_walls: (usize, usize));
-
-    fn mouse_position(&self) -> (f32, f32);
-
-    fn is_mouse_button_pressed(&self) -> bool;
-
-    async fn next_frame(&self);
-
-    fn draw_player(&self, p: &Player, highlight: bool);
-}
 async fn game_loop<T>(game: &mut Game, ui: T)
 where
     T: UIHandler,
@@ -151,10 +140,11 @@ mod tests {
 
     use super::*;
     use tokio;
+
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_game_loop() {
         let mut g = new_game();
         let mui = MockUi::new().await;
-        // game_loop(&mut g, mui).await;
+        game_loop(&mut g, mui);
     }
 }

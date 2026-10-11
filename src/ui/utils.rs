@@ -1,12 +1,12 @@
 use macroquad::prelude::*;
 
-use crate::UIHandler;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
+use crate::ui::ui_handler::UIHandler;
 
 /// Width of grid line - this is re-used by the walls
 pub const GRID_LINE_WIDTH: f32 = 12.0;
@@ -452,43 +452,6 @@ pub fn draw_wall(b: Wall, c: Color) {
     };
     draw_rectangle(x, y, w, h, c);
 }
-
-// /// Draws a circle representing a player on the grid
-// pub fn draw_player(p: &Player, highlight: bool) {
-//     let x = p.position.x;
-//     let y = p.position.y;
-//     let color = match p.starting_position {
-//         StartingPosition::Top => {
-//             if highlight {
-//                 LIGHT_YELLOW
-//             } else {
-//                 YELLOW
-//             }
-//         }
-//         StartingPosition::Bottom => {
-//             if highlight {
-//                 LIGHT_BLUE
-//             } else {
-//                 BLUE
-//             }
-//         }
-//     };
-//
-//     if highlight {
-//         draw_tile_at(p.position);
-//     }
-//
-//     draw_circle(
-//         GAME_GRID_BOX_START
-//             + ((x as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
-//             + PLAYER_RADIUS,
-//         GAME_GRID_BOX_START
-//             + ((y as f32) * (TILE_SIZE + GRID_LINE_WIDTH))
-//             + PLAYER_RADIUS,
-//         PLAYER_FINAL_SIZE,
-//         color,
-//     );
-// }
 
 /// Highlights player options around the player
 pub fn highlight_player_options(player_id: u8, pos: &Vec<Position>) {
