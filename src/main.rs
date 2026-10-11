@@ -145,7 +145,7 @@ mod tests {
             _y: f32,
             _w: f32,
             _h: f32,
-            _color: macroquad::color::Color,
+            _color: Color,
         ) {
             println!("in draw_rectangle");
         }
