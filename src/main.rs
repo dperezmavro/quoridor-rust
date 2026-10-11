@@ -18,24 +18,31 @@ fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
 }
 
+#[derive(Default)]
+struct Games {
+    total_rounds: usize,
+    p1_score: usize,
+    p2_score: usize,
+}
+
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut p1_score: usize = 0;
-    let mut p2_score: usize = 0;
+    let mut gg = Games::default();
 
     loop {
+        gg.total_rounds += 1;
         let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        game_loop(&mut game, ui).await;
-        let winner_id = game.get_player_turn();
+        let winner_id = game_loop(&mut game, ui).await;
         if winner_id == PLAYER_1_ID {
-            p1_score += 1;
+            gg.p1_score += 1;
         } else {
-            p2_score += 1;
+            gg.p2_score += 1;
         }
 
         println!(
-            "Player {winner_id} wins this round! Scores: P1 {p1_score}, P2 {p2_score}"
+            "Player {winner_id} wins this round! Scores: P1 {}, P2 {}",
+            gg.p1_score, gg.p2_score
         );
         game = new_game();
     }
@@ -49,7 +56,7 @@ fn new_game() -> Game {
     Game::new(grid, p1, p2)
 }
 
-async fn game_loop<T>(game: &mut Game, ui: T)
+async fn game_loop<T>(game: &mut Game, ui: T) -> u8
 where
     T: UIHandler,
 {
@@ -102,8 +109,8 @@ where
             _ => {}
         }
 
-        if game.state == GameState::GameFinished {
-            return;
+        if let GameState::GameFinished(player_turn) = game.state {
+            return player_turn;
         }
 
         ui.next_frame().await

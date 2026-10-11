@@ -24,10 +24,10 @@ impl PlayerTurn {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GameState {
     GameOngoing,
-    GameFinished,
+    GameFinished(u8),
 }
 
 impl GameState {}
@@ -181,7 +181,7 @@ impl Game {
     }
 
     pub fn process_move(&mut self, m: Move) -> bool {
-        if self.state == GameState::GameFinished {
+        if self.state != GameState::GameOngoing {
             return false;
         }
 
@@ -209,7 +209,8 @@ impl Game {
 
                 let was_winning_move = self.move_player(pos);
                 if was_winning_move {
-                    self.state = GameState::GameFinished;
+                    self.state =
+                        GameState::GameFinished(self.get_player_turn());
                     return true;
                 }
             }
