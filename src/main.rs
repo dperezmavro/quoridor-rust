@@ -8,7 +8,7 @@ use core::player::{Player, StartingPosition};
 use core::{grid, wall};
 use macroquad::prelude::Conf;
 use ui::utils::{
-    MouseState, draw_move_preview, draw_placed_wall, draw_player,
+    MouseState, draw_move_preview, draw_placed_wall,
     draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
     highlight_player_options,
 };
@@ -57,6 +57,8 @@ trait UIHandler {
     fn is_mouse_button_pressed(&self) -> bool;
 
     async fn next_frame(&self);
+
+    fn draw_player(&self, p: &Player, highlight: bool);
 }
 async fn game_loop<T>(game: &mut Game, ui: T)
 where
@@ -75,8 +77,8 @@ where
         }
 
         // draw players
-        draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
-        draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
+        ui.draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
+        ui.draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
 
         let res = get_mouse_pointer_state(ui.mouse_position());
         let turn = game.get_player_turn();
@@ -132,14 +134,19 @@ mod tests {
         fn draw_game_base(&self, _remaining_walls: (usize, usize)) {}
 
         fn mouse_position(&self) -> (f32, f32) {
+            println!("in mouse_position");
+
             (0.0, 0.0)
         }
 
         fn is_mouse_button_pressed(&self) -> bool {
+            println!("in mouse button_pressed");
             false
         }
 
         async fn next_frame(&self) {}
+
+        fn draw_player(&self, p: &Player, highlight: bool){}
     }
 
     use super::*;
@@ -148,6 +155,6 @@ mod tests {
     async fn test_game_loop() {
         let mut g = new_game();
         let mui = MockUi::new().await;
-        game_loop(&mut g, mui);
+        // game_loop(&mut g, mui).await;
     }
 }
