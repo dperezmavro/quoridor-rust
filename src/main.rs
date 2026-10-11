@@ -121,34 +121,32 @@ where
 mod tests {
 
     struct MockUiHandler {
-        click_coordinates: RefCell<Vec<(f32, f32)>>,
+        click_coordinates: RefCell<VecDeque<(f32, f32)>>,
     }
 
     impl UIHandler for MockUiHandler {
         async fn new() -> Self {
             Self {
-                click_coordinates: RefCell::new(vec![(0.0, 0.0)]),
+                click_coordinates: RefCell::new(VecDeque::with_capacity(10)),
             }
         }
 
         fn draw_game_base(&self, _remaining_walls: (usize, usize)) {}
 
         fn mouse_position(&self) -> (f32, f32) {
-            println!("in mouse_position");
-
-            // self.click_coordinates.get_mut().pop().unwrap()
-            (0.0, 0.0)
+            // println!("in mouse_position");
+            self.click_coordinates.borrow_mut().pop_front().unwrap()
         }
 
         fn is_mouse_button_pressed(&self) -> bool {
-            println!("in mouse button_pressed");
+            // println!("in mouse button_pressed");
             true
         }
 
         async fn next_frame(&self) {}
 
         fn draw_player(&self, _p: &Player, _highlight: bool) {
-            println!("in mouse button_pressed");
+            // println!("in mouse button_pressed");
         }
 
         fn draw_rectangle(
@@ -159,7 +157,7 @@ mod tests {
             _h: f32,
             _color: Color,
         ) {
-            println!("in draw_rectangle");
+            // println!("in draw_rectangle");
         }
 
         fn draw_circle(&self, _x: f32, _y: f32, _r: f32, _color: Color) {
@@ -170,11 +168,30 @@ mod tests {
     use super::*;
     use macroquad::color::Color;
     use std::cell::RefCell;
+    use std::collections::VecDeque;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_game_loop() {
         let mut g = new_game();
-        let mui = MockUiHandler::new().await;
-        game_loop(&mut g, mui).await;
+        let mut mui = MockUiHandler::new().await;
+        let x_4 = 375.0;
+        let click_coordinates = RefCell::new(VecDeque::from([
+            (x_4, 150.0), // p1 - y = 1
+            (x_4, 600.0), // p2 - y = 7
+            (x_4, 230.0), // p1 - y = 2
+            (x_4, 520.0), // p2 - y = 6
+            (x_4, 320.0), // p1 - y = 3
+            (x_4, 460.0), // p2 - y = 5
+            (x_4, 380.0), // p1 - y = 4
+            (x_4, 320.0), // p2 - y = 3
+            (x_4, 460.0), // p1 - y = 5
+            (x_4, 230.0), // p2 - y = 2
+            (x_4, 520.0), // p1 - y = 6
+            (x_4, 150.0), // p2 - y = 1
+            (x_4, 600.0), // p1 - y = 7
+            (x_4, 75.0),  // p2 - y = 0
+        ]));
+        mui.click_coordinates = click_coordinates;
+        assert_eq!(1, game_loop(&mut g, mui).await);
     }
 }
