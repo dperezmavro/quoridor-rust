@@ -610,4 +610,33 @@ mod tests {
         ));
         assert_eq!(mps, MouseState::InBorderCrossSection);
     }
+
+    #[test]
+    fn test_get_mouse_pointer_state_discove_all_tiles() {
+        const TILE_IDX_0: f32 = 75.0;
+        const TILE_IDX_1: f32 = 150.0;
+        const TILE_IDX_2: f32 = 230.0;
+        const TILE_IDX_3: f32 = 320.0;
+        const TILE_IDX_4: f32 = 375.0;
+        const TILE_IDX_5: f32 = 460.0;
+        const TILE_IDX_6: f32 = 520.0;
+        const TILE_IDX_7: f32 = 600.0;
+
+        let tile_coodinates = [
+            TILE_IDX_0, TILE_IDX_1, TILE_IDX_2, TILE_IDX_3, TILE_IDX_4,
+            TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
+        ];
+
+        for x in 0..=7 {
+            for y in 0..=7 {
+                assert_eq!(
+                    MouseState::RowCol(Position::new(x, y)),
+                    get_mouse_pointer_state((
+                        tile_coodinates[x],
+                        tile_coodinates[y]
+                    )),
+                );
+            }
+        }
+    }
 }
