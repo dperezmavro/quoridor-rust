@@ -213,7 +213,7 @@ mod tests {
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
             (WALL_LANE_0, TILE_IDX_0), // p1 place wall vertical in 0,0
-            (WALL_LANE_0, TILE_IDX_2), // p1 place wall vertical in 0,2
+            (WALL_LANE_1, TILE_IDX_2), // p1 place wall vertical in 1,2
             (TILE_IDX_4, TILE_IDX_1),  // p1 - y = 1
             (TILE_IDX_4, TILE_IDX_7),  // p2 - y = 7
             (TILE_IDX_4, TILE_IDX_2),  // p1 - y = 2
