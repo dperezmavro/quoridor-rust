@@ -281,6 +281,7 @@ mod tests {
     /********************************************/
     #[test]
     fn get_reachable_neighbour_tiles() {
+        // x , y,  neighbour count
         struct TestCase(usize, usize, usize);
         let tests = vec![
             TestCase(0, 0, 2),
