@@ -179,6 +179,9 @@ mod tests {
     const TILE_IDX_6: f32 = 520.0;
     const TILE_IDX_7: f32 = 600.0;
 
+    const WALL_LANE_0: f32 = 120.0;
+    const WALL_LANE_1: f32 = 190.0;
+
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_staight_move_no_walls() {
         let mut g = new_game();
@@ -209,7 +212,22 @@ mod tests {
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
-            (TILE_IDX_4, TILE_IDX_1), // p1 - y = 1
+            (WALL_LANE_0, TILE_IDX_0), // p1 place wall vertical in 0,0
+            (WALL_LANE_0, TILE_IDX_2), // p1 place wall vertical in 0,2
+            (TILE_IDX_4, TILE_IDX_1),  // p1 - y = 1
+            (TILE_IDX_4, TILE_IDX_7),  // p2 - y = 7
+            (TILE_IDX_4, TILE_IDX_2),  // p1 - y = 2
+            (TILE_IDX_4, TILE_IDX_6),  // p2 - y = 6
+            (TILE_IDX_4, TILE_IDX_3),  // p1 - y = 3
+            (TILE_IDX_4, TILE_IDX_5),  // p2 - y = 5
+            (TILE_IDX_4, TILE_IDX_4),  // p1 - y = 4
+            (TILE_IDX_4, TILE_IDX_3),  // p2 - y = 3
+            (TILE_IDX_4, TILE_IDX_5),  // p1 - y = 5
+            (TILE_IDX_4, TILE_IDX_2),  // p2 - y = 2
+            (TILE_IDX_4, TILE_IDX_6),  // p1 - y = 6
+            (TILE_IDX_4, TILE_IDX_1),  // p2 - y = 1
+            (TILE_IDX_4, TILE_IDX_7),  // p1 - y = 7
+            (TILE_IDX_4, TILE_IDX_0),  // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(1, game_loop(&mut g, mui).await);
