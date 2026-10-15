@@ -627,8 +627,8 @@ mod tests {
             TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
         ];
 
-        for x in 0..=tile_coordinates.len() {
-            for y in 0..=tile_coordinates.len() {
+        for x in 0..tile_coordinates.len() {
+            for y in 0..tile_coordinates.len() {
                 assert_eq!(
                     MouseState::RowCol(Position::new(x, y)),
                     get_mouse_pointer_state((
