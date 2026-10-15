@@ -611,29 +611,56 @@ mod tests {
         assert_eq!(mps, MouseState::InBorderCrossSection);
     }
 
-    #[test]
-    fn test_get_mouse_pointer_state_discove_all_tiles() {
-        const TILE_IDX_0: f32 = 75.0;
-        const TILE_IDX_1: f32 = 150.0;
-        const TILE_IDX_2: f32 = 230.0;
-        const TILE_IDX_3: f32 = 320.0;
-        const TILE_IDX_4: f32 = 375.0;
-        const TILE_IDX_5: f32 = 460.0;
-        const TILE_IDX_6: f32 = 520.0;
-        const TILE_IDX_7: f32 = 600.0;
+    const TILE_IDX_0: f32 = 75.0;
+    const TILE_IDX_1: f32 = 150.0;
+    const TILE_IDX_2: f32 = 230.0;
+    const TILE_IDX_3: f32 = 320.0;
+    const TILE_IDX_4: f32 = 375.0;
+    const TILE_IDX_5: f32 = 460.0;
+    const TILE_IDX_6: f32 = 520.0;
+    const TILE_IDX_7: f32 = 600.0;
 
-        let tile_coodinates = [
+    #[test]
+    fn test_get_mouse_pointer_state_discover_all_tiles() {
+        let tile_coordinates = [
             TILE_IDX_0, TILE_IDX_1, TILE_IDX_2, TILE_IDX_3, TILE_IDX_4,
             TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
         ];
 
-        for x in 0..=7 {
-            for y in 0..=7 {
+        for x in 0..=tile_coordinates.len() {
+            for y in 0..=tile_coordinates.len() {
                 assert_eq!(
                     MouseState::RowCol(Position::new(x, y)),
                     get_mouse_pointer_state((
-                        tile_coodinates[x],
-                        tile_coodinates[y]
+                        tile_coordinates[x],
+                        tile_coordinates[y]
+                    )),
+                );
+            }
+        }
+    }
+
+    const WALL_LANE_0: f32 = 120.0;
+
+    #[test]
+    fn test_get_mouse_pointer_state_discover_all_walls() {
+        let tile_coordinates = [
+            TILE_IDX_0, TILE_IDX_1, TILE_IDX_2, TILE_IDX_3, TILE_IDX_4,
+            TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
+        ];
+
+        let lane_coordinates = [WALL_LANE_0];
+
+        for lane in 0..lane_coordinates.len() {
+            for tile in 0..tile_coordinates.len() {
+                assert_eq!(
+                    MouseState::WallPosition(Wall::new(
+                        Placement::new(tile, lane),
+                        Orientation::Horizontal
+                    )),
+                    get_mouse_pointer_state((
+                        tile_coordinates[tile],
+                        lane_coordinates[lane]
                     )),
                 );
             }
