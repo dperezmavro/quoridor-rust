@@ -641,6 +641,9 @@ mod tests {
     }
 
     const WALL_LANE_0: f32 = 120.0;
+    const WALL_LANE_1: f32 = 190.0;
+    const WALL_LANE_2: f32 = 260.0;
+    const WALL_LANE_3: f32 = 330.0;
 
     #[test]
     fn test_get_mouse_pointer_state_discover_all_walls() {
@@ -649,7 +652,8 @@ mod tests {
             TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
         ];
 
-        let lane_coordinates = [WALL_LANE_0];
+        let lane_coordinates =
+            [WALL_LANE_0, WALL_LANE_1, WALL_LANE_2, WALL_LANE_3];
 
         for lane in 0..lane_coordinates.len() {
             for tile in 0..tile_coordinates.len() {
