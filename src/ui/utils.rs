@@ -644,9 +644,13 @@ mod tests {
     const WALL_LANE_1: f32 = 190.0;
     const WALL_LANE_2: f32 = 260.0;
     const WALL_LANE_3: f32 = 330.0;
+    const WALL_LANE_4: f32 = 400.0;
+    const WALL_LANE_5: f32 = 470.0;
+    const WALL_LANE_6: f32 = 530.0;
+    const WALL_LANE_7: f32 = 600.0;
 
     #[test]
-    fn test_get_mouse_pointer_state_discover_all_walls() {
+    fn test_get_mouse_pointer_state_discover_all_walls_horizontal() {
         let tile_coordinates = [
             TILE_IDX_0, TILE_IDX_1, TILE_IDX_2, TILE_IDX_3, TILE_IDX_4,
             TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
@@ -665,6 +669,32 @@ mod tests {
                     get_mouse_pointer_state((
                         tile_coordinates[tile],
                         lane_coordinates[lane]
+                    )),
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_get_mouse_pointer_state_discover_all_walls_vertical() {
+        let tile_coordinates = [
+            TILE_IDX_0, TILE_IDX_1, TILE_IDX_2, TILE_IDX_3, TILE_IDX_4,
+            TILE_IDX_5, TILE_IDX_6, TILE_IDX_7,
+        ];
+
+        let lane_coordinates =
+            [WALL_LANE_0, WALL_LANE_1, WALL_LANE_2, WALL_LANE_3];
+
+        for lane in 0..lane_coordinates.len() {
+            for tile in 0..tile_coordinates.len() {
+                assert_eq!(
+                    MouseState::WallPosition(Wall::new(
+                        Placement::new(tile, lane),
+                        Orientation::Vertical
+                    )),
+                    get_mouse_pointer_state((
+                        lane_coordinates[lane],
+                        tile_coordinates[tile],
                     )),
                 );
             }
