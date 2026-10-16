@@ -5,9 +5,12 @@ version = "0.0.0"
 edition = "2024"
 description = "A game that I use to learn Rust!"
 
+
+[dev-dependencies]
+tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread"] }
+
 [dependencies]
 macroquad = "0.4.16"
-tokio = { version="1.53.2" , features = ["macros", "rt-multi-thread"]}
 
 
 [profile.dev]
