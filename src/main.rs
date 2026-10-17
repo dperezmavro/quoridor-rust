@@ -164,37 +164,37 @@ mod tests {
     use std::cell::RefCell;
     use std::collections::VecDeque;
 
-    const TILE_IDX_0: f32 = 75.0;
-    const TILE_IDX_1: f32 = 150.0;
-    const TILE_IDX_2: f32 = 230.0;
-    const TILE_IDX_3: f32 = 320.0;
-    const TILE_IDX_4: f32 = 375.0;
-    const TILE_IDX_5: f32 = 460.0;
-    const TILE_IDX_6: f32 = 520.0;
-    const TILE_IDX_7: f32 = 600.0;
+    const TILE_COORD_0: f32 = 75.0;
+    const TILE_COORD_1: f32 = 150.0;
+    const TILE_COORD_2: f32 = 230.0;
+    const TILE_COORD_3: f32 = 320.0;
+    const TILE_COORD_4: f32 = 375.0;
+    const TILE_COORD_5: f32 = 460.0;
+    const TILE_COORD_6: f32 = 520.0;
+    const TILE_COORD_7: f32 = 600.0;
 
-    const WALL_LANE_0: f32 = 120.0;
-    const WALL_LANE_1: f32 = 190.0;
+    const WALL_LANE_0_COORD: f32 = 120.0;
+    const WALL_LANE_1_COORD: f32 = 190.0;
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_straight_move_no_walls() {
         let mut g = new_game();
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
-            (TILE_IDX_4, TILE_IDX_1), // p1 - y = 1
-            (TILE_IDX_4, TILE_IDX_7), // p2 - y = 7
-            (TILE_IDX_4, TILE_IDX_2), // p1 - y = 2
-            (TILE_IDX_4, TILE_IDX_6), // p2 - y = 6
-            (TILE_IDX_4, TILE_IDX_3), // p1 - y = 3
-            (TILE_IDX_4, TILE_IDX_5), // p2 - y = 5
-            (TILE_IDX_4, TILE_IDX_4), // p1 - y = 4
-            (TILE_IDX_4, TILE_IDX_3), // p2 - y = 3
-            (TILE_IDX_4, TILE_IDX_5), // p1 - y = 5
-            (TILE_IDX_4, TILE_IDX_2), // p2 - y = 2
-            (TILE_IDX_4, TILE_IDX_6), // p1 - y = 6
-            (TILE_IDX_4, TILE_IDX_1), // p2 - y = 1
-            (TILE_IDX_4, TILE_IDX_7), // p1 - y = 7
-            (TILE_IDX_4, TILE_IDX_0), // p2 - y = 0
+            (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
+            (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
+            (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
+            (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
+            (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
+            (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
+            (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
+            (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
+            (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
+            (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);
@@ -206,22 +206,22 @@ mod tests {
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
-            (WALL_LANE_0, TILE_IDX_0), // p1 place wall vertical in 0,0
-            (WALL_LANE_1, TILE_IDX_2), // p1 place wall vertical in 1,2
-            (TILE_IDX_4, TILE_IDX_1),  // p1 - y = 1
-            (TILE_IDX_4, TILE_IDX_7),  // p2 - y = 7
-            (TILE_IDX_4, TILE_IDX_2),  // p1 - y = 2
-            (TILE_IDX_4, TILE_IDX_6),  // p2 - y = 6
-            (TILE_IDX_4, TILE_IDX_3),  // p1 - y = 3
-            (TILE_IDX_4, TILE_IDX_5),  // p2 - y = 5
-            (TILE_IDX_4, TILE_IDX_4),  // p1 - y = 4
-            (TILE_IDX_4, TILE_IDX_3),  // p2 - y = 3
-            (TILE_IDX_4, TILE_IDX_5),  // p1 - y = 5
-            (TILE_IDX_4, TILE_IDX_2),  // p2 - y = 2
-            (TILE_IDX_4, TILE_IDX_6),  // p1 - y = 6
-            (TILE_IDX_4, TILE_IDX_1),  // p2 - y = 1
-            (TILE_IDX_4, TILE_IDX_7),  // p1 - y = 7
-            (TILE_IDX_4, TILE_IDX_0),  // p2 - y = 0
+            (WALL_LANE_0_COORD, TILE_COORD_0), // p1 place wall vertical in 0,0
+            (WALL_LANE_1_COORD, TILE_COORD_2), // p1 place wall vertical in 1,2
+            (TILE_COORD_4, TILE_COORD_1),      // p1 - y = 1
+            (TILE_COORD_4, TILE_COORD_7),      // p2 - y = 7
+            (TILE_COORD_4, TILE_COORD_2),      // p1 - y = 2
+            (TILE_COORD_4, TILE_COORD_6),      // p2 - y = 6
+            (TILE_COORD_4, TILE_COORD_3),      // p1 - y = 3
+            (TILE_COORD_4, TILE_COORD_5),      // p2 - y = 5
+            (TILE_COORD_4, TILE_COORD_4),      // p1 - y = 4
+            (TILE_COORD_4, TILE_COORD_3),      // p2 - y = 3
+            (TILE_COORD_4, TILE_COORD_5),      // p1 - y = 5
+            (TILE_COORD_4, TILE_COORD_2),      // p2 - y = 2
+            (TILE_COORD_4, TILE_COORD_6),      // p1 - y = 6
+            (TILE_COORD_4, TILE_COORD_1),      // p2 - y = 1
+            (TILE_COORD_4, TILE_COORD_7),      // p1 - y = 7
+            (TILE_COORD_4, TILE_COORD_0),      // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);
@@ -233,23 +233,23 @@ mod tests {
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
-            (10.0, 10.0),             // random click - p1
-            (2.5, 120.5),             // random click - p1
-            (TILE_IDX_4, TILE_IDX_1), // p1 - y = 1
-            (TILE_IDX_4, TILE_IDX_7), // p2 - y = 7
-            (TILE_IDX_4, TILE_IDX_2), // p1 - y = 2
-            (TILE_IDX_4, TILE_IDX_6), // p2 - y = 6
-            (TILE_IDX_4, TILE_IDX_3), // p1 - y = 3
-            (150.0, 850.0),           // random click p2
-            (TILE_IDX_4, TILE_IDX_5), // p2 - y = 5
-            (TILE_IDX_4, TILE_IDX_4), // p1 - y = 4
-            (TILE_IDX_4, TILE_IDX_3), // p2 - y = 3
-            (TILE_IDX_4, TILE_IDX_5), // p1 - y = 5
-            (TILE_IDX_4, TILE_IDX_2), // p2 - y = 2
-            (TILE_IDX_4, TILE_IDX_6), // p1 - y = 6
-            (TILE_IDX_4, TILE_IDX_1), // p2 - y = 1
-            (TILE_IDX_4, TILE_IDX_7), // p1 - y = 7
-            (TILE_IDX_4, TILE_IDX_0), // p2 - y = 0
+            (10.0, 10.0),                 // random click - p1
+            (2.5, 120.5),                 // random click - p1
+            (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
+            (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
+            (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
+            (150.0, 850.0),               // random click p2
+            (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
+            (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
+            (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
+            (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
+            (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
+            (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
+            (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);

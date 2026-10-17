@@ -65,7 +65,7 @@ impl Grid {
 
     // Used for finding out all available neighbours
     fn get_reachable_neighbour_positions(&self, p: &Position) -> Vec<Position> {
-        let mut available_positions: Vec<Position> = Vec::new();
+        let mut available_positions: Vec<Position> = Vec::with_capacity(5);
 
         if self.positions_north(p) {
             available_positions.push(Position::new(p.x, p.y - 1));
