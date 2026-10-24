@@ -71,7 +71,11 @@ const GAME_STATS_BOX_PADDING: f32 = 5.0;
 /// Font size for H1
 const FONT_SIZE_H1: u16 = 60;
 
+/// Font size for H2
+const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
+
 /// Font size for H3
+
 const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 /// Convenience offset for where to start drawing the text in the stats box
@@ -163,26 +167,31 @@ pub fn draw_game_stats(
         ..Default::default()
     };
 
+    let h2_params = TextParams {
+        font_size: FONT_SIZE_H2,
+        ..h1_params
+    };
+
+    let h3_params = TextParams {
+        font_size: FONT_SIZE_H3,
+        ..h1_params
+    };
+
     let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
 
     // H1
-    let h1_texts = [String::from("game"), String::from("stats")];
+    let h1_texts = ["game", "stats"];
     h1_texts.iter().for_each(|h| {
         let h1_string = h;
-        let h1_text_centre = get_text_center(
-            h1_string.clone(),
-            font,
-            h1_params.font_size,
-            1.0,
-            0.0,
-        );
+        let h1_text_centre =
+            get_text_center(h1_string, font, h1_params.font_size, 1.0, 0.0);
 
         next_line_offset +=
             (h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
 
         // GAME
         draw_text_ex(
-            h1_string.clone(),
+            h1_string,
             STATS_X_OFFSET - h1_text_centre.x,
             next_line_offset,
             h1_params.clone(),
@@ -190,11 +199,6 @@ pub fn draw_game_stats(
     });
 
     next_line_offset += GAME_STATS_BOX_PADDING * 12.0;
-
-    let h3_params = TextParams {
-        font_size: FONT_SIZE_H3,
-        ..h1_params
-    };
 
     // H3
     let h3_texts = [
@@ -219,7 +223,7 @@ pub fn draw_game_stats(
         );
 
         draw_text_ex(
-            h3_string.clone(),
+            h3_string,
             STATS_X_OFFSET - h3_string_text_centre.x,
             next_line_offset,
             h3_params.clone(),
@@ -227,6 +231,37 @@ pub fn draw_game_stats(
 
         next_line_offset +=
             2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
+    });
+
+    next_line_offset += GAME_STATS_BOX_PADDING * 8.0;
+
+    // H2
+    let h2_texts =
+        [String::from("Score"), format!("{} - {}", score.0, score.1)];
+
+    h2_texts.iter().enumerate().for_each(|(i, h)| {
+        let h2_string = h.to_string();
+        if i == 2 {
+            // text for player 2
+            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
+        }
+        let h2_string_text_centre = get_text_center(
+            h2_string.clone(),
+            font,
+            h2_params.font_size,
+            1.0,
+            0.0,
+        );
+
+        draw_text_ex(
+            h2_string,
+            STATS_X_OFFSET - h2_string_text_centre.x,
+            next_line_offset,
+            h2_params.clone(),
+        );
+
+        next_line_offset +=
+            2.0 * h2_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
     });
 }
 
@@ -258,25 +293,18 @@ impl UIHandler for Ui {
     }
 
     fn mouse_position(&self) -> (f32, f32) {
-        macroquad::input::mouse_position()
+        mouse_position()
     }
 
     fn is_mouse_button_pressed(&self) -> bool {
-        macroquad::input::is_mouse_button_pressed(MouseButton::Left)
+        is_mouse_button_pressed(MouseButton::Left)
     }
 
     async fn next_frame(&self) {
         next_frame().await
     }
 
-    fn draw_rectangle(
-        &self,
-        x: f32,
-        y: f32,
-        w: f32,
-        h: f32,
-        color: macroquad::color::Color,
-    ) {
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
     }
 
