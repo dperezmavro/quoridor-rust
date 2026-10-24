@@ -5,8 +5,12 @@ pub trait UIHandler {
     async fn new() -> Self;
 
     // Convenience function to draw the background, game grid
-    // and placed blocks
-    fn draw_game_base(&self, remaining_walls: (usize, usize));
+    // placed blocks and score information
+    fn draw_game_base(
+        &self,
+        remaining_walls: (usize, usize),
+        scores: (usize, usize),
+    );
 
     // Returns the mouse's x,y coordinates
     fn mouse_position(&self) -> (f32, f32);

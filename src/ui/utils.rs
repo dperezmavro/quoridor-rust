@@ -143,7 +143,11 @@ pub fn draw_game_grid_base(
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
+pub fn draw_game_stats(
+    font: Option<&Font>,
+    wall_counts: (usize, usize),
+    score: (usize, usize),
+) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -240,13 +244,17 @@ impl UIHandler for Ui {
         }
     }
 
-    fn draw_game_base(&self, remaining_walls: (usize, usize)) {
+    fn draw_game_base(
+        &self,
+        remaining_walls: (usize, usize),
+        scores: (usize, usize),
+    ) {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
         draw_game_grid_base(&self.grid_lines);
 
-        draw_game_stats(Some(&self.font), remaining_walls);
+        draw_game_stats(Some(&self.font), remaining_walls, scores);
     }
 
     fn mouse_position(&self) -> (f32, f32) {
