@@ -1,3 +1,5 @@
+use std::cell::LazyCell;
+
 use macroquad::prelude::*;
 
 use crate::core::grid::NUM_TILES;
@@ -107,36 +109,37 @@ pub fn get_window_conf(title: String) -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
-fn pre_computed_grid_lines() -> Vec<Rect> {
-    let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
-        .flat_map(|x| {
+const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
+    LazyCell::new(|| {
+        let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM] =
+            [Rect::default(); 2 * NUM_GRID_LINES_PER_DIM];
+        for x in 0..NUM_GRID_LINES_PER_DIM {
             let base_offset: f32 =
                 (x + 1) as f32 * TILE_SIZE + (x as f32 * WALL_WIDTH);
-            vec![
-                Rect {
-                    x: PADDING + base_offset,
-                    y: PADDING,
-                    w: WALL_WIDTH,
-                    h: GAME_GRID_LEN,
-                },
-                Rect {
-                    x: PADDING,
-                    y: PADDING + base_offset,
-                    w: GAME_GRID_LEN,
-                    h: WALL_WIDTH,
-                },
-            ]
-        })
-        .collect();
+            arr[x * 2] = Rect {
+                x: PADDING + base_offset,
+                y: PADDING,
+                w: WALL_WIDTH,
+                h: GAME_GRID_LEN,
+            };
+            arr[(x * 2) + 1] = Rect {
+                x: PADDING,
+                y: PADDING + base_offset,
+                w: GAME_GRID_LEN,
+                h: WALL_WIDTH,
+            };
+        }
 
-    grid_lines
-}
+        arr
+    });
 
 /// Draws the base elements - backdrop, bounds and grid
-pub fn draw_game_grid_base(vec: &Vec<Rect>) {
+pub fn draw_game_grid_base(
+    lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
+) {
     draw_bounds();
     draw_backdrop();
-    draw_grid_precomputed(vec);
+    draw_grid_precomputed(lines);
 }
 
 /// Used for drawing player information
@@ -225,7 +228,7 @@ pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
 
 pub struct Ui {
     font: Font,
-    grid_lines: Vec<Rect>,
+    grid_lines: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
 }
 
 impl UIHandler for Ui {
@@ -233,7 +236,7 @@ impl UIHandler for Ui {
         let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
         Ui {
             font,
-            grid_lines: pre_computed_grid_lines(),
+            grid_lines: GRID_LINES_ARR,
         }
     }
 
@@ -312,8 +315,8 @@ impl UIHandler for Ui {
 }
 
 /// Draws the grid
-fn draw_grid_precomputed(vec: &Vec<Rect>) {
-    for v in vec {
+fn draw_grid_precomputed(lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>) {
+    for v in lines.iter() {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
@@ -515,18 +518,13 @@ mod tests {
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::wall::Wall;
-    use crate::ui::utils::{
-        GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
-        MouseState, PADDING, TILE_SIZE, get_current_player_color,
-        get_mouse_pointer_state, is_mouse_inside_board,
-        pre_computed_grid_lines,
-    };
+    use crate::ui::utils::*;
 
     use crate::core::position::Position;
 
     #[test]
     fn test_correct_num_of_precomputed_lines() {
-        let pcl = pre_computed_grid_lines();
+        let pcl = GRID_LINES_ARR.to_vec();
         assert_eq!(16, pcl.len());
     }
 
