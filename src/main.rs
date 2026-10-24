@@ -45,7 +45,6 @@ async fn main() {
             "Player {winner_id} wins this round! Scores: P1 {}, P2 {}",
             gg.p1_score, gg.p2_score
         );
-        game = new_game();
     }
 }
 
