@@ -33,7 +33,8 @@ async fn main() {
         gg.total_rounds += 1;
         let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        let winner_id = game_loop(&mut game, ui).await;
+        let winner_id =
+            game_loop(&mut game, ui, (gg.p1_score, gg.p2_score)).await;
         if winner_id == PLAYER_1_ID {
             gg.p1_score += 1;
         } else {
@@ -56,7 +57,7 @@ fn new_game() -> Game {
     Game::new(grid, p1, p2)
 }
 
-async fn game_loop<T>(game: &mut Game, ui: T) -> u8
+async fn game_loop<T>(game: &mut Game, ui: T, scores: (usize, usize)) -> u8
 where
     T: UIHandler,
 {
@@ -65,7 +66,7 @@ where
     let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
 
     loop {
-        ui.draw_game_base(game.player_wall_counts());
+        ui.draw_game_base(game.player_wall_counts(), scores);
 
         // draw walls that have already been placed
         for b in &walls {
@@ -132,7 +133,12 @@ mod tests {
             }
         }
 
-        fn draw_game_base(&self, _remaining_walls: (usize, usize)) {}
+        fn draw_game_base(
+            &self,
+            _remaining_walls: (usize, usize),
+            _scores: (usize, usize),
+        ) {
+        }
 
         fn mouse_position(&self) -> (f32, f32) {
             self.click_coordinates.borrow_mut().pop_front().unwrap()
@@ -197,7 +203,7 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);
+        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -224,7 +230,7 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0),      // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);
+        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -252,6 +258,6 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui).await);
+        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
     }
 }

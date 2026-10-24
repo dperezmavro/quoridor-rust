@@ -1,3 +1,5 @@
+use std::cell::LazyCell;
+
 use macroquad::prelude::*;
 
 use crate::core::grid::NUM_TILES;
@@ -69,7 +71,11 @@ const GAME_STATS_BOX_PADDING: f32 = 5.0;
 /// Font size for H1
 const FONT_SIZE_H1: u16 = 60;
 
+/// Font size for H2
+const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
+
 /// Font size for H3
+
 const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 /// Convenience offset for where to start drawing the text in the stats box
@@ -107,40 +113,45 @@ pub fn get_window_conf(title: String) -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
-fn pre_computed_grid_lines() -> Vec<Rect> {
-    let grid_lines: Vec<Rect> = (0..NUM_GRID_LINES_PER_DIM)
-        .flat_map(|x| {
+const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
+    LazyCell::new(|| {
+        let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM] =
+            [Rect::default(); 2 * NUM_GRID_LINES_PER_DIM];
+        for x in 0..NUM_GRID_LINES_PER_DIM {
             let base_offset: f32 =
                 (x + 1) as f32 * TILE_SIZE + (x as f32 * WALL_WIDTH);
-            vec![
-                Rect {
-                    x: PADDING + base_offset,
-                    y: PADDING,
-                    w: WALL_WIDTH,
-                    h: GAME_GRID_LEN,
-                },
-                Rect {
-                    x: PADDING,
-                    y: PADDING + base_offset,
-                    w: GAME_GRID_LEN,
-                    h: WALL_WIDTH,
-                },
-            ]
-        })
-        .collect();
+            arr[x * 2] = Rect {
+                x: PADDING + base_offset,
+                y: PADDING,
+                w: WALL_WIDTH,
+                h: GAME_GRID_LEN,
+            };
+            arr[(x * 2) + 1] = Rect {
+                x: PADDING,
+                y: PADDING + base_offset,
+                w: GAME_GRID_LEN,
+                h: WALL_WIDTH,
+            };
+        }
 
-    grid_lines
-}
+        arr
+    });
 
 /// Draws the base elements - backdrop, bounds and grid
-pub fn draw_game_grid_base(vec: &Vec<Rect>) {
+pub fn draw_game_grid_base(
+    lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
+) {
     draw_bounds();
     draw_backdrop();
-    draw_grid_precomputed(vec);
+    draw_grid_precomputed(lines);
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
+pub fn draw_game_stats(
+    font: Option<&Font>,
+    wall_counts: (usize, usize),
+    score: (usize, usize),
+) {
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -156,26 +167,31 @@ pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
         ..Default::default()
     };
 
+    let h2_params = TextParams {
+        font_size: FONT_SIZE_H2,
+        ..h1_params
+    };
+
+    let h3_params = TextParams {
+        font_size: FONT_SIZE_H3,
+        ..h1_params
+    };
+
     let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
 
     // H1
-    let h1_texts = [String::from("game"), String::from("stats")];
+    let h1_texts = ["game", "stats"];
     h1_texts.iter().for_each(|h| {
         let h1_string = h;
-        let h1_text_centre = get_text_center(
-            h1_string.clone(),
-            font,
-            h1_params.font_size,
-            1.0,
-            0.0,
-        );
+        let h1_text_centre =
+            get_text_center(h1_string, font, h1_params.font_size, 1.0, 0.0);
 
         next_line_offset +=
             (h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
 
         // GAME
         draw_text_ex(
-            h1_string.clone(),
+            h1_string,
             STATS_X_OFFSET - h1_text_centre.x,
             next_line_offset,
             h1_params.clone(),
@@ -183,11 +199,6 @@ pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
     });
 
     next_line_offset += GAME_STATS_BOX_PADDING * 12.0;
-
-    let h3_params = TextParams {
-        font_size: FONT_SIZE_H3,
-        ..h1_params
-    };
 
     // H3
     let h3_texts = [
@@ -212,7 +223,7 @@ pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
         );
 
         draw_text_ex(
-            h3_string.clone(),
+            h3_string,
             STATS_X_OFFSET - h3_string_text_centre.x,
             next_line_offset,
             h3_params.clone(),
@@ -221,11 +232,42 @@ pub fn draw_game_stats(font: Option<&Font>, wall_counts: (usize, usize)) {
         next_line_offset +=
             2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
     });
+
+    next_line_offset += GAME_STATS_BOX_PADDING * 8.0;
+
+    // H2
+    let h2_texts =
+        [String::from("Score"), format!("{} - {}", score.0, score.1)];
+
+    h2_texts.iter().enumerate().for_each(|(i, h)| {
+        let h2_string = h.to_string();
+        if i == 2 {
+            // text for player 2
+            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
+        }
+        let h2_string_text_centre = get_text_center(
+            h2_string.clone(),
+            font,
+            h2_params.font_size,
+            1.0,
+            0.0,
+        );
+
+        draw_text_ex(
+            h2_string,
+            STATS_X_OFFSET - h2_string_text_centre.x,
+            next_line_offset,
+            h2_params.clone(),
+        );
+
+        next_line_offset +=
+            2.0 * h2_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
+    });
 }
 
 pub struct Ui {
     font: Font,
-    grid_lines: Vec<Rect>,
+    grid_lines: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
 }
 
 impl UIHandler for Ui {
@@ -233,39 +275,36 @@ impl UIHandler for Ui {
         let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
         Ui {
             font,
-            grid_lines: pre_computed_grid_lines(),
+            grid_lines: GRID_LINES_ARR,
         }
     }
 
-    fn draw_game_base(&self, remaining_walls: (usize, usize)) {
+    fn draw_game_base(
+        &self,
+        remaining_walls: (usize, usize),
+        scores: (usize, usize),
+    ) {
         clear_background(GRAY);
 
         // draws borders, grid, padding and
         draw_game_grid_base(&self.grid_lines);
 
-        draw_game_stats(Some(&self.font), remaining_walls);
+        draw_game_stats(Some(&self.font), remaining_walls, scores);
     }
 
     fn mouse_position(&self) -> (f32, f32) {
-        macroquad::input::mouse_position()
+        mouse_position()
     }
 
     fn is_mouse_button_pressed(&self) -> bool {
-        macroquad::input::is_mouse_button_pressed(MouseButton::Left)
+        is_mouse_button_pressed(MouseButton::Left)
     }
 
     async fn next_frame(&self) {
         next_frame().await
     }
 
-    fn draw_rectangle(
-        &self,
-        x: f32,
-        y: f32,
-        w: f32,
-        h: f32,
-        color: macroquad::color::Color,
-    ) {
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
         draw_rectangle(x, y, w, h, color);
     }
 
@@ -312,8 +351,8 @@ impl UIHandler for Ui {
 }
 
 /// Draws the grid
-fn draw_grid_precomputed(vec: &Vec<Rect>) {
-    for v in vec {
+fn draw_grid_precomputed(lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>) {
+    for v in lines.iter() {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
 }
@@ -515,18 +554,13 @@ mod tests {
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
     use crate::core::wall::Wall;
-    use crate::ui::utils::{
-        GAME_GRID_BOX_START, GAME_GRID_LEN, LIGHT_BLUE, LIGHT_YELLOW,
-        MouseState, PADDING, TILE_SIZE, get_current_player_color,
-        get_mouse_pointer_state, is_mouse_inside_board,
-        pre_computed_grid_lines,
-    };
+    use crate::ui::utils::*;
 
     use crate::core::position::Position;
 
     #[test]
     fn test_correct_num_of_precomputed_lines() {
-        let pcl = pre_computed_grid_lines();
+        let pcl = GRID_LINES_ARR.to_vec();
         assert_eq!(16, pcl.len());
     }
 
