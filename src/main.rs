@@ -4,8 +4,6 @@ mod ui;
 
 use crate::core::game::GameState;
 use crate::core::game::{Game, Move, PLAYER_1_ID};
-use crate::core::grid;
-use crate::core::player::{Player, StartingPosition};
 use crate::core::wall::Wall;
 use crate::game_rounds_state::GameRoundsState;
 use crate::ui::ui_handler::UIHandler;
@@ -26,19 +24,11 @@ async fn main() {
     let mut gg = GameRoundsState::new();
 
     loop {
-        let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        let winner_id = game_loop(&mut game, ui, gg.scores()).await;
+        let scores = gg.scores();
+        let winner_id = game_loop(&mut gg.game, ui, scores).await;
         gg.record_win(winner_id);
     }
-}
-
-fn new_game() -> Game {
-    let grid = grid::Grid::new();
-
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-    Game::new(grid, p1, p2)
 }
 
 async fn game_loop<T>(game: &mut Game, ui: T, scores: (usize, usize)) -> u8
@@ -106,6 +96,7 @@ where
 mod tests {
     use super::*;
     use crate::core::game::PLAYER_2_ID;
+    use crate::core::player::Player;
     use macroquad::color::Color;
     use std::cell::RefCell;
     use std::collections::VecDeque;
@@ -167,7 +158,9 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_straight_move_no_walls() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let mut g = &mut gg.game;
+
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
             (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
@@ -191,7 +184,8 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_place_walls() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let mut g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -218,7 +212,8 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_random_click() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let mut g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
