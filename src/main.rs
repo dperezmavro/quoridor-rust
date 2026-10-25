@@ -13,10 +13,10 @@ use crate::ui::utils::Ui;
 use crate::ui::utils::{
     MouseState, draw_move_preview, draw_placed_wall,
     draw_wall_placement_preview, get_mouse_pointer_state,
-    highlight_player_options,
+    highlight_player_options, window_conf,
 };
 
-#[macroquad::main(get_window_conf)]
+#[macroquad::main(window_conf)]
 async fn main() {
     let mut gg = GameRoundsState::new();
 

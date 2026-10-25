@@ -559,7 +559,7 @@ mod tests {
 
     #[test]
     fn test_correct_num_of_precomputed_lines() {
-        let pcl = GRID_LINES_ARR.to_vec();
+        let pcl = GRID_LINES_ARR;
         assert_eq!(16, pcl.len());
     }
 
