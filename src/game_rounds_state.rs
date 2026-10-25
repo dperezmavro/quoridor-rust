@@ -18,6 +18,7 @@ impl Drop for GameRoundsState {
     }
 }
 
+#[derive(Debug)]
 struct SaveFile {
     pub p1_score: usize,
     pub p2_score: usize,
@@ -38,16 +39,14 @@ impl GameRoundsState {
 
     pub fn save_state_to_file(&self) {
         println!("GameRoundsState save state to file!");
-        // let sf = SaveFile {
-        //     walls: self.game.grid.walls(),
-        //     players: [self.game.p1, self.game.p2],
-        // };
-        println!("p1_score : {}", self.p1_score);
-        println!("p2_score : {}", self.p2_score);
-        println!("total_rounds : {}", self.total_rounds);
-        println!("p1 : {:?}", self.game.p1);
-        println!("p2 : {:?}", self.game.p2);
-        println!("vertical_walls : {:?}", self.game.grid);
+        let sf = SaveFile {
+            walls: self.game.grid.walls(),
+            players: [self.game.p1.clone(), self.game.p2.clone()],
+            p1_score: self.p1_score,
+            p2_score: self.p2_score,
+            total_rounds: self.total_rounds,
+        };
+        println!("save: {:?}", sf);
     }
 
     pub fn record_win(&mut self, winner_id: u8) {
