@@ -3,18 +3,19 @@ mod game_rounds_state;
 mod ui;
 
 use crate::core::game::GameState;
+use crate::core::game::{Game, Move, PLAYER_1_ID};
+use crate::core::grid;
+use crate::core::player::{Player, StartingPosition};
+use crate::core::wall::Wall;
 use crate::game_rounds_state::GameRoundsState;
+use crate::ui::ui_handler::UIHandler;
 use crate::ui::utils::Ui;
-use core::game::{Game, Move, PLAYER_1_ID};
-use core::player::{Player, StartingPosition};
-use core::{grid, wall};
-use macroquad::prelude::Conf;
-use ui::ui_handler::UIHandler;
-use ui::utils::{
+use crate::ui::utils::{
     MouseState, draw_move_preview, draw_placed_wall,
     draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
     highlight_player_options,
 };
+use macroquad::prelude::Conf;
 
 fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
@@ -48,7 +49,7 @@ where
 {
     // this currently holds wall + user information
     // could wall be refactored to use this?
-    let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
+    let mut walls: Vec<Wall> = Vec::with_capacity(20);
 
     loop {
         ui.draw_game_base(game.player_wall_counts(), scores);
