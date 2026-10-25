@@ -2,9 +2,9 @@ use crate::core::player::Player;
 use crate::core::wall::Wall;
 
 use serde::Serialize;
-use std::fs::OpenOptions;
-use std::io::Write;
 use vfs::{PhysicalFS, VfsPath};
+
+const SAVE_FILE_NAME: &str = "quoridor-rs.save.json";
 
 #[derive(Serialize, Debug)]
 pub struct SaveFile {
@@ -37,27 +37,39 @@ impl SaveFile {
 
     pub fn save_file(&self) {
         let json_str = serde_json::to_string(&self).unwrap();
-        println!("{}", json_str);
-        // let final_path = self.fs.join("quoridor-rs.save.json").unwrap();
-        // if final_path.exists().unwrap() {
-        //     final_path
-        //         .open_file()
-        //         .unwrap()
-        //         .write_all(json_str.as_bytes())
-        //         .unwrap();
-        // } else {
-        //     final_path
-        //         .create_file()
-        //         .unwrap()
-        //         .write_all(&json_str.as_bytes())
-        //         .unwrap();
-        // }
-        let mut f = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .open("/tmp/quoridor-rs.save.json")
+        let final_path = self.fs.root().join(SAVE_FILE_NAME).unwrap();
+        println!("Saving to: {:?}", final_path.as_str());
+
+        final_path
+            .create_file()
+            .unwrap()
+            .write_all(json_str.as_bytes())
             .unwrap();
-        f.write_all(json_str.as_bytes()).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::core::player::StartingPosition;
+    use vfs::MemoryFS;
+
+    #[test]
+    fn test_save_file() {
+        let mut sf = SaveFile::new(
+            1,
+            2,
+            3,
+            [
+                Player::new(String::from("p1111"), StartingPosition::Top),
+                Player::new(String::from("p222"), StartingPosition::Bottom),
+            ],
+            vec![],
+        );
+
+        let mem_root: VfsPath = MemoryFS::new().into();
+        sf.fs = mem_root;
+
+        sf.save_file();
     }
 }
