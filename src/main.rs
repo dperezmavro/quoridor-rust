@@ -1,7 +1,9 @@
 mod core;
+mod game_rounds_state;
 mod ui;
 
 use crate::core::game::GameState;
+use crate::game_rounds_state::GameRoundsState;
 use crate::ui::utils::Ui;
 use core::game::{Game, Move, PLAYER_1_ID};
 use core::player::{Player, StartingPosition};
@@ -18,16 +20,9 @@ fn window_conf() -> Conf {
     get_window_conf(String::from("quoridor-rust"))
 }
 
-#[derive(Default)]
-struct Games {
-    total_rounds: usize,
-    p1_score: usize,
-    p2_score: usize,
-}
-
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut gg = Games::default();
+    let mut gg = GameRoundsState::default();
 
     loop {
         gg.total_rounds += 1;
@@ -119,7 +114,11 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::core::game::PLAYER_2_ID;
+    use macroquad::color::Color;
+    use std::cell::RefCell;
+    use std::collections::VecDeque;
 
     struct MockUiHandler {
         click_coordinates: RefCell<VecDeque<(f32, f32)>>,
@@ -163,11 +162,6 @@ mod tests {
 
         fn draw_circle(&self, _x: f32, _y: f32, _r: f32, _color: Color) {}
     }
-
-    use super::*;
-    use macroquad::color::Color;
-    use std::cell::RefCell;
-    use std::collections::VecDeque;
 
     const TILE_COORD_0: f32 = 75.0;
     const TILE_COORD_1: f32 = 150.0;
