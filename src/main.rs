@@ -5,22 +5,18 @@ mod ui;
 
 use crate::core::game::GameState;
 use crate::core::game::{Game, Move, PLAYER_1_ID};
+use crate::core::player::NUM_WALLS;
 use crate::core::wall::Wall;
 use crate::game_rounds_state::GameRoundsState;
 use crate::ui::ui_handler::UIHandler;
 use crate::ui::utils::Ui;
 use crate::ui::utils::{
     MouseState, draw_move_preview, draw_placed_wall,
-    draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
+    draw_wall_placement_preview, get_mouse_pointer_state,
     highlight_player_options,
 };
-use macroquad::prelude::Conf;
 
-fn window_conf() -> Conf {
-    get_window_conf(String::from("quoridor-rust"))
-}
-
-#[macroquad::main(window_conf)]
+#[macroquad::main(get_window_conf)]
 async fn main() {
     let mut gg = GameRoundsState::new();
 
@@ -33,13 +29,14 @@ async fn main() {
     }
 }
 
+/// Runs the game loop for a single game
 async fn game_loop<T>(game: &mut Game, ui: T, scores: (usize, usize)) -> u8
 where
     T: UIHandler,
 {
     // this currently holds wall + user information
     // could wall be refactored to use this?
-    let mut walls: Vec<Wall> = Vec::with_capacity(20);
+    let mut walls: Vec<Wall> = Vec::with_capacity(2 * NUM_WALLS);
 
     loop {
         ui.draw_game_base(game.player_wall_counts(), scores);

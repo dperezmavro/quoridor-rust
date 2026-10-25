@@ -4,6 +4,8 @@ use crate::core::player::{Player, StartingPosition};
 use crate::save_file::SaveFile;
 
 #[derive(Debug)]
+/// Global game state. Keeps track of multiple games
+/// and can save the game state.
 pub struct GameRoundsState {
     pub total_rounds: usize,
     pub game: Game,
@@ -28,8 +30,8 @@ impl GameRoundsState {
         }
     }
 
+    /// Saves to a file
     pub fn save_state_to_file(&self) {
-        println!("GameRoundsState save state to file!");
         let sf = SaveFile {
             walls: self.game.grid.walls(),
             players: [self.game.p1.clone(), self.game.p2.clone()],
@@ -37,9 +39,9 @@ impl GameRoundsState {
             p2_score: self.p2_score,
             total_rounds: self.total_rounds,
         };
-        println!("save: {:?}", sf);
     }
 
+    /// Record a winning game for a player
     pub fn record_win(&mut self, winner_id: u8) {
         if winner_id == PLAYER_1_ID {
             self.p1_score += 1;
@@ -50,14 +52,18 @@ impl GameRoundsState {
         self.total_rounds += 1;
     }
 
+    /// Returns the games' current score
     pub fn scores(&self) -> (usize, usize) {
         (self.p1_score, self.p2_score)
     }
 
+    /// Wrapper around the public function
     pub fn new_game(&mut self) {
         self.game = new_game();
     }
 }
+
+/// Creates a new game.
 pub fn new_game() -> Game {
     let grid = grid::Grid::new();
 

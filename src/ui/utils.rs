@@ -100,9 +100,9 @@ pub enum MouseState {
 }
 
 /// Returns the default window config
-pub fn get_window_conf(title: String) -> Conf {
+pub fn window_conf() -> Conf {
     Conf {
-        window_title: title,
+        window_title: String::from("quoridor-rs"),
         window_width: SCREEN_WIDTH as i32,
         window_height: SCREEN_HEIGHT as i32,
         window_resizable: false,
