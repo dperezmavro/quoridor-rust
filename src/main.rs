@@ -31,11 +31,6 @@ async fn main() {
         let winner_id =
             game_loop(&mut game, ui, (gg.p1_score, gg.p2_score)).await;
         gg.record_win(winner_id);
-
-        println!(
-            "Player {winner_id} wins this round! Scores: P1 {}, P2 {}",
-            gg.p1_score, gg.p2_score
-        );
     }
 }
 
