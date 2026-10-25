@@ -23,10 +23,9 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut gg = GameRoundsState::default();
+    let mut gg = GameRoundsState::new();
 
     loop {
-        gg.total_rounds += 1;
         let mut game = new_game();
         let ui: Ui = Ui::new().await;
         let winner_id =
