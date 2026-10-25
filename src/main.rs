@@ -28,6 +28,7 @@ async fn main() {
         let scores = gg.scores();
         let winner_id = game_loop(&mut gg.game, ui, scores).await;
         gg.record_win(winner_id);
+        gg.new_game();
     }
 }
 
