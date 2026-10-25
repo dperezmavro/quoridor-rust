@@ -21,6 +21,7 @@ impl Drop for GameRoundsState {
 }
 
 impl GameRoundsState {
+    /// Constructor
     pub fn new() -> Self {
         GameRoundsState {
             total_rounds: 0,
@@ -39,6 +40,9 @@ impl GameRoundsState {
             p2_score: self.p2_score,
             total_rounds: self.total_rounds,
         };
+
+        let json_str = serde_json::to_string(&sf).unwrap();
+        println!("{}", json_str);
     }
 
     /// Record a winning game for a player
