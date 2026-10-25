@@ -1,6 +1,7 @@
 use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
+use crate::core::wall::Wall;
 
 #[derive(Debug)]
 pub struct GameRoundsState {
@@ -17,6 +18,14 @@ impl Drop for GameRoundsState {
     }
 }
 
+struct SaveFile {
+    pub p1_score: usize,
+    pub p2_score: usize,
+    pub total_rounds: usize,
+    pub players: [Player; 2],
+    pub walls: Vec<Wall>,
+}
+
 impl GameRoundsState {
     pub fn new() -> Self {
         GameRoundsState {
@@ -29,6 +38,10 @@ impl GameRoundsState {
 
     pub fn save_state_to_file(&self) {
         println!("GameRoundsState save state to file!");
+        // let sf = SaveFile {
+        //     walls: self.game.grid.walls(),
+        //     players: [self.game.p1, self.game.p2],
+        // };
         println!("p1_score : {}", self.p1_score);
         println!("p2_score : {}", self.p2_score);
         println!("total_rounds : {}", self.total_rounds);
