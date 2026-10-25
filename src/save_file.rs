@@ -38,6 +38,20 @@ impl SaveFile {
     pub fn save_file(&self) {
         let json_str = serde_json::to_string(&self).unwrap();
         println!("{}", json_str);
+        // let final_path = self.fs.join("quoridor-rs.save.json").unwrap();
+        // if final_path.exists().unwrap() {
+        //     final_path
+        //         .open_file()
+        //         .unwrap()
+        //         .write_all(json_str.as_bytes())
+        //         .unwrap();
+        // } else {
+        //     final_path
+        //         .create_file()
+        //         .unwrap()
+        //         .write_all(&json_str.as_bytes())
+        //         .unwrap();
+        // }
         let mut f = OpenOptions::new()
             .read(true)
             .write(true)
