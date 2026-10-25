@@ -1,8 +1,9 @@
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
+use serde::Serialize;
 
 /// Walls are used for walling player movement.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub struct Wall {
     /// `orientation` is the wall's orientation
     pub orientation: Orientation,

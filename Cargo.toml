@@ -11,6 +11,9 @@ tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread"] }
 
 [dependencies]
 macroquad = "0.4.16"
+serde = { version = "1.0.229", features = ["serde_derive"] }
+serde_json = "1.0.154"
+vfs = "0.13.0"
 
 
 [profile.dev]

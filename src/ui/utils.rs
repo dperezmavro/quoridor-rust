@@ -75,7 +75,6 @@ const FONT_SIZE_H1: u16 = 60;
 const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
 
 /// Font size for H3
-
 const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 /// Convenience offset for where to start drawing the text in the stats box
@@ -101,9 +100,9 @@ pub enum MouseState {
 }
 
 /// Returns the default window config
-pub fn get_window_conf(title: String) -> Conf {
+pub fn window_conf() -> Conf {
     Conf {
-        window_title: title,
+        window_title: String::from("quoridor-rs"),
         window_width: SCREEN_WIDTH as i32,
         window_height: SCREEN_HEIGHT as i32,
         window_resizable: false,
@@ -113,6 +112,7 @@ pub fn get_window_conf(title: String) -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
+#[allow(clippy::declare_interior_mutable_const)]
 const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
     LazyCell::new(|| {
         let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM] =
@@ -560,7 +560,7 @@ mod tests {
 
     #[test]
     fn test_correct_num_of_precomputed_lines() {
-        let pcl = GRID_LINES_ARR.to_vec();
+        let pcl = GRID_LINES_ARR;
         assert_eq!(16, pcl.len());
     }
 

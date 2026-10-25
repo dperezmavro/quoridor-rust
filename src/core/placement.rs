@@ -1,4 +1,6 @@
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+use serde::Serialize;
+
+#[derive(Serialize, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Placement {
     pub tile: usize,
     pub lane: usize,

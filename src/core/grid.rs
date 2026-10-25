@@ -31,6 +31,12 @@ impl Grid {
             .collect()
     }
 
+    pub fn walls(&self) -> Vec<Wall> {
+        let mut w = self.horizontal_walls.clone();
+        w.extend(self.vertical_walls.clone());
+        w
+    }
+
     fn positions_north(&self, pos: &Position) -> bool {
         pos.y > 0
             && self
@@ -403,6 +409,8 @@ mod tests {
         assert!(g.place_wall(&p1, &p2, *wall));
         assert!(g.can_player_reach_goal(&p1));
         assert!(g.can_player_reach_goal(&p2));
+
+        assert_eq!(1, g.walls().len());
     }
 
     #[test]
@@ -456,6 +464,8 @@ mod tests {
                 assert!(g.can_place_wall(&t.1, &t.2, *wall), "{:?}", wall);
                 assert!(g.place_wall(&t.1, &t.2, *wall), "{:?}", wall);
             });
+
+            assert_eq!(t.0.len(), g.walls().len());
 
             assert!(g.can_player_reach_goal(&t.1), "player 1 {:?}", t.1);
             assert!(g.can_player_reach_goal(&t.2), "player 2 {:?}", t.2);

@@ -1,68 +1,42 @@
 mod core;
+mod game_rounds_state;
+mod save_file;
 mod ui;
 
 use crate::core::game::GameState;
+use crate::core::game::{Game, Move, PLAYER_1_ID};
+use crate::core::player::NUM_WALLS;
+use crate::core::wall::Wall;
+use crate::game_rounds_state::GameRoundsState;
+use crate::ui::ui_handler::UIHandler;
 use crate::ui::utils::Ui;
-use core::game::{Game, Move, PLAYER_1_ID};
-use core::player::{Player, StartingPosition};
-use core::{grid, wall};
-use macroquad::prelude::Conf;
-use ui::ui_handler::UIHandler;
-use ui::utils::{
+use crate::ui::utils::{
     MouseState, draw_move_preview, draw_placed_wall,
-    draw_wall_placement_preview, get_mouse_pointer_state, get_window_conf,
-    highlight_player_options,
+    draw_wall_placement_preview, get_mouse_pointer_state,
+    highlight_player_options, window_conf,
 };
-
-fn window_conf() -> Conf {
-    get_window_conf(String::from("quoridor-rust"))
-}
-
-#[derive(Default)]
-struct Games {
-    total_rounds: usize,
-    p1_score: usize,
-    p2_score: usize,
-}
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut gg = Games::default();
+    let mut gg = GameRoundsState::new();
 
     loop {
-        gg.total_rounds += 1;
-        let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        let winner_id =
-            game_loop(&mut game, ui, (gg.p1_score, gg.p2_score)).await;
-        if winner_id == PLAYER_1_ID {
-            gg.p1_score += 1;
-        } else {
-            gg.p2_score += 1;
-        }
-
-        println!(
-            "Player {winner_id} wins this round! Scores: P1 {}, P2 {}",
-            gg.p1_score, gg.p2_score
-        );
+        let scores = gg.scores();
+        let winner_id = game_loop(&mut gg.game, ui, scores).await;
+        gg.record_win(winner_id);
+        gg.new_game();
     }
 }
 
-fn new_game() -> Game {
-    let grid = grid::Grid::new();
-
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
-    Game::new(grid, p1, p2)
-}
-
+/// Runs the game loop for a single game
 async fn game_loop<T>(game: &mut Game, ui: T, scores: (usize, usize)) -> u8
 where
     T: UIHandler,
 {
     // this currently holds wall + user information
     // could wall be refactored to use this?
-    let mut walls: Vec<wall::Wall> = Vec::with_capacity(20);
+    let mut walls: Vec<Wall> = Vec::with_capacity(2 * NUM_WALLS);
 
     loop {
         ui.draw_game_base(game.player_wall_counts(), scores);
@@ -119,7 +93,12 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::core::game::PLAYER_2_ID;
+    use crate::core::player::Player;
+    use macroquad::color::Color;
+    use std::cell::RefCell;
+    use std::collections::VecDeque;
 
     struct MockUiHandler {
         click_coordinates: RefCell<VecDeque<(f32, f32)>>,
@@ -164,11 +143,6 @@ mod tests {
         fn draw_circle(&self, _x: f32, _y: f32, _r: f32, _color: Color) {}
     }
 
-    use super::*;
-    use macroquad::color::Color;
-    use std::cell::RefCell;
-    use std::collections::VecDeque;
-
     const TILE_COORD_0: f32 = 75.0;
     const TILE_COORD_1: f32 = 150.0;
     const TILE_COORD_2: f32 = 230.0;
@@ -183,7 +157,9 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_straight_move_no_walls() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let g = &mut gg.game;
+
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
             (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
@@ -202,12 +178,13 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_place_walls() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -229,12 +206,13 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0),      // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_random_click() {
-        let mut g = new_game();
+        let mut gg = GameRoundsState::new();
+        let g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -257,6 +235,6 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 }

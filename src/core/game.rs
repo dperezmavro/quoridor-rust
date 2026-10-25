@@ -36,7 +36,7 @@ impl GameState {}
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
-    pub g: Grid,
+    pub grid: Grid,
     player_turn: PlayerTurn,
     pub state: GameState,
 }
@@ -46,10 +46,17 @@ pub enum Move {
     PlaceWall(Wall),
     PlayerAdvance(Position),
 }
+
+impl Drop for Game {
+    fn drop(&mut self) {
+        println!("Game drop!");
+    }
+}
+
 impl Game {
-    pub fn new(g: Grid, p1: Player, p2: Player) -> Self {
+    pub fn new(grid: Grid, p1: Player, p2: Player) -> Self {
         Self {
-            g,
+            grid,
             p1,
             p2,
             player_turn: PlayerTurn::Player1,
@@ -58,7 +65,7 @@ impl Game {
     }
 
     pub fn can_add_wall(&mut self, b: Wall) -> bool {
-        self.g.can_place_wall(&self.p1, &self.p2, b)
+        self.grid.can_place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn move_player(&mut self, pos: Position) -> bool {
@@ -86,7 +93,7 @@ impl Game {
 
         // unoccupied tiles
         let active_player_unoccupied_positions = self
-            .g
+            .grid
             .get_unoccupied_reachable_neighbour_positions(
                 &active_player.position,
                 &other_player.position,
@@ -94,7 +101,7 @@ impl Game {
             .into_iter();
 
         let other_player_unoccupied_positions = self
-            .g
+            .grid
             .get_unoccupied_reachable_neighbour_positions(
                 &other_player.position,
                 &active_player.position,
@@ -158,7 +165,7 @@ impl Game {
     }
 
     pub fn place_wall(&mut self, b: Wall) -> bool {
-        self.g.place_wall(&self.p1, &self.p2, b)
+        self.grid.place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn get_player_turn(&self) -> u8 {
