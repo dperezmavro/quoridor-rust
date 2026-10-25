@@ -17,6 +17,7 @@ pub struct SaveFile {
     pub walls: Vec<Wall>,
 }
 
+/// Wraps the FS library and state object
 pub struct SaveFileManager {
     sf: SaveFile,
     fs: VfsPath,
@@ -65,24 +66,6 @@ impl SaveFileManager {
     }
 }
 
-impl SaveFile {
-    pub fn new(
-        p1_score: usize,
-        p2_score: usize,
-        total_rounds: usize,
-        players: [Player; 2],
-        walls: Vec<Wall>,
-    ) -> Self {
-        Self {
-            walls,
-            players,
-            p1_score,
-            p2_score,
-            total_rounds,
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
@@ -91,16 +74,16 @@ mod test {
 
     #[test]
     fn test_save_file() {
-        let sf = SaveFile::new(
-            1,
-            2,
-            3,
-            [
+        let sf = SaveFile {
+            p1_score: 1,
+            p2_score: 2,
+            total_rounds: 3,
+            players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),
                 Player::new(String::from("p222"), StartingPosition::Bottom),
             ],
-            vec![],
-        );
+            walls: vec![],
+        };
 
         let sfm = SaveFileManager {
             sf,
@@ -113,16 +96,16 @@ mod test {
 
     #[test]
     fn test_load_file() {
-        let mut sf = SaveFile::new(
-            1,
-            2,
-            3,
-            [
+        let sf = SaveFile {
+            p1_score: 1,
+            p2_score: 2,
+            total_rounds: 3,
+            players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),
                 Player::new(String::from("p222"), StartingPosition::Bottom),
             ],
-            vec![],
-        );
+            walls: vec![],
+        };
 
         let sfm = SaveFileManager {
             sf: sf.clone(),
