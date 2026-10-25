@@ -1,18 +1,19 @@
 use crate::core::grid::NUM_TILES;
 use crate::core::position::Position;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
+/// Number of walls per player
 pub const NUM_WALLS: usize = 10;
 
 /// Enum for starting position
-#[derive(Serialize, Debug, Eq, PartialEq, Hash, Copy, Clone)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum StartingPosition {
     Top,
     Bottom,
 }
 
-/// Descibes the player, their position and their remaining blocks
-#[derive(Serialize, Debug, Eq, PartialEq, Clone)]
+/// Describes the player, their position and their remaining blocks
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Player {
     pub starting_position: StartingPosition,
     pub name: String,

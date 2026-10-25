@@ -1,7 +1,7 @@
 use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
-use crate::save_file::SaveFile;
+use crate::save_file::SaveFileManager;
 
 #[derive(Debug)]
 /// Global game state. Keeps track of multiple games
@@ -33,7 +33,7 @@ impl GameRoundsState {
 
     /// Saves to a file
     pub fn save_state_to_file(&self) {
-        let sf = SaveFile::new(
+        let sf = SaveFileManager::new(
             self.p1_score,
             self.p2_score,
             self.total_rounds,
