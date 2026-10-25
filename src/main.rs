@@ -28,8 +28,7 @@ async fn main() {
     loop {
         let mut game = new_game();
         let ui: Ui = Ui::new().await;
-        let winner_id =
-            game_loop(&mut game, ui, (gg.p1_score, gg.p2_score)).await;
+        let winner_id = game_loop(&mut game, ui, gg.scores()).await;
         gg.record_win(winner_id);
     }
 }
