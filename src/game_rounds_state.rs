@@ -2,7 +2,6 @@ use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
 use crate::save_file::SaveFile;
-use std::io::Write;
 
 #[derive(Debug)]
 /// Global game state. Keeps track of multiple games
