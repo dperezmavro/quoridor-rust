@@ -2,6 +2,7 @@ use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
 use crate::save_file::SaveFile;
+use std::io::Write;
 
 #[derive(Debug)]
 /// Global game state. Keeps track of multiple games
@@ -33,16 +34,15 @@ impl GameRoundsState {
 
     /// Saves to a file
     pub fn save_state_to_file(&self) {
-        let sf = SaveFile {
-            walls: self.game.grid.walls(),
-            players: [self.game.p1.clone(), self.game.p2.clone()],
-            p1_score: self.p1_score,
-            p2_score: self.p2_score,
-            total_rounds: self.total_rounds,
-        };
+        let sf = SaveFile::new(
+            self.p1_score,
+            self.p2_score,
+            self.total_rounds,
+            [self.game.p1.clone(), self.game.p2.clone()],
+            self.game.grid.walls(),
+        );
 
-        let json_str = serde_json::to_string(&sf).unwrap();
-        println!("{}", json_str);
+        sf.save_file();
     }
 
     /// Record a winning game for a player
