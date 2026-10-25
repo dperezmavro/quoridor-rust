@@ -112,6 +112,7 @@ pub fn window_conf() -> Conf {
 }
 
 /// Pre-computes the grid's lines where walls will be placed
+#[allow(clippy::declare_interior_mutable_const)]
 const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
     LazyCell::new(|| {
         let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM] =
