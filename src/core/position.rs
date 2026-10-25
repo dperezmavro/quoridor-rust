@@ -1,7 +1,9 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Generic position object
-#[derive(Serialize, Clone, Copy, Eq, Hash, Debug, Default, PartialEq)]
+#[derive(
+    Serialize, Deserialize, Clone, Copy, Eq, Hash, Debug, Default, PartialEq,
+)]
 pub struct Position {
     pub x: usize,
     pub y: usize,
