@@ -4,6 +4,7 @@ use crate::core::wall::Wall;
 use serde::Serialize;
 use std::fs::OpenOptions;
 use std::io::Write;
+use vfs::{PhysicalFS, VfsPath};
 
 #[derive(Serialize, Debug)]
 pub struct SaveFile {
@@ -12,6 +13,8 @@ pub struct SaveFile {
     pub total_rounds: usize,
     pub players: [Player; 2],
     pub walls: Vec<Wall>,
+    #[serde(skip_serializing)]
+    fs: VfsPath,
 }
 
 impl SaveFile {
@@ -28,6 +31,7 @@ impl SaveFile {
             p1_score,
             p2_score,
             total_rounds,
+            fs: PhysicalFS::new(std::env::temp_dir()).into(),
         }
     }
 
