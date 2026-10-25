@@ -75,7 +75,6 @@ const FONT_SIZE_H1: u16 = 60;
 const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
 
 /// Font size for H3
-
 const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
 
 /// Convenience offset for where to start drawing the text in the stats box

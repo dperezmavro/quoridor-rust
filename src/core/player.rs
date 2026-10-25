@@ -1,15 +1,18 @@
 use crate::core::grid::NUM_TILES;
 use crate::core::position::Position;
+use serde::Serialize;
 
 pub const NUM_WALLS: usize = 10;
 
-#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
+/// Enum for starting position
+#[derive(Serialize, Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum StartingPosition {
     Top,
     Bottom,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+/// Descibes the player, their position and their remaining blocks
+#[derive(Serialize, Debug, Eq, PartialEq, Clone)]
 pub struct Player {
     pub starting_position: StartingPosition,
     pub name: String,

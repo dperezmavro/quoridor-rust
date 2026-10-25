@@ -1,5 +1,6 @@
 mod core;
 mod game_rounds_state;
+mod save_file;
 mod ui;
 
 use crate::core::game::GameState;
@@ -160,7 +161,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_straight_move_no_walls() {
         let mut gg = GameRoundsState::new();
-        let mut g = &mut gg.game;
+        let g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -180,13 +181,13 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_place_walls() {
         let mut gg = GameRoundsState::new();
-        let mut g = &mut gg.game;
+        let g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -208,13 +209,13 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0),      // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_random_click() {
         let mut gg = GameRoundsState::new();
-        let mut g = &mut gg.game;
+        let g = &mut gg.game;
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -237,6 +238,6 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(&mut g, mui, (0, 0)).await);
+        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
     }
 }

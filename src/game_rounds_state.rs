@@ -1,7 +1,7 @@
 use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
-use crate::core::wall::Wall;
+use crate::save_file::SaveFile;
 
 #[derive(Debug)]
 pub struct GameRoundsState {
@@ -16,15 +16,6 @@ impl Drop for GameRoundsState {
         println!("GameRoundsState drop!");
         self.save_state_to_file();
     }
-}
-
-#[derive(Debug)]
-struct SaveFile {
-    pub p1_score: usize,
-    pub p2_score: usize,
-    pub total_rounds: usize,
-    pub players: [Player; 2],
-    pub walls: Vec<Wall>,
 }
 
 impl GameRoundsState {
@@ -57,11 +48,6 @@ impl GameRoundsState {
         }
 
         self.total_rounds += 1;
-
-        println!(
-            "Player {winner_id} wins this round! Scores: P1 {}, P2 {}",
-            self.p1_score, self.p2_score
-        );
     }
 
     pub fn scores(&self) -> (usize, usize) {
