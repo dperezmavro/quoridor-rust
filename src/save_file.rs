@@ -60,6 +60,8 @@ impl SaveFileManager {
     }
 
     /// Reads a game
+    #[allow(unfulfilled_lint_expectations)]
+    #[expect(dead_code)]
     pub fn load_file(&self, p: String) -> SaveFile {
         let final_path = self.fs.join(p).unwrap();
         println!("Loading from to: {:?}", final_path.as_str());
