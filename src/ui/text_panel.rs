@@ -18,8 +18,6 @@ const GAME_STATS_BOX_PADDING: f32 = 5.0;
 const STATS_X_OFFSET: f32 = crate::ui::utils::GAME_STATS_BOX_START
     + (crate::ui::utils::GAME_STATS_BOX_WIDTH / 2.0);
 
-pub struct TextPanel {}
-
 pub enum TextHeading {
     H1,
     H2,
@@ -38,40 +36,47 @@ impl TextHeading {
     fn bottom_offset_factor(&self) -> f32 {
         match self {
             TextHeading::H1 => 12.0,
-            TextHeading::H3 => 8.0,
+            TextHeading::H3 => 4.0,
             _ => 10.0,
         }
     }
 }
 
+pub struct TextPanel {
+    offset: f32,
+}
+
 impl TextPanel {
+    pub fn new(offset: f32) -> Self {
+        Self { offset }
+    }
     pub fn draw_text(
+        &mut self,
         font: Option<&Font>,
-        offset: f32,
         th: TextHeading,
         texts: Vec<String>,
-    ) -> f32 {
+    ) {
         let params = TextParams {
             font,
             font_size: th.font_size(),
             color: BLACK,
             ..Default::default()
         };
-        let mut offset = offset;
+
         texts.iter().for_each(|s| {
             let text_centre =
                 get_text_center(s, font, params.font_size, 1.0, 0.0);
 
-            offset += (text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
+            self.offset += (text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
 
             draw_text_ex(
                 s,
                 STATS_X_OFFSET - text_centre.x,
-                offset,
+                self.offset,
                 params.clone(),
             );
         });
 
-        offset + GAME_STATS_BOX_PADDING * th.bottom_offset_factor()
+        self.offset += GAME_STATS_BOX_PADDING * th.bottom_offset_factor();
     }
 }

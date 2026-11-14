@@ -69,9 +69,6 @@ const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
 /// Padding for the box showing game stats
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
 
-/// Convenience offset for where to start drawing the text in the stats box
-const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
-
 /// First player's colour mapping
 const FIRST_PLAYER_ID: u8 = 0;
 
@@ -152,88 +149,41 @@ pub fn draw_game_stats(
         WHITE,
     );
 
-    let h1_params = TextParams {
+    // let next_line_offset =
+    let mut tp = TextPanel::new(PADDING + (2.0 * GAME_STATS_BOX_PADDING));
+
+    tp.draw_text(
         font,
-        font_size: crate::ui::text_panel::FONT_SIZE_H1,
-        color: BLACK,
-        ..Default::default()
-    };
-
-    let h2_params = TextParams {
-        font_size: crate::ui::text_panel::FONT_SIZE_H2,
-        ..h1_params
-    };
-
-    let h3_params = TextParams {
-        font_size: crate::ui::text_panel::FONT_SIZE_H3,
-        ..h1_params
-    };
-
-    let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
-
-    let offset = TextPanel::draw_text(
-        font,
-        next_line_offset,
         TextHeading::H1,
-        vec!["game", "stats"]
+        ["game", "stats"].iter().map(ToString::to_string).collect(),
+    );
+
+    tp.draw_text(
+        font,
+        TextHeading::H3,
+        ["player 1", format!("walls: {}", wall_counts.0).as_str()]
             .iter()
             .map(ToString::to_string)
             .collect(),
     );
 
-    next_line_offset = offset;
+    tp.draw_text(
+        font,
+        TextHeading::H3,
+        ["player 2", format!("walls: {}", wall_counts.1).as_str()]
+            .iter()
+            .map(ToString::to_string)
+            .collect(),
+    );
 
-    // H3
-    let texts = [
-        String::from("player 1"),
-        format!("walls: {}", wall_counts.0),
-        String::from("player 2"),
-        format!("walls: {}", wall_counts.1),
-    ];
-
-    texts.iter().enumerate().for_each(|(i, h)| {
-        if i == 2 {
-            // text for player 2
-            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
-        }
-        let h3_string_text_centre =
-            get_text_center(h, font, h3_params.font_size, 1.0, 0.0);
-
-        draw_text_ex(
-            h,
-            STATS_X_OFFSET - h3_string_text_centre.x,
-            next_line_offset,
-            h3_params.clone(),
-        );
-
-        next_line_offset +=
-            2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
-    });
-
-    next_line_offset += GAME_STATS_BOX_PADDING * 8.0;
-
-    // H2
-    let h2_texts =
-        [String::from("Score"), format!("{} - {}", score.0, score.1)];
-
-    h2_texts.iter().enumerate().for_each(|(i, h)| {
-        if i == 2 {
-            // text for player 2
-            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
-        }
-        let h2_string_text_centre =
-            get_text_center(h, font, h2_params.font_size, 1.0, 0.0);
-
-        draw_text_ex(
-            h,
-            STATS_X_OFFSET - h2_string_text_centre.x,
-            next_line_offset,
-            h2_params.clone(),
-        );
-
-        next_line_offset +=
-            2.0 * h2_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
-    });
+    tp.draw_text(
+        font,
+        TextHeading::H2,
+        ["Score", format!("{} - {}", score.0, score.1).as_str()]
+            .iter()
+            .map(ToString::to_string)
+            .collect(),
+    );
 }
 
 pub struct Ui {
