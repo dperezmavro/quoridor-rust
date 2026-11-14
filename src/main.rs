@@ -3,7 +3,7 @@ mod save_file;
 mod ui;
 
 use crate::core::game::GameState;
-use crate::core::game::{Game, Move, PLAYER_1_ID};
+use crate::core::game::{Move, PLAYER_1_ID};
 use crate::core::player::NUM_WALLS;
 use crate::core::wall::Wall;
 use crate::save_file::SaveFileManager;
@@ -22,7 +22,7 @@ use std::rc::Rc;
 async fn main() {
     let gg = GameRoundsState::new();
     let rc_gg = Rc::new(RefCell::new(gg));
-    let sf = SaveFileManager::new(rc_gg.clone());
+    let _sf = SaveFileManager::new(rc_gg.clone());
 
     loop {
         let ui: Ui = Ui::new().await;

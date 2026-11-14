@@ -47,12 +47,6 @@ pub enum Move {
     PlayerAdvance(Position),
 }
 
-impl Drop for Game {
-    fn drop(&mut self) {
-        println!("Game drop!");
-    }
-}
-
 impl Game {
     pub fn new(grid: Grid, p1: Player, p2: Player) -> Self {
         Self {

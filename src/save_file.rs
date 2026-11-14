@@ -29,7 +29,7 @@ pub struct SaveFileManager {
 
 impl Drop for SaveFileManager {
     fn drop(&mut self) {
-        self.save_file();
+        println!("[+] Saving file to: {}", self.save_file());
     }
 }
 
