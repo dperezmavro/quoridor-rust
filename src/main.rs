@@ -22,14 +22,14 @@ use std::rc::Rc;
 async fn main() {
     let gg = GameRoundsState::new();
     let rc_gg = Rc::new(RefCell::new(gg));
-    // let sf = SaveFileManager::new(rc_gg.clone());
+    let sf = SaveFileManager::new(rc_gg.clone());
 
     loop {
         let ui: Ui = Ui::new().await;
-        // let scores = rc_gg.borrow().scores();
-        let winner_id = game_loop(rc_gg.clone(), ui, (0, 0)).await;
-        // gg.record_win(winner_id);
-        // gg.new_game();
+        let scores = rc_gg.borrow().scores();
+        let winner_id = game_loop(rc_gg.clone(), ui, scores).await;
+        rc_gg.borrow_mut().record_win(winner_id);
+        rc_gg.borrow_mut().new_game();
     }
 }
 

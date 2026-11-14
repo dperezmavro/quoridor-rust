@@ -105,7 +105,7 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
-            current_player_id: 2,
+            current_player_id: 0,
             total_rounds: 3,
             players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),
@@ -115,6 +115,8 @@ mod test {
         };
 
         let mut grs = GameRoundsState::new();
+        grs.game.p1.name = String::from("p1111");
+        grs.game.p2.name = String::from("p222");
         grs.p1_score = 1;
         grs.p2_score = 2;
         grs.total_rounds = 3;
