@@ -56,7 +56,7 @@ impl SaveFileManager {
         };
 
         let json_str = serde_json::to_string(&sf).unwrap();
-        let final_path = self.fs.root().join(SAVE_FILE_NAME).unwrap();
+        let final_path = self.fs.join(SAVE_FILE_NAME).unwrap();
 
         final_path
             .create_file()
