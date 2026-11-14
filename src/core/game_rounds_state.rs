@@ -1,7 +1,6 @@
 use crate::core::game::{Game, PLAYER_1_ID};
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
-use crate::save_file::SaveFileManager;
 
 #[derive(Debug)]
 /// Global game state. Keeps track of multiple games
@@ -13,13 +12,6 @@ pub struct GameRoundsState {
     pub p2_score: usize,
 }
 
-impl Drop for GameRoundsState {
-    fn drop(&mut self) {
-        println!("GameRoundsState drop!");
-        self.save_state_to_file();
-    }
-}
-
 impl GameRoundsState {
     /// Constructor
     pub fn new() -> Self {
@@ -29,20 +21,6 @@ impl GameRoundsState {
             p2_score: 0,
             game: new_game(),
         }
-    }
-
-    /// Saves to a file
-    pub fn save_state_to_file(&self) {
-        let sf = SaveFileManager::new(
-            self.p1_score,
-            self.p2_score,
-            self.total_rounds,
-            self.game.get_player_turn() as usize,
-            [self.game.p1.clone(), self.game.p2.clone()],
-            self.game.grid.walls(),
-        );
-
-        sf.save_file();
     }
 
     /// Record a winning game for a player
@@ -79,7 +57,7 @@ pub fn new_game() -> Game {
 #[cfg(test)]
 mod test {
     use crate::core::game::{PLAYER_1_ID, PLAYER_2_ID};
-    use crate::game_rounds_state::GameRoundsState;
+    use crate::core::game_rounds_state::GameRoundsState;
 
     #[test]
     fn test_record_win() {

@@ -1,6 +1,9 @@
 use crate::core::player::Player;
 use crate::core::wall::Wall;
+use std::cell::RefCell;
+use std::rc::Rc;
 
+use crate::core::game_rounds_state::GameRoundsState;
 use serde::{Deserialize, Serialize};
 use vfs::{PhysicalFS, VfsPath};
 
@@ -13,42 +16,46 @@ pub struct SaveFile {
     pub p1_score: usize,
     pub p2_score: usize,
     pub total_rounds: usize,
-    pub current_player_id: usize,
+    pub current_player_id: u8,
     pub players: [Player; 2],
     pub walls: Vec<Wall>,
 }
 
 /// Wraps the FS library and state object
 pub struct SaveFileManager {
-    sf: SaveFile,
     fs: VfsPath,
+    grs: Rc<RefCell<GameRoundsState>>,
+}
+
+impl Drop for SaveFileManager {
+    fn drop(&mut self) {
+        self.save_file();
+    }
 }
 
 impl SaveFileManager {
-    pub fn new(
-        p1_score: usize,
-        p2_score: usize,
-        total_rounds: usize,
-        current_player_id: usize,
-        players: [Player; 2],
-        walls: Vec<Wall>,
-    ) -> Self {
+    pub fn new(grs: Rc<RefCell<GameRoundsState>>) -> Self {
         Self {
-            sf: SaveFile {
-                walls,
-                players,
-                p1_score,
-                p2_score,
-                current_player_id,
-                total_rounds,
-            },
+            grs,
             fs: PhysicalFS::new(std::env::temp_dir()).into(),
         }
     }
 
     /// Saves to disk
     pub fn save_file(&self) -> String {
-        let json_str = serde_json::to_string(&self.sf).unwrap();
+        let sf: SaveFile = SaveFile {
+            p1_score: self.grs.borrow().p1_score,
+            p2_score: self.grs.borrow().p2_score,
+            total_rounds: self.grs.borrow().total_rounds,
+            current_player_id: self.grs.borrow().game.get_player_turn(),
+            players: [
+                self.grs.borrow().game.p1.clone(),
+                self.grs.borrow().game.p2.clone(),
+            ],
+            walls: self.grs.borrow().game.grid.walls(),
+        };
+
+        let json_str = serde_json::to_string(&sf).unwrap();
         let final_path = self.fs.root().join(SAVE_FILE_NAME).unwrap();
 
         final_path
@@ -79,20 +86,13 @@ mod test {
 
     #[test]
     fn test_save_file() {
-        let sf = SaveFile {
-            p1_score: 1,
-            p2_score: 2,
-            total_rounds: 3,
-            current_player_id: 1,
-            players: [
-                Player::new(String::from("p1111"), StartingPosition::Top),
-                Player::new(String::from("p222"), StartingPosition::Bottom),
-            ],
-            walls: vec![],
-        };
+        let mut grs = GameRoundsState::new();
+        grs.p1_score = 1;
+        grs.p2_score = 2;
+        grs.total_rounds = 3;
 
         let sfm = SaveFileManager {
-            sf,
+            grs: Rc::new(RefCell::new(grs)),
             fs: MemoryFS::new().into(),
         };
 
@@ -114,8 +114,13 @@ mod test {
             walls: vec![],
         };
 
+        let mut grs = GameRoundsState::new();
+        grs.p1_score = 1;
+        grs.p2_score = 2;
+        grs.total_rounds = 3;
+
         let sfm = SaveFileManager {
-            sf: sf.clone(),
+            grs: Rc::new(RefCell::new(grs)),
             fs: MemoryFS::new().into(),
         };
 

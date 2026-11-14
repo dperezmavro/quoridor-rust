@@ -1,5 +1,4 @@
 mod core;
-mod game_rounds_state;
 mod save_file;
 mod ui;
 
@@ -7,7 +6,7 @@ use crate::core::game::GameState;
 use crate::core::game::{Game, Move, PLAYER_1_ID};
 use crate::core::player::NUM_WALLS;
 use crate::core::wall::Wall;
-use crate::game_rounds_state::GameRoundsState;
+use crate::save_file::SaveFileManager;
 use crate::ui::ui_handler::UIHandler;
 use crate::ui::utils::Ui;
 use crate::ui::utils::{
@@ -15,22 +14,31 @@ use crate::ui::utils::{
     draw_wall_placement_preview, get_mouse_pointer_state,
     highlight_player_options, window_conf,
 };
+use core::game_rounds_state::GameRoundsState;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut gg = GameRoundsState::new();
+    let gg = GameRoundsState::new();
+    let rc_gg = Rc::new(RefCell::new(gg));
+    // let sf = SaveFileManager::new(rc_gg.clone());
 
     loop {
         let ui: Ui = Ui::new().await;
-        let scores = gg.scores();
-        let winner_id = game_loop(&mut gg.game, ui, scores).await;
-        gg.record_win(winner_id);
-        gg.new_game();
+        // let scores = rc_gg.borrow().scores();
+        let winner_id = game_loop(rc_gg.clone(), ui, (0, 0)).await;
+        // gg.record_win(winner_id);
+        // gg.new_game();
     }
 }
 
 /// Runs the game loop for a single game
-async fn game_loop<T>(game: &mut Game, ui: T, scores: (usize, usize)) -> u8
+async fn game_loop<T>(
+    grs: Rc<RefCell<GameRoundsState>>,
+    ui: T,
+    scores: (usize, usize),
+) -> u8
 where
     T: UIHandler,
 {
@@ -38,7 +46,7 @@ where
     // could wall be refactored to use this?
     let mut walls: Vec<Wall> = Vec::with_capacity(2 * NUM_WALLS);
     loop {
-        ui.draw_game_base(game.player_wall_counts(), scores);
+        ui.draw_game_base(grs.borrow().game.player_wall_counts(), scores);
 
         // draw walls that have already been placed
         for b in &walls {
@@ -46,38 +54,49 @@ where
         }
 
         // draw players
-        ui.draw_player(&game.p1, game.get_player_turn() == PLAYER_1_ID);
-        ui.draw_player(&game.p2, game.get_player_turn() != PLAYER_1_ID);
+        ui.draw_player(
+            &grs.borrow().game.p1,
+            grs.borrow().game.get_player_turn() == PLAYER_1_ID,
+        );
+        ui.draw_player(
+            &grs.borrow().game.p2,
+            grs.borrow().game.get_player_turn() != PLAYER_1_ID,
+        );
 
         let res = get_mouse_pointer_state(ui.mouse_position());
-        let turn = game.get_player_turn();
+        let turn = grs.borrow().game.get_player_turn();
         match &res {
             // hovering above a wall position
             MouseState::WallPosition(b) => {
                 // hovering above a wall position
-                if game.can_add_wall(*b) {
+                if grs.borrow_mut().game.can_add_wall(*b) {
                     draw_wall_placement_preview(&ui, *b, turn);
                 }
 
-                if ui.is_mouse_button_pressed() && game.can_add_wall(*b) {
-                    let wall_placed = game.process_move(Move::PlaceWall(*b));
+                if ui.is_mouse_button_pressed()
+                    && grs.borrow_mut().game.can_add_wall(*b)
+                {
+                    let wall_placed =
+                        grs.borrow_mut().game.process_move(Move::PlaceWall(*b));
                     if wall_placed {
                         walls.push(*b);
                     }
                 }
             }
             MouseState::RowCol(pos) => {
-                let player_options = game.get_player_options();
+                let player_options = grs.borrow().game.get_player_options();
                 highlight_player_options(&ui, turn, &player_options);
 
                 if player_options.contains(pos)
-                    && !game.is_position_occupied_by_player(pos)
+                    && !grs.borrow().game.is_position_occupied_by_player(pos)
                 {
                     draw_move_preview(&ui, pos);
                 }
 
                 if ui.is_mouse_button_pressed() {
-                    game.process_move(Move::PlayerAdvance(*pos));
+                    grs.borrow_mut()
+                        .game
+                        .process_move(Move::PlayerAdvance(*pos));
                 }
             }
             // anything else isn't drawable
@@ -85,7 +104,7 @@ where
         }
 
         ui.next_frame().await;
-        if let GameState::GameFinished(player_turn) = game.state {
+        if let GameState::GameFinished(player_turn) = grs.borrow().game.state {
             return player_turn;
         }
     }
@@ -178,8 +197,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_straight_move_no_walls() {
-        let mut gg = GameRoundsState::new();
-        let g = &mut gg.game;
+        let gg = GameRoundsState::new();
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -199,13 +217,15 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
+        assert_eq!(
+            PLAYER_2_ID,
+            game_loop(Rc::new(RefCell::new(gg)), mui, (0, 0)).await
+        );
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_place_walls() {
-        let mut gg = GameRoundsState::new();
-        let g = &mut gg.game;
+        let gg = GameRoundsState::new();
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -227,13 +247,15 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0),      // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
+        assert_eq!(
+            PLAYER_2_ID,
+            game_loop(Rc::new(RefCell::new(gg)), mui, (0, 0)).await
+        );
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_random_click() {
-        let mut gg = GameRoundsState::new();
-        let g = &mut gg.game;
+        let gg = GameRoundsState::new();
 
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
@@ -256,6 +278,9 @@ mod tests {
             (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
-        assert_eq!(PLAYER_2_ID, game_loop(g, mui, (0, 0)).await);
+        assert_eq!(
+            PLAYER_2_ID,
+            game_loop(Rc::new(RefCell::new(gg)), mui, (0, 0)).await
+        );
     }
 }
