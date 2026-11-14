@@ -8,6 +8,7 @@ use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
+use crate::ui::text_panel::{TextHeading, TextPanel};
 use crate::ui::ui_handler::UIHandler;
 
 /// Width of grid line - this is re-used by the walls
@@ -20,7 +21,7 @@ const BORDER_WIDTH: f32 = 2.0;
 pub const PADDING: f32 = 50.0;
 
 /// Width of box showing player information
-const GAME_STATS_BOX_WIDTH: f32 = 150.0;
+pub const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
@@ -54,7 +55,7 @@ pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
 /// Where the game display box starts
-const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
+pub const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
@@ -170,36 +171,27 @@ pub fn draw_game_stats(
 
     let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
 
-    // H1
-    let h1_texts = ["game", "stats"];
-    h1_texts.iter().for_each(|h| {
-        let h1_string = h;
-        let h1_text_centre =
-            get_text_center(h1_string, font, h1_params.font_size, 1.0, 0.0);
+    let offset = TextPanel::draw_text(
+        font,
+        next_line_offset,
+        TextHeading::H1,
+        vec!["game", "stats"]
+            .iter()
+            .map(ToString::to_string)
+            .collect(),
+    );
 
-        next_line_offset +=
-            (h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
-
-        // GAME
-        draw_text_ex(
-            h1_string,
-            STATS_X_OFFSET - h1_text_centre.x,
-            next_line_offset,
-            h1_params.clone(),
-        );
-    });
-
-    next_line_offset += GAME_STATS_BOX_PADDING * 12.0;
+    next_line_offset = offset;
 
     // H3
-    let h3_texts = [
+    let texts = [
         String::from("player 1"),
         format!("walls: {}", wall_counts.0),
         String::from("player 2"),
         format!("walls: {}", wall_counts.1),
     ];
 
-    h3_texts.iter().enumerate().for_each(|(i, h)| {
+    texts.iter().enumerate().for_each(|(i, h)| {
         if i == 2 {
             // text for player 2
             next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
