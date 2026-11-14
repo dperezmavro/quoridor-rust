@@ -1,6 +1,6 @@
 use crate::ui::ui_handler::UIHandler;
 use macroquad::color::BLACK;
-use macroquad::prelude::{TextParams, get_text_center};
+use macroquad::prelude::TextParams;
 use macroquad::text::Font;
 
 /// Font size for H1
@@ -62,6 +62,7 @@ impl TextPanel {
             offset: offset + (2.0 * GAME_STATS_BOX_PADDING),
         }
     }
+
     pub fn draw_text<T>(
         &mut self,
         uih: &T,
@@ -80,7 +81,7 @@ impl TextPanel {
 
         texts.iter().enumerate().for_each(|(i, s)| {
             let text_centre =
-                get_text_center(s, font, params.font_size, 1.0, 0.0);
+                uih.get_text_center(s, font, params.font_size, 1.0, 0.0);
             if th == TextHeading::H3 && i == 2 {
                 self.offset += 10.0;
             }
@@ -153,6 +154,17 @@ mod tests {
             _params: TextParams,
         ) {
         }
+
+        fn get_text_center(
+            &self,
+            _text: impl AsRef<str>,
+            _font: Option<&Font>,
+            _font_size: u16,
+            _font_scale: f32,
+            _rotation: f32,
+        ) -> macroquad::math::Vec2 {
+            macroquad::math::Vec2 { x: 0.0, y: 0.0 }
+        }
     }
 
     #[test]
@@ -170,16 +182,24 @@ mod tests {
         assert_eq!(tp.offset, 2.0 * GAME_STATS_BOX_PADDING);
     }
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn assert_draw_text_h2() {
+        // let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
+        let th = TextHeading::H3;
         let mui = MockUiHandler::new().await;
         let mut tp = TextPanel::new(0.0);
-        let th = TextHeading::H2;
         tp.draw_text(&mui, None, th, vec![]);
 
         assert_eq!(
             tp.offset,
             GAME_STATS_BOX_PADDING * (2.0 + th.bottom_offset_factor())
         );
+
+        tp.draw_text(&mui, None, th, vec!["a", "b"]);
+        assert_eq!(tp.offset, 70.0,);
+
+        let mut tp = TextPanel::new(0.0);
+        tp.draw_text(&mui, None, th, vec!["a", "b", "c"]);
+        assert_eq!(tp.offset, 70.0,);
     }
 }

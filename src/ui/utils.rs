@@ -267,6 +267,17 @@ impl UIHandler for Ui {
     ) {
         draw_text_ex(text, x, y, params);
     }
+
+    fn get_text_center(
+        &self,
+        text: impl AsRef<str>,
+        font: Option<&Font>,
+        font_size: u16,
+        font_scale: f32,
+        rotation: f32,
+    ) -> macroquad::math::Vec2 {
+        get_text_center(text, font, font_size, font_scale, rotation)
+    }
 }
 
 /// Draws the grid

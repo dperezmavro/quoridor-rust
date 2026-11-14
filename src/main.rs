@@ -97,7 +97,7 @@ mod tests {
     use crate::core::game::PLAYER_2_ID;
     use crate::core::player::Player;
     use macroquad::color::Color;
-    use macroquad::prelude::TextParams;
+    use macroquad::prelude::{TextParams, Vec2};
     use std::cell::RefCell;
     use std::collections::VecDeque;
 
@@ -150,6 +150,17 @@ mod tests {
             _y: f32,
             _params: TextParams,
         ) {
+        }
+
+        fn get_text_center(
+            &self,
+            _text: impl AsRef<str>,
+            _font: Option<&macroquad::text::Font>,
+            _font_size: u16,
+            _font_scale: f32,
+            _rotation: f32,
+        ) -> macroquad::math::Vec2 {
+            Vec2 { x: 0.0, y: 0.0 }
         }
     }
 

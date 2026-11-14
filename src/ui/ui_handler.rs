@@ -38,4 +38,13 @@ pub trait UIHandler {
         y: f32,
         params: TextParams,
     );
+
+    fn get_text_center(
+        &self,
+        text: impl AsRef<str>,
+        font: Option<&macroquad::text::Font>,
+        font_size: u16,
+        font_scale: f32,
+        rotation: f32,
+    ) -> macroquad::math::Vec2;
 }
