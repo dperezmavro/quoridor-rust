@@ -1,5 +1,6 @@
 use crate::core::player::Player;
 use macroquad::color::Color;
+use macroquad::prelude::TextParams;
 
 pub trait UIHandler {
     async fn new() -> Self;
@@ -29,4 +30,12 @@ pub trait UIHandler {
 
     // Convenience function to wrap macroquad's draw_circle
     fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color);
+
+    fn draw_text_ex(
+        &self,
+        text: impl AsRef<str>,
+        x: f32,
+        y: f32,
+        params: TextParams,
+    );
 }

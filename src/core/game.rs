@@ -65,7 +65,13 @@ impl Game {
     }
 
     pub fn can_add_wall(&mut self, b: Wall) -> bool {
-        self.grid.can_place_wall(&self.p1, &self.p2, b)
+        let player = if self.player_turn == PlayerTurn::Player1 {
+            &self.p1
+        } else {
+            &self.p2
+        };
+        player.has_remaining_walls()
+            && self.grid.can_place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn move_player(&mut self, pos: Position) -> bool {
@@ -700,6 +706,31 @@ mod test {
         g.p2.position = Position::new(4, 6);
         let res = g.get_player_options();
         assert!(!res.contains(&Position::new(4, 7)), "{:?}", res);
+    }
+
+    #[test]
+    fn player_cant_add_walls_if_no_walls() {
+        let mut g = setup_new_game();
+        g.p1.remaining_walls = 1;
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 1),
+            Orientation::Horizontal
+        ))));
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 2),
+            Orientation::Horizontal
+        ))));
+
+        assert!(!g.can_add_wall(Wall::new(
+            Placement::new(5, 3),
+            Orientation::Horizontal
+        )));
+        assert!(!g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 3),
+            Orientation::Horizontal
+        ))));
     }
 
     #[test]

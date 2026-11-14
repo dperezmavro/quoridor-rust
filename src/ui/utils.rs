@@ -66,9 +66,6 @@ const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
 const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
 
-/// Padding for the box showing game stats
-const GAME_STATS_BOX_PADDING: f32 = 5.0;
-
 /// First player's colour mapping
 const FIRST_PLAYER_ID: u8 = 0;
 
@@ -136,11 +133,14 @@ pub fn draw_game_grid_base(
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(
+pub fn draw_game_stats<T>(
+    uih: &T,
     font: Option<&Font>,
     wall_counts: (usize, usize),
     score: (usize, usize),
-) {
+) where
+    T: UIHandler,
+{
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -150,11 +150,12 @@ pub fn draw_game_stats(
     );
 
     // let next_line_offset =
-    let mut tp = TextPanel::new(PADDING + (2.0 * GAME_STATS_BOX_PADDING));
+    let mut tp = TextPanel::new(PADDING);
 
-    tp.draw_text(font, TextHeading::H1, vec!["game", "stats"]);
+    tp.draw_text(uih, font, TextHeading::H1, vec!["game", "stats"]);
 
     tp.draw_text(
+        uih,
         font,
         TextHeading::H3,
         vec![
@@ -166,6 +167,7 @@ pub fn draw_game_stats(
     );
 
     tp.draw_text(
+        uih,
         font,
         TextHeading::H2,
         vec!["Score", format!("{} - {}", score.0, score.1).as_str()],
@@ -196,7 +198,7 @@ impl UIHandler for Ui {
         // draws borders, grid, padding and
         draw_game_grid_base(&self.grid_lines);
 
-        draw_game_stats(Some(&self.font), remaining_walls, scores);
+        draw_game_stats(self, Some(&self.font), remaining_walls, scores);
     }
 
     fn mouse_position(&self) -> (f32, f32) {
@@ -209,14 +211,6 @@ impl UIHandler for Ui {
 
     async fn next_frame(&self) {
         next_frame().await
-    }
-
-    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
-        draw_rectangle(x, y, w, h, color);
-    }
-
-    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
-        draw_circle(x, y, r, color);
     }
 
     /// Draws a circle representing a player on the grid
@@ -254,6 +248,24 @@ impl UIHandler for Ui {
             PLAYER_FINAL_SIZE,
             color,
         );
+    }
+
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
+        draw_rectangle(x, y, w, h, color);
+    }
+
+    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        draw_circle(x, y, r, color);
+    }
+
+    fn draw_text_ex(
+        &self,
+        text: impl AsRef<str>,
+        x: f32,
+        y: f32,
+        params: TextParams,
+    ) {
+        draw_text_ex(text, x, y, params);
     }
 }
 

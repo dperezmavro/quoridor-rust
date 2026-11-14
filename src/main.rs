@@ -60,8 +60,10 @@ where
                 }
 
                 if ui.is_mouse_button_pressed() && game.can_add_wall(*b) {
-                    game.process_move(Move::PlaceWall(*b));
-                    walls.push(*b);
+                    let wall_placed = game.process_move(Move::PlaceWall(*b));
+                    if wall_placed {
+                        walls.push(*b);
+                    }
                 }
             }
             MouseState::RowCol(pos) => {
@@ -82,11 +84,10 @@ where
             _ => {}
         }
 
+        ui.next_frame().await;
         if let GameState::GameFinished(player_turn) = game.state {
             return player_turn;
         }
-
-        ui.next_frame().await
     }
 }
 
@@ -96,6 +97,7 @@ mod tests {
     use crate::core::game::PLAYER_2_ID;
     use crate::core::player::Player;
     use macroquad::color::Color;
+    use macroquad::prelude::TextParams;
     use std::cell::RefCell;
     use std::collections::VecDeque;
 
@@ -140,6 +142,15 @@ mod tests {
         }
 
         fn draw_circle(&self, _x: f32, _y: f32, _r: f32, _color: Color) {}
+
+        fn draw_text_ex(
+            &self,
+            _text: impl AsRef<str>,
+            _x: f32,
+            _y: f32,
+            _params: TextParams,
+        ) {
+        }
     }
 
     const TILE_COORD_0: f32 = 75.0;
