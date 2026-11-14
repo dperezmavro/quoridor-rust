@@ -68,15 +68,6 @@ const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
 /// Padding for the box showing game stats
 const GAME_STATS_BOX_PADDING: f32 = 5.0;
 
-/// Font size for H1
-const FONT_SIZE_H1: u16 = 60;
-
-/// Font size for H2
-const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
-
-/// Font size for H3
-const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
-
 /// Convenience offset for where to start drawing the text in the stats box
 const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
@@ -162,18 +153,18 @@ pub fn draw_game_stats(
 
     let h1_params = TextParams {
         font,
-        font_size: FONT_SIZE_H1,
+        font_size: crate::ui::text_panel::FONT_SIZE_H1,
         color: BLACK,
         ..Default::default()
     };
 
     let h2_params = TextParams {
-        font_size: FONT_SIZE_H2,
+        font_size: crate::ui::text_panel::FONT_SIZE_H2,
         ..h1_params
     };
 
     let h3_params = TextParams {
-        font_size: FONT_SIZE_H3,
+        font_size: crate::ui::text_panel::FONT_SIZE_H3,
         ..h1_params
     };
 
@@ -209,21 +200,15 @@ pub fn draw_game_stats(
     ];
 
     h3_texts.iter().enumerate().for_each(|(i, h)| {
-        let h3_string = h.to_string();
         if i == 2 {
             // text for player 2
             next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
         }
-        let h3_string_text_centre = get_text_center(
-            h3_string.clone(),
-            font,
-            h3_params.font_size,
-            1.0,
-            0.0,
-        );
+        let h3_string_text_centre =
+            get_text_center(h, font, h3_params.font_size, 1.0, 0.0);
 
         draw_text_ex(
-            h3_string,
+            h,
             STATS_X_OFFSET - h3_string_text_centre.x,
             next_line_offset,
             h3_params.clone(),
@@ -240,21 +225,15 @@ pub fn draw_game_stats(
         [String::from("Score"), format!("{} - {}", score.0, score.1)];
 
     h2_texts.iter().enumerate().for_each(|(i, h)| {
-        let h2_string = h.to_string();
         if i == 2 {
             // text for player 2
             next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
         }
-        let h2_string_text_centre = get_text_center(
-            h2_string.clone(),
-            font,
-            h2_params.font_size,
-            1.0,
-            0.0,
-        );
+        let h2_string_text_centre =
+            get_text_center(h, font, h2_params.font_size, 1.0, 0.0);
 
         draw_text_ex(
-            h2_string,
+            h,
             STATS_X_OFFSET - h2_string_text_centre.x,
             next_line_offset,
             h2_params.clone(),

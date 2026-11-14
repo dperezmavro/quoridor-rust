@@ -10,6 +10,7 @@ description = "A game that I use to learn Rust!"
 tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread"] }
 
 [dependencies]
+clap = { version = "4.6.7", features = ["derive"] }
 macroquad = "0.4.16"
 serde = { version = "1.0.229", features = ["serde_derive"] }
 serde_json = "1.0.154"
