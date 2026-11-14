@@ -184,7 +184,6 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
     async fn assert_draw_text_h2() {
-        // let font = load_ttf_font("./assets/digital-7.ttf").await.unwrap();
         let th = TextHeading::H3;
         let mui = MockUiHandler::new().await;
         let mut tp = TextPanel::new(0.0);
