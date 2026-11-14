@@ -13,6 +13,7 @@ pub struct SaveFile {
     pub p1_score: usize,
     pub p2_score: usize,
     pub total_rounds: usize,
+    pub current_player_id: usize,
     pub players: [Player; 2],
     pub walls: Vec<Wall>,
 }
@@ -28,6 +29,7 @@ impl SaveFileManager {
         p1_score: usize,
         p2_score: usize,
         total_rounds: usize,
+        current_player_id: usize,
         players: [Player; 2],
         walls: Vec<Wall>,
     ) -> Self {
@@ -37,6 +39,7 @@ impl SaveFileManager {
                 players,
                 p1_score,
                 p2_score,
+                current_player_id,
                 total_rounds,
             },
             fs: PhysicalFS::new(std::env::temp_dir()).into(),
@@ -57,6 +60,8 @@ impl SaveFileManager {
     }
 
     /// Reads a game
+    #[allow(unfulfilled_lint_expectations)]
+    #[expect(dead_code)]
     pub fn load_file(&self, p: String) -> SaveFile {
         let final_path = self.fs.join(p).unwrap();
         println!("Loading from to: {:?}", final_path.as_str());
@@ -78,6 +83,7 @@ mod test {
             p1_score: 1,
             p2_score: 2,
             total_rounds: 3,
+            current_player_id: 1,
             players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),
                 Player::new(String::from("p222"), StartingPosition::Bottom),
@@ -99,6 +105,7 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
+            current_player_id: 2,
             total_rounds: 3,
             players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),

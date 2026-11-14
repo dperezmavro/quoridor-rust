@@ -37,7 +37,6 @@ where
     // this currently holds wall + user information
     // could wall be refactored to use this?
     let mut walls: Vec<Wall> = Vec::with_capacity(2 * NUM_WALLS);
-
     loop {
         ui.draw_game_base(game.player_wall_counts(), scores);
 

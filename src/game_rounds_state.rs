@@ -37,6 +37,7 @@ impl GameRoundsState {
             self.p1_score,
             self.p2_score,
             self.total_rounds,
+            self.game.get_player_turn() as usize,
             [self.game.p1.clone(), self.game.p2.clone()],
             self.game.grid.walls(),
         );
