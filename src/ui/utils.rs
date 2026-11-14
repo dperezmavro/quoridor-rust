@@ -152,37 +152,23 @@ pub fn draw_game_stats(
     // let next_line_offset =
     let mut tp = TextPanel::new(PADDING + (2.0 * GAME_STATS_BOX_PADDING));
 
-    tp.draw_text(
-        font,
-        TextHeading::H1,
-        ["game", "stats"].iter().map(ToString::to_string).collect(),
-    );
+    tp.draw_text(font, TextHeading::H1, vec!["game", "stats"]);
 
     tp.draw_text(
         font,
         TextHeading::H3,
-        ["player 1", format!("walls: {}", wall_counts.0).as_str()]
-            .iter()
-            .map(ToString::to_string)
-            .collect(),
-    );
-
-    tp.draw_text(
-        font,
-        TextHeading::H3,
-        ["player 2", format!("walls: {}", wall_counts.1).as_str()]
-            .iter()
-            .map(ToString::to_string)
-            .collect(),
+        vec![
+            "player 1",
+            format!("walls: {}", wall_counts.0).as_str(),
+            "player 2",
+            format!("walls: {}", wall_counts.1).as_str(),
+        ],
     );
 
     tp.draw_text(
         font,
         TextHeading::H2,
-        ["Score", format!("{} - {}", score.0, score.1).as_str()]
-            .iter()
-            .map(ToString::to_string)
-            .collect(),
+        vec!["Score", format!("{} - {}", score.0, score.1).as_str()],
     );
 }
 

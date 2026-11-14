@@ -18,6 +18,7 @@ const GAME_STATS_BOX_PADDING: f32 = 5.0;
 const STATS_X_OFFSET: f32 = crate::ui::utils::GAME_STATS_BOX_START
     + (crate::ui::utils::GAME_STATS_BOX_WIDTH / 2.0);
 
+#[derive(PartialEq)]
 pub enum TextHeading {
     H1,
     H2,
@@ -35,7 +36,7 @@ impl TextHeading {
 
     fn bottom_offset_factor(&self) -> f32 {
         match self {
-            TextHeading::H1 => 12.0,
+            TextHeading::H1 => 8.0,
             TextHeading::H3 => 4.0,
             _ => 10.0,
         }
@@ -54,7 +55,7 @@ impl TextPanel {
         &mut self,
         font: Option<&Font>,
         th: TextHeading,
-        texts: Vec<String>,
+        texts: Vec<&str>,
     ) {
         let params = TextParams {
             font,
@@ -63,9 +64,12 @@ impl TextPanel {
             ..Default::default()
         };
 
-        texts.iter().for_each(|s| {
+        texts.iter().enumerate().for_each(|(i, s)| {
             let text_centre =
                 get_text_center(s, font, params.font_size, 1.0, 0.0);
+            if th == TextHeading::H3 && i == 2 {
+                self.offset += 10.0;
+            }
 
             self.offset += (text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
 
