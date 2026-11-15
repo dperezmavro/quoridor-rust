@@ -8,6 +8,7 @@ use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
+use crate::ui::text_panel::{TextHeading, TextPanel};
 use crate::ui::ui_handler::UIHandler;
 
 /// Width of grid line - this is re-used by the walls
@@ -20,7 +21,7 @@ const BORDER_WIDTH: f32 = 2.0;
 pub const PADDING: f32 = 50.0;
 
 /// Width of box showing player information
-const GAME_STATS_BOX_WIDTH: f32 = 150.0;
+pub const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
@@ -54,7 +55,7 @@ pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
 const PLAYER_FINAL_SIZE: f32 = PLAYER_RADIUS - PLAYER_PADDING;
 
 /// Where the game display box starts
-const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
+pub const GAME_STATS_BOX_START: f32 = (2.0 * PADDING) + GAME_GRID_LEN;
 
 /// Constant for light red
 const LIGHT_RED: Color = Color::new(0.90, 0.16, 0.22, 0.70);
@@ -64,21 +65,6 @@ const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
 const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
 const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
-
-/// Padding for the box showing game stats
-const GAME_STATS_BOX_PADDING: f32 = 5.0;
-
-/// Font size for H1
-const FONT_SIZE_H1: u16 = 60;
-
-/// Font size for H2
-const FONT_SIZE_H2: u16 = FONT_SIZE_H1 - 15u16;
-
-/// Font size for H3
-const FONT_SIZE_H3: u16 = FONT_SIZE_H1 - 30u16;
-
-/// Convenience offset for where to start drawing the text in the stats box
-const STATS_X_OFFSET: f32 = GAME_STATS_BOX_START + (GAME_STATS_BOX_WIDTH / 2.0);
 
 /// First player's colour mapping
 const FIRST_PLAYER_ID: u8 = 0;
@@ -147,11 +133,14 @@ pub fn draw_game_grid_base(
 }
 
 /// Used for drawing player information
-pub fn draw_game_stats(
+pub fn draw_game_stats<T>(
+    uih: &T,
     font: Option<&Font>,
     wall_counts: (usize, usize),
     score: (usize, usize),
-) {
+) where
+    T: UIHandler,
+{
     draw_rectangle(
         GAME_STATS_BOX_START,
         PADDING,
@@ -160,109 +149,29 @@ pub fn draw_game_stats(
         WHITE,
     );
 
-    let h1_params = TextParams {
+    // let next_line_offset =
+    let mut tp = TextPanel::new(PADDING);
+
+    tp.draw_text(uih, font, TextHeading::H1, vec!["game", "stats"]);
+
+    tp.draw_text(
+        uih,
         font,
-        font_size: FONT_SIZE_H1,
-        color: BLACK,
-        ..Default::default()
-    };
+        TextHeading::H3,
+        vec![
+            "player 1",
+            format!("walls: {}", wall_counts.0).as_str(),
+            "player 2",
+            format!("walls: {}", wall_counts.1).as_str(),
+        ],
+    );
 
-    let h2_params = TextParams {
-        font_size: FONT_SIZE_H2,
-        ..h1_params
-    };
-
-    let h3_params = TextParams {
-        font_size: FONT_SIZE_H3,
-        ..h1_params
-    };
-
-    let mut next_line_offset = PADDING + (2.0 * GAME_STATS_BOX_PADDING);
-
-    // H1
-    let h1_texts = ["game", "stats"];
-    h1_texts.iter().for_each(|h| {
-        let h1_string = h;
-        let h1_text_centre =
-            get_text_center(h1_string, font, h1_params.font_size, 1.0, 0.0);
-
-        next_line_offset +=
-            (h1_text_centre.y.abs() + GAME_STATS_BOX_PADDING) * 2.0;
-
-        // GAME
-        draw_text_ex(
-            h1_string,
-            STATS_X_OFFSET - h1_text_centre.x,
-            next_line_offset,
-            h1_params.clone(),
-        );
-    });
-
-    next_line_offset += GAME_STATS_BOX_PADDING * 12.0;
-
-    // H3
-    let h3_texts = [
-        String::from("player 1"),
-        format!("walls: {}", wall_counts.0),
-        String::from("player 2"),
-        format!("walls: {}", wall_counts.1),
-    ];
-
-    h3_texts.iter().enumerate().for_each(|(i, h)| {
-        let h3_string = h.to_string();
-        if i == 2 {
-            // text for player 2
-            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
-        }
-        let h3_string_text_centre = get_text_center(
-            h3_string.clone(),
-            font,
-            h3_params.font_size,
-            1.0,
-            0.0,
-        );
-
-        draw_text_ex(
-            h3_string,
-            STATS_X_OFFSET - h3_string_text_centre.x,
-            next_line_offset,
-            h3_params.clone(),
-        );
-
-        next_line_offset +=
-            2.0 * h3_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
-    });
-
-    next_line_offset += GAME_STATS_BOX_PADDING * 8.0;
-
-    // H2
-    let h2_texts =
-        [String::from("Score"), format!("{} - {}", score.0, score.1)];
-
-    h2_texts.iter().enumerate().for_each(|(i, h)| {
-        let h2_string = h.to_string();
-        if i == 2 {
-            // text for player 2
-            next_line_offset += 4.0 * GAME_STATS_BOX_PADDING;
-        }
-        let h2_string_text_centre = get_text_center(
-            h2_string.clone(),
-            font,
-            h2_params.font_size,
-            1.0,
-            0.0,
-        );
-
-        draw_text_ex(
-            h2_string,
-            STATS_X_OFFSET - h2_string_text_centre.x,
-            next_line_offset,
-            h2_params.clone(),
-        );
-
-        next_line_offset +=
-            2.0 * h2_string_text_centre.y.abs() + GAME_STATS_BOX_PADDING;
-    });
+    tp.draw_text(
+        uih,
+        font,
+        TextHeading::H2,
+        vec!["Score", format!("{} - {}", score.0, score.1).as_str()],
+    );
 }
 
 pub struct Ui {
@@ -289,7 +198,7 @@ impl UIHandler for Ui {
         // draws borders, grid, padding and
         draw_game_grid_base(&self.grid_lines);
 
-        draw_game_stats(Some(&self.font), remaining_walls, scores);
+        draw_game_stats(self, Some(&self.font), remaining_walls, scores);
     }
 
     fn mouse_position(&self) -> (f32, f32) {
@@ -302,14 +211,6 @@ impl UIHandler for Ui {
 
     async fn next_frame(&self) {
         next_frame().await
-    }
-
-    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
-        draw_rectangle(x, y, w, h, color);
-    }
-
-    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
-        draw_circle(x, y, r, color);
     }
 
     /// Draws a circle representing a player on the grid
@@ -347,6 +248,35 @@ impl UIHandler for Ui {
             PLAYER_FINAL_SIZE,
             color,
         );
+    }
+
+    fn draw_rectangle(&self, x: f32, y: f32, w: f32, h: f32, color: Color) {
+        draw_rectangle(x, y, w, h, color);
+    }
+
+    fn draw_circle(&self, x: f32, y: f32, r: f32, color: Color) {
+        draw_circle(x, y, r, color);
+    }
+
+    fn draw_text_ex(
+        &self,
+        text: impl AsRef<str>,
+        x: f32,
+        y: f32,
+        params: TextParams,
+    ) {
+        draw_text_ex(text, x, y, params);
+    }
+
+    fn get_text_center(
+        &self,
+        text: impl AsRef<str>,
+        font: Option<&Font>,
+        font_size: u16,
+        font_scale: f32,
+        rotation: f32,
+    ) -> macroquad::math::Vec2 {
+        get_text_center(text, font, font_size, font_scale, rotation)
     }
 }
 

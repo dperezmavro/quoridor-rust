@@ -6,7 +6,7 @@ use std::collections::HashSet;
 
 pub const NUM_TILES: usize = 9;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Grid {
     horizontal_walls: Vec<Wall>,
     vertical_walls: Vec<Wall>,

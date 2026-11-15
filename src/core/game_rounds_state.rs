@@ -1,9 +1,10 @@
-use crate::core::game::{Game, PLAYER_1_ID};
+use crate::core::game::Game;
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
-use crate::save_file::SaveFileManager;
+use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
+use crate::core::wall::Wall;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 /// Global game state. Keeps track of multiple games
 /// and can save the game state.
 pub struct GameRoundsState {
@@ -11,13 +12,6 @@ pub struct GameRoundsState {
     pub game: Game,
     pub p1_score: usize,
     pub p2_score: usize,
-}
-
-impl Drop for GameRoundsState {
-    fn drop(&mut self) {
-        println!("GameRoundsState drop!");
-        self.save_state_to_file();
-    }
 }
 
 impl GameRoundsState {
@@ -31,18 +25,26 @@ impl GameRoundsState {
         }
     }
 
-    /// Saves to a file
-    pub fn save_state_to_file(&self) {
-        let sf = SaveFileManager::new(
-            self.p1_score,
-            self.p2_score,
-            self.total_rounds,
-            self.game.get_player_turn() as usize,
-            [self.game.p1.clone(), self.game.p2.clone()],
-            self.game.grid.walls(),
+    pub fn from_state(
+        total_rounds: usize,
+        p1_score: usize,
+        p2_score: usize,
+        current_player_id: u8,
+        walls: Vec<Wall>,
+        players: [Player; 2],
+    ) -> Self {
+        let game = Game::with_state(
+            players[0].clone(),
+            players[1].clone(),
+            PlayerTurn::player_from_id(current_player_id),
+            walls,
         );
-
-        sf.save_file();
+        GameRoundsState {
+            total_rounds,
+            p1_score,
+            p2_score,
+            game,
+        }
     }
 
     /// Record a winning game for a player
@@ -78,8 +80,8 @@ pub fn new_game() -> Game {
 
 #[cfg(test)]
 mod test {
-    use crate::core::game::{PLAYER_1_ID, PLAYER_2_ID};
-    use crate::game_rounds_state::GameRoundsState;
+    use crate::core::game_rounds_state::GameRoundsState;
+    use crate::core::player_turn::{PLAYER_1_ID, PLAYER_2_ID};
 
     #[test]
     fn test_record_win() {

@@ -1,28 +1,9 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
+use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
-
-/// ID for player 1
-pub const PLAYER_1_ID: u8 = 0;
-/// ID for player 2
-pub const PLAYER_2_ID: u8 = 1;
-
-#[derive(Debug, PartialEq)]
-enum PlayerTurn {
-    Player1,
-    Player2,
-}
-
-impl PlayerTurn {
-    pub fn get_id(&self) -> u8 {
-        match &self {
-            PlayerTurn::Player1 => PLAYER_1_ID,
-            PlayerTurn::Player2 => PLAYER_2_ID,
-        }
-    }
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum GameState {
@@ -32,7 +13,7 @@ pub enum GameState {
 
 impl GameState {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
@@ -47,12 +28,6 @@ pub enum Move {
     PlayerAdvance(Position),
 }
 
-impl Drop for Game {
-    fn drop(&mut self) {
-        println!("Game drop!");
-    }
-}
-
 impl Game {
     pub fn new(grid: Grid, p1: Player, p2: Player) -> Self {
         Self {
@@ -64,8 +39,33 @@ impl Game {
         }
     }
 
+    pub fn with_state(
+        p1: Player,
+        p2: Player,
+        player_turn: PlayerTurn,
+        walls: Vec<Wall>,
+    ) -> Self {
+        let mut grid = Grid::new();
+        for w in &walls {
+            grid.place_wall(&p1, &p2, *w);
+        }
+        Self {
+            p1,
+            p2,
+            player_turn,
+            state: GameState::GameOngoing,
+            grid,
+        }
+    }
+
     pub fn can_add_wall(&mut self, b: Wall) -> bool {
-        self.grid.can_place_wall(&self.p1, &self.p2, b)
+        let player = if self.player_turn == PlayerTurn::Player1 {
+            &self.p1
+        } else {
+            &self.p2
+        };
+        player.has_remaining_walls()
+            && self.grid.can_place_wall(&self.p1, &self.p2, b)
     }
 
     pub fn move_player(&mut self, pos: Position) -> bool {
@@ -700,6 +700,31 @@ mod test {
         g.p2.position = Position::new(4, 6);
         let res = g.get_player_options();
         assert!(!res.contains(&Position::new(4, 7)), "{:?}", res);
+    }
+
+    #[test]
+    fn player_cant_add_walls_if_no_walls() {
+        let mut g = setup_new_game();
+        g.p1.remaining_walls = 1;
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 1),
+            Orientation::Horizontal
+        ))));
+
+        assert!(g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 2),
+            Orientation::Horizontal
+        ))));
+
+        assert!(!g.can_add_wall(Wall::new(
+            Placement::new(5, 3),
+            Orientation::Horizontal
+        )));
+        assert!(!g.process_move(Move::PlaceWall(Wall::new(
+            Placement::new(5, 3),
+            Orientation::Horizontal
+        ))));
     }
 
     #[test]
