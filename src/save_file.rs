@@ -80,7 +80,7 @@ impl SaveFileManager {
     /// Reads a game
     pub fn load_file(&self, p: String) -> SaveFile {
         let final_path = self.fs.join(p).unwrap();
-        println!("Loading from to: {:?}", final_path.as_str());
+        println!("Loading file from: {:?}", final_path.as_str());
 
         let res = final_path.read_to_string().unwrap();
         serde_json::from_str::<SaveFile>(&res).unwrap()

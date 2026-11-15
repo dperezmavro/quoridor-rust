@@ -28,7 +28,7 @@ async fn main() {
     let q_cli = cli::parse();
     let ui: Ui = Ui::new().await;
     let sfm = SaveFileManager::new();
-    let mut gl = GameLauncher::new(q_cli, ui, sfm).await;
+    let mut gl = GameLauncher::new(q_cli, ui, sfm);
     gl.setup();
 
     loop {
@@ -315,7 +315,7 @@ mod tests {
         };
 
         let sfm = SaveFileManager::new();
-        let mut gl = GameLauncher::new(q_cli, mui, sfm).await;
+        let mut gl = GameLauncher::new(q_cli, mui, sfm);
         gl.setup();
         gl.run().await;
     }

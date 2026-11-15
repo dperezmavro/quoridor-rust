@@ -16,16 +16,16 @@ where
     pub game_rounds_state: Rc<RefCell<GameRoundsState>>,
 }
 
-impl<T: UIHandler> crate::GameLauncher<T>
+impl<T: UIHandler> GameLauncher<T>
 where
     T: UIHandler,
 {
-    pub async fn new(
+    pub fn new(
         q_cli: QuoridorCli,
         ui_handler: T,
         sfm: SaveFileManager,
-    ) -> crate::GameLauncher<T> {
-        crate::GameLauncher {
+    ) -> GameLauncher<T> {
+        GameLauncher {
             q_cli,
             ui_handler,
             sfm,
@@ -102,7 +102,11 @@ mod tests {
         }
 
         fn mouse_position(&self) -> (f32, f32) {
-            self.click_coordinates.borrow_mut().pop_front().unwrap()
+            println!("popping location");
+            let r = self.click_coordinates.borrow_mut().pop_front().unwrap();
+            println!("returning {:?}", r);
+
+            r
         }
 
         fn is_mouse_button_pressed(&self) -> bool {
@@ -181,7 +185,7 @@ mod tests {
         };
 
         let sfm = SaveFileManager::new();
-        let mut gl = crate::GameLauncher::new(q_cli, mui, sfm).await;
+        let mut gl = crate::GameLauncher::new(q_cli, mui, sfm);
         gl.setup();
         gl.run().await;
     }
@@ -190,7 +194,7 @@ mod tests {
     async fn test_game_setup_from_save_file() {
         let mut mui = MockUiHandler::new().await;
         let click_coordinates = RefCell::new(VecDeque::from([
-            (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
+            (TILE_COORD_3, TILE_COORD_0), // p2 - y = 0
         ]));
         mui.click_coordinates = click_coordinates;
 
@@ -217,19 +221,19 @@ mod tests {
             .write_all(state.as_bytes())
             .unwrap();
 
-        let mut gl = GameLauncher::new(q_cli, mui, sfm).await;
+        let mut gl = GameLauncher::new(q_cli, mui, sfm);
         gl.setup();
         assert_eq!(4, gl.game_rounds_state.borrow().game.p1.position.x);
         assert_eq!(1, gl.game_rounds_state.borrow().game.p1.position.y);
 
-        assert_eq!(1, gl.game_rounds_state.borrow().game.p2.position.y);
         assert_eq!(3, gl.game_rounds_state.borrow().game.p2.position.x);
+        assert_eq!(1, gl.game_rounds_state.borrow().game.p2.position.y);
 
         assert_eq!(
             PLAYER_2_ID,
             gl.game_rounds_state.borrow().game.get_player_turn()
         );
 
-        // gl.run().await;
+        gl.run().await;
     }
 }
