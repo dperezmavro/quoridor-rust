@@ -21,38 +21,49 @@ pub struct SaveFile {
     pub walls: Vec<Wall>,
 }
 
+impl SaveFile {
+    pub fn to_game_round_state(&self) -> GameRoundsState {
+        GameRoundsState::from_state(
+            self.total_rounds,
+            self.p1_score,
+            self.p2_score,
+            self.current_player_id,
+            self.walls.clone(),
+            self.players.clone(),
+        )
+    }
+}
+
 /// Wraps the FS library and state object
 pub struct SaveFileManager {
     fs: VfsPath,
-    grs: Rc<RefCell<GameRoundsState>>,
 }
 
 impl Drop for SaveFileManager {
     fn drop(&mut self) {
-        println!("[+] Saving file to: {}", self.save_file());
+        println!("[+] Saving file to: TODO");
     }
 }
 
 impl SaveFileManager {
-    pub fn new(grs: Rc<RefCell<GameRoundsState>>) -> Self {
+    pub fn new() -> Self {
         Self {
-            grs,
             fs: PhysicalFS::new(std::env::temp_dir()).into(),
         }
     }
 
     /// Saves to disk
-    pub fn save_file(&self) -> String {
+    pub fn save_file(&self, grs: Rc<RefCell<GameRoundsState>>) -> String {
         let sf: SaveFile = SaveFile {
-            p1_score: self.grs.borrow().p1_score,
-            p2_score: self.grs.borrow().p2_score,
-            total_rounds: self.grs.borrow().total_rounds,
-            current_player_id: self.grs.borrow().game.get_player_turn(),
+            p1_score: grs.borrow().p1_score,
+            p2_score: grs.borrow().p2_score,
+            total_rounds: grs.borrow().total_rounds,
+            current_player_id: grs.borrow().game.get_player_turn(),
             players: [
-                self.grs.borrow().game.p1.clone(),
-                self.grs.borrow().game.p2.clone(),
+                grs.borrow().game.p1.clone(),
+                grs.borrow().game.p2.clone(),
             ],
-            walls: self.grs.borrow().game.grid.walls(),
+            walls: grs.borrow().game.grid.walls(),
         };
 
         let json_str = serde_json::to_string(&sf).unwrap();
@@ -67,8 +78,6 @@ impl SaveFileManager {
     }
 
     /// Reads a game
-    #[allow(unfulfilled_lint_expectations)]
-    #[expect(dead_code)]
     pub fn load_file(&self, p: String) -> SaveFile {
         let final_path = self.fs.join(p).unwrap();
         println!("Loading from to: {:?}", final_path.as_str());
@@ -92,11 +101,12 @@ mod test {
         grs.total_rounds = 3;
 
         let sfm = SaveFileManager {
-            grs: Rc::new(RefCell::new(grs)),
             fs: MemoryFS::new().into(),
         };
 
-        let location = sfm.save_file();
+        let grs_cc = Rc::new(RefCell::new(grs));
+
+        let location = sfm.save_file(grs_cc);
         assert_eq!(format!("/{SAVE_FILE_NAME}"), location.as_str());
     }
 
@@ -122,12 +132,11 @@ mod test {
         grs.total_rounds = 3;
 
         let sfm = SaveFileManager {
-            grs: Rc::new(RefCell::new(grs)),
             fs: MemoryFS::new().into(),
         };
 
-        let location = sfm.save_file();
-
+        let grs_cc = Rc::new(RefCell::new(grs));
+        let location = sfm.save_file(grs_cc);
         let res = sfm.load_file(location);
 
         assert_eq!(sf, res);

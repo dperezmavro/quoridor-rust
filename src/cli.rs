@@ -16,3 +16,14 @@ pub struct QuoridorCli {
 pub fn parse() -> QuoridorCli {
     QuoridorCli::parse()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_defaults() {
+        let cli = QuoridorCli::parse();
+        assert_eq!(cli.load_file, None);
+        assert_eq!(cli.save_file, None);
+    }
+}

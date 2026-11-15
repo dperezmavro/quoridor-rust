@@ -1,28 +1,9 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
+use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
-
-/// ID for player 1
-pub const PLAYER_1_ID: u8 = 0;
-/// ID for player 2
-pub const PLAYER_2_ID: u8 = 1;
-
-#[derive(Debug, PartialEq)]
-enum PlayerTurn {
-    Player1,
-    Player2,
-}
-
-impl PlayerTurn {
-    pub fn get_id(&self) -> u8 {
-        match &self {
-            PlayerTurn::Player1 => PLAYER_1_ID,
-            PlayerTurn::Player2 => PLAYER_2_ID,
-        }
-    }
-}
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum GameState {
@@ -55,6 +36,25 @@ impl Game {
             p2,
             player_turn: PlayerTurn::Player1,
             state: GameState::GameOngoing,
+        }
+    }
+
+    pub fn with_state(
+        p1: Player,
+        p2: Player,
+        player_turn: PlayerTurn,
+        walls: Vec<Wall>,
+    ) -> Self {
+        let mut grid = Grid::new();
+        for w in &walls {
+            grid.place_wall(&p1, &p2, *w);
+        }
+        Self {
+            p1,
+            p2,
+            player_turn,
+            state: GameState::GameOngoing,
+            grid,
         }
     }
 

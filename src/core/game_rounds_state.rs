@@ -1,6 +1,8 @@
-use crate::core::game::{Game, PLAYER_1_ID};
+use crate::core::game::Game;
 use crate::core::grid;
 use crate::core::player::{Player, StartingPosition};
+use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
+use crate::core::wall::Wall;
 
 #[derive(Debug)]
 /// Global game state. Keeps track of multiple games
@@ -23,12 +25,25 @@ impl GameRoundsState {
         }
     }
 
-    pub fn from_save_file() -> Self {
+    pub fn from_state(
+        total_rounds: usize,
+        p1_score: usize,
+        p2_score: usize,
+        current_player_id: u8,
+        walls: Vec<Wall>,
+        players: [Player; 2],
+    ) -> Self {
+        let game = Game::with_state(
+            players[0].clone(),
+            players[1].clone(),
+            PlayerTurn::player_from_id(current_player_id),
+            walls,
+        );
         GameRoundsState {
-            total_rounds: 0,
-            p1_score: 0,
-            p2_score: 0,
-            game: new_game(),
+            total_rounds,
+            p1_score,
+            p2_score,
+            game,
         }
     }
 
@@ -65,8 +80,8 @@ pub fn new_game() -> Game {
 
 #[cfg(test)]
 mod test {
-    use crate::core::game::{PLAYER_1_ID, PLAYER_2_ID};
     use crate::core::game_rounds_state::GameRoundsState;
+    use crate::core::player_turn::{PLAYER_1_ID, PLAYER_2_ID};
 
     #[test]
     fn test_record_win() {
