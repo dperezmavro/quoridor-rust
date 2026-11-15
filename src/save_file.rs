@@ -36,7 +36,7 @@ impl SaveFile {
 
 /// Wraps the FS library and state object
 pub struct SaveFileManager {
-    fs: VfsPath,
+    pub fs: VfsPath,
 }
 
 impl Drop for SaveFileManager {

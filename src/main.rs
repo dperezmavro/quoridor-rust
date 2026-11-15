@@ -1,14 +1,15 @@
 mod cli;
 mod core;
+mod game_launcher;
 mod save_file;
 mod ui;
 
-use crate::cli::QuoridorCli;
 use crate::core::game::GameState;
 use crate::core::game::Move;
 use crate::core::player::NUM_WALLS;
 use crate::core::player_turn::PLAYER_1_ID;
 use crate::core::wall::Wall;
+use crate::game_launcher::GameLauncher;
 use crate::save_file::SaveFileManager;
 use crate::ui::ui_handler::UIHandler;
 use crate::ui::utils::Ui;
@@ -21,70 +22,6 @@ use core::game_rounds_state::GameRoundsState;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-
-struct GameLauncher<T>
-where
-    T: UIHandler,
-{
-    pub q_cli: QuoridorCli,
-    pub ui_handler: T,
-    pub sfm: SaveFileManager,
-    pub game_rounds_state: Rc<RefCell<GameRoundsState>>,
-}
-
-impl<T: UIHandler> GameLauncher<T>
-where
-    T: UIHandler,
-{
-    async fn new(
-        q_cli: QuoridorCli,
-        ui_handler: T,
-        sfm: SaveFileManager,
-    ) -> GameLauncher<T> {
-        GameLauncher {
-            q_cli,
-            ui_handler,
-            sfm,
-            game_rounds_state: Rc::new(RefCell::new(GameRoundsState::new())),
-        }
-    }
-
-    pub fn setup(&mut self) {
-        let grs: GameRoundsState;
-
-        if let Some(file) = self.q_cli.load_file.clone() {
-            println!("[+] Loading game from {file}");
-            let sf = self.sfm.load_file(file.clone());
-            grs = sf.to_game_round_state();
-        } else {
-            grs = GameRoundsState::new();
-        }
-
-        self.game_rounds_state = Rc::new(RefCell::new(grs));
-    }
-
-    pub async fn run(&mut self) {
-        println!("[*] Game start!");
-        let scores = self.game_rounds_state.borrow().scores();
-        let winner_id =
-            game_loop(self.game_rounds_state.clone(), &self.ui_handler, scores)
-                .await;
-        self.game_rounds_state.borrow_mut().record_win(winner_id);
-        self.game_rounds_state.borrow_mut().new_game();
-    }
-}
-
-impl<T> Drop for GameLauncher<T>
-where
-    T: UIHandler,
-{
-    fn drop(&mut self) {
-        println!(
-            "Game launcher dropped, saving file: {}",
-            self.sfm.save_file(self.game_rounds_state.clone())
-        );
-    }
-}
 
 #[macroquad::main(window_conf)]
 async fn main() {
@@ -372,7 +309,7 @@ mod tests {
         ]));
         mui.click_coordinates = click_coordinates;
 
-        let q_cli = QuoridorCli {
+        let q_cli = crate::cli::QuoridorCli {
             save_file: None,
             load_file: None,
         };
