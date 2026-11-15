@@ -22,41 +22,80 @@ use core::game_rounds_state::GameRoundsState;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[macroquad::main(window_conf)]
-async fn main() {
-    let q_cli = cli::parse();
-
-    let ui: Ui = Ui::new().await;
-
-    game_setup(q_cli, &ui).await;
-}
-
-async fn game_setup<T>(q_cli: QuoridorCli, ui: &T)
+struct GameLauncher<T>
 where
     T: UIHandler,
 {
-    let gg: GameRoundsState;
+    pub q_cli: QuoridorCli,
+    pub ui_handler: T,
+    pub sfm: SaveFileManager,
+    pub game_rounds_state: Rc<RefCell<GameRoundsState>>,
+}
+
+impl<T: UIHandler> GameLauncher<T>
+where
+    T: UIHandler,
+{
+    async fn new(
+        q_cli: QuoridorCli,
+        ui_handler: T,
+        sfm: SaveFileManager,
+    ) -> GameLauncher<T> {
+        GameLauncher {
+            q_cli,
+            ui_handler,
+            sfm,
+            game_rounds_state: Rc::new(RefCell::new(GameRoundsState::new())),
+        }
+    }
+
+    pub fn setup(&mut self) {
+        let grs: GameRoundsState;
+
+        if let Some(file) = self.q_cli.load_file.clone() {
+            println!("[+] Loading game from {file}");
+            let sf = self.sfm.load_file(file.clone());
+            grs = sf.to_game_round_state();
+        } else {
+            grs = GameRoundsState::new();
+        }
+
+        self.game_rounds_state = Rc::new(RefCell::new(grs));
+    }
+
+    pub async fn run(&mut self) {
+        println!("[*] Game start!");
+        let scores = self.game_rounds_state.borrow().scores();
+        let winner_id =
+            game_loop(self.game_rounds_state.clone(), &self.ui_handler, scores)
+                .await;
+        self.game_rounds_state.borrow_mut().record_win(winner_id);
+        self.game_rounds_state.borrow_mut().new_game();
+    }
+}
+
+impl<T> Drop for GameLauncher<T>
+where
+    T: UIHandler,
+{
+    fn drop(&mut self) {
+        println!(
+            "Game launcher dropped, saving file: {}",
+            self.sfm.save_file(self.game_rounds_state.clone())
+        );
+    }
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    let q_cli = cli::parse();
+    let ui: Ui = Ui::new().await;
     let sfm = SaveFileManager::new();
-
-    if let Some(file) = q_cli.load_file {
-        println!("[+] Loading game from {file}");
-        let sf = sfm.load_file(file);
-        gg = sf.to_game_round_state();
-    } else {
-        gg = GameRoundsState::new();
-    }
-    let rc_gg = Rc::new(RefCell::new(gg));
-
-    if let Some(_file) = q_cli.save_file {
-        sfm.save_file(rc_gg.clone());
-    }
+    let mut gl = GameLauncher::new(q_cli, ui, sfm).await;
+    gl.setup();
 
     loop {
-        println!("[*] Game start!");
-        let scores = rc_gg.borrow().scores();
-        let winner_id = game_loop(rc_gg.clone(), ui, scores).await;
-        rc_gg.borrow_mut().record_win(winner_id);
-        rc_gg.borrow_mut().new_game();
+        gl.run().await;
     }
 }
 
@@ -312,32 +351,35 @@ mod tests {
         );
     }
 
-    // #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    // async fn test_game_setup_straight_move_no_walls() {
-    //     let mut mui = MockUiHandler::new().await;
-    //     let click_coordinates = RefCell::new(VecDeque::from([
-    //         (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
-    //         (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
-    //         (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
-    //         (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
-    //         (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
-    //         (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
-    //         (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
-    //         (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
-    //         (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
-    //         (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
-    //         (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
-    //         (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
-    //         (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
-    //         (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
-    //     ]));
-    //     mui.click_coordinates = click_coordinates;
-    //
-    //     let qcli = QuoridorCli {
-    //         save_file: None,
-    //         load_file: None,
-    //     };
-    //
-    //     game_setup(qcli, &mui).await;
-    // }
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn test_game_setup_straight_move_no_walls() {
+        let mut mui = MockUiHandler::new().await;
+        let click_coordinates = RefCell::new(VecDeque::from([
+            (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
+            (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
+            (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
+            (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
+            (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
+            (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
+            (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
+            (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
+            (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
+            (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
+            (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
+            (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
+        ]));
+        mui.click_coordinates = click_coordinates;
+
+        let q_cli = QuoridorCli {
+            save_file: None,
+            load_file: None,
+        };
+
+        let sfm = SaveFileManager::new();
+        let mut gl = GameLauncher::new(q_cli, mui, sfm).await;
+        gl.setup();
+        gl.run().await;
+    }
 }
