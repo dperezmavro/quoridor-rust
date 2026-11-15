@@ -1,7 +1,7 @@
+mod cli;
 mod core;
 mod save_file;
 mod ui;
-mod cli;
 
 use crate::core::game::GameState;
 use crate::core::game::{Move, PLAYER_1_ID};
@@ -21,12 +21,16 @@ use std::rc::Rc;
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let gg: GameRoundsState;
+
     let q_cli = cli::parse();
     if let Some(file) = q_cli.load_file {
-
+        println!("[+] Loading game from {file}");
+        gg = GameRoundsState::from_save_file();
+    } else {
+        gg = GameRoundsState::new();
     }
 
-    let gg = GameRoundsState::new();
     let rc_gg = Rc::new(RefCell::new(gg));
     let _sf = SaveFileManager::new(rc_gg.clone());
 

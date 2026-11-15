@@ -23,6 +23,15 @@ impl GameRoundsState {
         }
     }
 
+    pub fn from_save_file() -> Self {
+        GameRoundsState {
+            total_rounds: 0,
+            p1_score: 0,
+            p2_score: 0,
+            game: new_game(),
+        }
+    }
+
     /// Record a winning game for a player
     pub fn record_win(&mut self, winner_id: u8) {
         if winner_id == PLAYER_1_ID {

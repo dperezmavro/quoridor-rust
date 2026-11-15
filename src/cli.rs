@@ -1,5 +1,4 @@
 use clap::Parser;
-use crate::cli;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug, Clone)]
