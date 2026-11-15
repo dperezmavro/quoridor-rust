@@ -13,7 +13,7 @@ pub enum GameState {
 
 impl GameState {}
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,

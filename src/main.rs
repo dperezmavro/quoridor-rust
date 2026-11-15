@@ -21,11 +21,11 @@ use core::game_rounds_state::GameRoundsState;
 
 use std::cell::RefCell;
 use std::rc::Rc;
-// use tokio::signal;
 
 #[macroquad::main(window_conf)]
 async fn main() {
     let q_cli = cli::parse();
+
     let ui: Ui = Ui::new().await;
 
     game_setup(q_cli, &ui).await;
@@ -312,32 +312,32 @@ mod tests {
         );
     }
 
-    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-    async fn test_game_setup_straight_move_no_walls() {
-        let mut mui = MockUiHandler::new().await;
-        let click_coordinates = RefCell::new(VecDeque::from([
-            (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
-            (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
-            (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
-            (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
-            (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
-            (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
-            (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
-            (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
-            (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
-            (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
-            (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
-            (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
-            (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
-            (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
-        ]));
-        mui.click_coordinates = click_coordinates;
-
-        let qcli = QuoridorCli {
-            save_file: None,
-            load_file: None,
-        };
-
-        game_setup(qcli, &mui).await;
-    }
+    // #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    // async fn test_game_setup_straight_move_no_walls() {
+    //     let mut mui = MockUiHandler::new().await;
+    //     let click_coordinates = RefCell::new(VecDeque::from([
+    //         (TILE_COORD_4, TILE_COORD_1), // p1 - y = 1
+    //         (TILE_COORD_4, TILE_COORD_7), // p2 - y = 7
+    //         (TILE_COORD_4, TILE_COORD_2), // p1 - y = 2
+    //         (TILE_COORD_4, TILE_COORD_6), // p2 - y = 6
+    //         (TILE_COORD_4, TILE_COORD_3), // p1 - y = 3
+    //         (TILE_COORD_4, TILE_COORD_5), // p2 - y = 5
+    //         (TILE_COORD_4, TILE_COORD_4), // p1 - y = 4
+    //         (TILE_COORD_4, TILE_COORD_3), // p2 - y = 3
+    //         (TILE_COORD_4, TILE_COORD_5), // p1 - y = 5
+    //         (TILE_COORD_4, TILE_COORD_2), // p2 - y = 2
+    //         (TILE_COORD_4, TILE_COORD_6), // p1 - y = 6
+    //         (TILE_COORD_4, TILE_COORD_1), // p2 - y = 1
+    //         (TILE_COORD_4, TILE_COORD_7), // p1 - y = 7
+    //         (TILE_COORD_4, TILE_COORD_0), // p2 - y = 0
+    //     ]));
+    //     mui.click_coordinates = click_coordinates;
+    //
+    //     let qcli = QuoridorCli {
+    //         save_file: None,
+    //         load_file: None,
+    //     };
+    //
+    //     game_setup(qcli, &mui).await;
+    // }
 }

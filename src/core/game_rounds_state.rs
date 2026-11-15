@@ -4,7 +4,7 @@ use crate::core::player::{Player, StartingPosition};
 use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
 use crate::core::wall::Wall;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 /// Global game state. Keeps track of multiple games
 /// and can save the game state.
 pub struct GameRoundsState {
