@@ -40,11 +40,11 @@ pub struct SaveFileManager {
     pub fs: VfsPath,
 }
 
-impl Drop for SaveFileManager {
-    fn drop(&mut self) {
-        println!("[+] Saving file to: TODO");
-    }
-}
+// impl Drop for SaveFileManager {
+//     fn drop(&mut self) {
+//         println!("[+] Saving file to: TODO");
+//     }
+// }
 
 impl SaveFileManager {
     pub fn new() -> Self {

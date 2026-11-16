@@ -169,7 +169,7 @@ impl Game {
     }
 
     pub fn get_player_turn(&self) -> PlayerTurn {
-        self.player_turn.clone()
+        self.player_turn
     }
 
     pub fn next_player(&mut self) {
