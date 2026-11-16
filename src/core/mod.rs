@@ -22,6 +22,6 @@ pub mod player;
 pub mod position;
 
 pub mod game_rounds_state;
-pub mod player_turn;
+pub mod player_id;
 /// A wall, used to stop players from advancing position.
 pub mod wall;

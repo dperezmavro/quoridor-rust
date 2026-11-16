@@ -6,7 +6,7 @@ use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::Player;
-use crate::core::player_turn::PlayerTurn;
+use crate::core::player_id::PlayerId;
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use crate::ui::text_panel::{TextHeading, TextPanel};
@@ -27,7 +27,7 @@ pub const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
 
-/// Size of each tile, in pixes.
+/// Size of each tile, in pixels.
 pub const TILE_SIZE: f32 = WALL_WIDTH * 5.0;
 
 /// How big to draw the players
@@ -216,14 +216,14 @@ impl UIHandler for Ui {
         let x = p.position.x;
         let y = p.position.y;
         let color = match p.id {
-            PlayerTurn::One => {
+            PlayerId::One => {
                 if highlight {
                     LIGHT_YELLOW
                 } else {
                     YELLOW
                 }
             }
-            PlayerTurn::Two => {
+            PlayerId::Two => {
                 if highlight {
                     LIGHT_BLUE
                 } else {
@@ -320,16 +320,15 @@ fn draw_bounds() {
     );
 }
 
-/// Draws a preview of where a wall could go
-pub fn get_current_player_color(player_id: PlayerTurn) -> Color {
-    if player_id == PlayerTurn::One {
-        LIGHT_YELLOW
-    } else {
-        LIGHT_BLUE
+/// Get colour for each player
+pub fn player_colour(player_id: PlayerId) -> Color {
+    match player_id {
+        PlayerId::One => LIGHT_YELLOW,
+        PlayerId::Two => LIGHT_BLUE,
     }
 }
 
-/// Draws a preview of where a wall could go
+/// Draw a placed wall.
 pub fn draw_placed_wall<T>(uih: &T, wall: Wall)
 where
     T: UIHandler,
@@ -338,14 +337,11 @@ where
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_wall_placement_preview<T>(
-    uih: &T,
-    wall: Wall,
-    player_id: PlayerTurn,
-) where
+pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: PlayerId)
+where
     T: UIHandler,
 {
-    draw_wall(uih, wall, get_current_player_color(player_id));
+    draw_wall(uih, wall, player_colour(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -447,7 +443,7 @@ where
 /// Highlights player options around the player
 pub fn highlight_player_options<T>(
     uih: &T,
-    player_id: PlayerTurn,
+    player_id: PlayerId,
     pos: &Vec<Position>,
 ) where
     T: UIHandler,
@@ -460,7 +456,7 @@ pub fn highlight_player_options<T>(
             GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
             TILE_SIZE,
             TILE_SIZE,
-            get_current_player_color(player_id),
+            player_colour(player_id),
         );
     }
 }
@@ -499,8 +495,8 @@ mod tests {
 
     #[test]
     fn test_correct_colours() {
-        assert_eq!(LIGHT_YELLOW, get_current_player_color(PlayerTurn::One));
-        assert_eq!(LIGHT_BLUE, get_current_player_color(PlayerTurn::Two));
+        assert_eq!(LIGHT_YELLOW, player_colour(PlayerId::One));
+        assert_eq!(LIGHT_BLUE, player_colour(PlayerId::Two));
     }
 
     #[test]

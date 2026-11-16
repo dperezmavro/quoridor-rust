@@ -8,34 +8,34 @@ const PLAYER_2_ID: u8 = 1;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 #[serde(into = "u8", try_from = "u8")]
-pub enum PlayerTurn {
+pub enum PlayerId {
     One,
     Two,
 }
 
-impl PlayerTurn {
-    pub fn player_from_id(id: u8) -> PlayerTurn {
-        PlayerTurn::try_from(id)
+impl PlayerId {
+    pub fn player_from_id(id: u8) -> PlayerId {
+        PlayerId::try_from(id)
             .unwrap_or_else(|_| panic!("Invalid player id: {}", id))
     }
 }
 
-impl From<PlayerTurn> for u8 {
-    fn from(turn: PlayerTurn) -> Self {
+impl From<PlayerId> for u8 {
+    fn from(turn: PlayerId) -> Self {
         match turn {
-            PlayerTurn::One => PLAYER_1_ID,
-            PlayerTurn::Two => PLAYER_2_ID,
+            PlayerId::One => PLAYER_1_ID,
+            PlayerId::Two => PLAYER_2_ID,
         }
     }
 }
 
-impl TryFrom<u8> for PlayerTurn {
+impl TryFrom<u8> for PlayerId {
     type Error = String;
 
     fn try_from(id: u8) -> Result<Self, Self::Error> {
         match id {
-            PLAYER_1_ID => Ok(PlayerTurn::One),
-            PLAYER_2_ID => Ok(PlayerTurn::Two),
+            PLAYER_1_ID => Ok(PlayerId::One),
+            PLAYER_2_ID => Ok(PlayerId::Two),
             _ => Err(format!("Invalid player id: {}", id)),
         }
     }
@@ -47,7 +47,7 @@ mod tests {
 
     #[test]
     fn test_deserialize_any() {
-        assert_eq!(PlayerTurn::One, 0u8.try_into().unwrap());
-        assert_eq!(PlayerTurn::Two, 1u8.try_into().unwrap());
+        assert_eq!(PlayerId::One, 0u8.try_into().unwrap());
+        assert_eq!(PlayerId::Two, 1u8.try_into().unwrap());
     }
 }

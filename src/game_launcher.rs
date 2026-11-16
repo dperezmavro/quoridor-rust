@@ -74,7 +74,7 @@ where
 mod tests {
     use super::*;
     use crate::core::player::Player;
-    use crate::core::player_turn::PlayerTurn;
+    use crate::core::player_id::PlayerId;
     use macroquad::color::Color;
     use macroquad::prelude::{TextParams, Vec2};
     use std::cell::RefCell;
@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(1, gl.game_rounds_state.borrow().game.p2.position.y);
 
         assert_eq!(
-            PlayerTurn::Two,
+            PlayerId::Two,
             gl.game_rounds_state.borrow().game.get_player_turn()
         );
 
