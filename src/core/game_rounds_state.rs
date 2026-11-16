@@ -1,6 +1,6 @@
 use crate::core::game::Game;
 use crate::core::grid;
-use crate::core::player::{Player, StartingPosition};
+use crate::core::player::Player;
 use crate::core::player_turn::PlayerTurn;
 use crate::core::wall::Wall;
 
@@ -73,8 +73,8 @@ impl GameRoundsState {
 pub fn new_game() -> Game {
     let grid = grid::Grid::new();
 
-    let p1 = Player::new(String::from("p1"), StartingPosition::Top);
-    let p2 = Player::new(String::from("p2"), StartingPosition::Bottom);
+    let p1 = Player::new(String::from("p1"), PlayerTurn::One);
+    let p2 = Player::new(String::from("p2"), PlayerTurn::Two);
     Game::new(grid, p1, p2)
 }
 

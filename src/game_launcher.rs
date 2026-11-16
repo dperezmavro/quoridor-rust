@@ -210,7 +210,7 @@ mod tests {
         };
 
         let state = String::from(
-            r#"{"p1_score":0,"p2_score":0,"total_rounds":0,"current_player_id":1,"players":[{"starting_position":"Top","name":"p1","position":{"x":4,"y":1},"remaining_walls":10},{"starting_position":"Bottom","name":"p2","position":{"x":3,"y":1},"remaining_walls":10}],"walls":[]}"#,
+            r#"{"p1_score":0,"p2_score":0,"total_rounds":0,"current_player_id":1,"players":[{"id":0,"name":"p1","position":{"x":4,"y":1},"remaining_walls":10},{"id":1,"name":"p2","position":{"x":3,"y":1},"remaining_walls":10}],"walls":[]}"#,
         );
 
         sfm.fs

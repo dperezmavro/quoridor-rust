@@ -235,15 +235,14 @@ mod test {
 
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
-    use crate::core::player::{NUM_WALLS, StartingPosition};
+    use crate::core::player::NUM_WALLS;
     use crate::core::position::Position;
     use crate::core::wall::Wall;
 
     fn setup_new_game() -> Game {
         let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
+        let p1: Player = Player::new(String::from("a"), PlayerTurn::One);
+        let p2: Player = Player::new(String::from("b"), PlayerTurn::Two);
         Game::new(grid, p1, p2)
     }
     const DEFAULT_STARTING_NEIGHBOURS: usize = 3;

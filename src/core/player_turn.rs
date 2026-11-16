@@ -6,7 +6,7 @@ const PLAYER_1_ID: u8 = 0;
 /// ID for player 2
 const PLAYER_2_ID: u8 = 1;
 
-#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 #[serde(into = "u8", try_from = "u8")]
 pub enum PlayerTurn {
     One,
@@ -19,7 +19,6 @@ impl PlayerTurn {
             .unwrap_or_else(|_| panic!("Invalid player id: {}", id))
     }
 }
-
 
 impl From<PlayerTurn> for u8 {
     fn from(turn: PlayerTurn) -> Self {

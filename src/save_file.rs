@@ -91,7 +91,6 @@ impl SaveFileManager {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::player::StartingPosition;
     use vfs::MemoryFS;
 
     #[test]
@@ -119,8 +118,8 @@ mod test {
             current_player_id: PlayerTurn::One,
             total_rounds: 3,
             players: [
-                Player::new(String::from("p1111"), StartingPosition::Top),
-                Player::new(String::from("p222"), StartingPosition::Bottom),
+                Player::new(String::from("p1111"), PlayerTurn::One),
+                Player::new(String::from("p222"), PlayerTurn::Two),
             ],
             walls: vec![],
         };
@@ -151,8 +150,8 @@ mod test {
             current_player_id: PlayerTurn::One,
             total_rounds: 3,
             players: [
-                Player::new(String::from("p1111"), StartingPosition::Top),
-                Player::new(String::from("p222"), StartingPosition::Bottom),
+                Player::new(String::from("p1111"), PlayerTurn::One),
+                Player::new(String::from("p222"), PlayerTurn::Two),
             ],
             walls: vec![],
         };

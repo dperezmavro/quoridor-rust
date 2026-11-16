@@ -4,7 +4,7 @@ use crate::core::position::Position;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
 
-pub const NUM_TILES: usize = 9;
+pub const NUM_TILES: u8 = 9;
 
 #[derive(Debug, PartialEq)]
 pub struct Grid {
@@ -204,7 +204,7 @@ impl Grid {
 mod tests {
     use super::*;
     use crate::core::placement::Placement;
-    use crate::core::player::StartingPosition;
+    use crate::core::player_turn::PlayerTurn;
 
     /********************************************/
     //         place_wall
@@ -217,8 +217,8 @@ mod tests {
         ];
         for b in tests.iter() {
             let mut grid = Grid::new();
-            let p1 = Player::new(String::new(), StartingPosition::Top);
-            let p2 = Player::new(String::new(), StartingPosition::Bottom);
+            let p1 = Player::new(String::new(), PlayerTurn::One);
+            let p2 = Player::new(String::new(), PlayerTurn::Two);
             let success = grid.place_wall(&p1, &p2, *b);
             assert!(!success);
         }
@@ -227,8 +227,8 @@ mod tests {
     #[test]
     fn place_wall_explicit() {
         let mut grid = Grid::new();
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
 
         let b1 = Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         assert!(grid.place_wall(&p1, &p2, b1));
@@ -252,8 +252,8 @@ mod tests {
         ];
 
         let mut g = Grid::new();
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
         let results: bool = tests.iter().all(|b| g.place_wall(&p1, &p2, *b));
         assert!(results);
 
@@ -274,8 +274,8 @@ mod tests {
 
         for t in tests.iter() {
             let mut g = Grid::new();
-            let p1 = Player::new(String::new(), StartingPosition::Top);
-            let p2 = Player::new(String::new(), StartingPosition::Bottom);
+            let p1 = Player::new(String::new(), PlayerTurn::One);
+            let p2 = Player::new(String::new(), PlayerTurn::Two);
 
             let results: bool = t.iter().all(|b| g.place_wall(&p1, &p2, *b));
             assert!(results);
@@ -288,7 +288,7 @@ mod tests {
     #[test]
     fn get_reachable_neighbour_tiles() {
         // x , y,  neighbour count
-        struct TestCase(usize, usize, usize);
+        struct TestCase(u8, u8, u8);
         let tests = vec![
             TestCase(0, 0, 2),
             TestCase(1, 1, 4),
@@ -308,14 +308,14 @@ mod tests {
                 x: t.0,
                 y: t.1,
             });
-            assert_eq!(t.2, result.len());
+            assert_eq!(t.2 as usize, result.len());
         });
     }
 
     #[test]
     fn get_reachable_neighbour_tiles_with_walls() {
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
 
         // place horizontal wall
         let mut g = Grid::new();
@@ -358,9 +358,9 @@ mod tests {
 
     #[test]
     fn get_reachable_neighbour_tiles_with_walls_middle_of_the_board() {
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
-        let mut p3 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
+        let mut p3 = Player::new(String::new(), PlayerTurn::Two);
         p3.position = Position { x: 4, y: 1 };
         let b1 = Wall::new(Placement::new(0, 3), Orientation::Vertical);
         let b2 = Wall::new(Placement::new(0, 4), Orientation::Vertical);
@@ -403,8 +403,8 @@ mod tests {
     #[test]
     fn can_players_reach_end() {
         let mut g = Grid::new();
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
         let wall = &Wall::new(Placement::new(0, 0), Orientation::Horizontal);
         assert!(g.place_wall(&p1, &p2, *wall));
         assert!(g.can_player_reach_goal(&p1));
@@ -420,8 +420,8 @@ mod tests {
         let tests = [
             TestCase(
                 vec![],
-                Player::new(String::from("top"), StartingPosition::Top),
-                Player::new(String::from("bottom"), StartingPosition::Bottom),
+                Player::new(String::from("top"), PlayerTurn::One),
+                Player::new(String::from("bottom"), PlayerTurn::Two),
             ),
             TestCase(
                 vec![
@@ -431,8 +431,8 @@ mod tests {
                     Wall::new(Placement::new(6, 3), Orientation::Horizontal),
                     Wall::new(Placement::new(7, 5), Orientation::Horizontal),
                 ],
-                Player::new(String::from("top"), StartingPosition::Top),
-                Player::new(String::from("bottom"), StartingPosition::Bottom),
+                Player::new(String::from("top"), PlayerTurn::One),
+                Player::new(String::from("bottom"), PlayerTurn::Two),
             ),
             TestCase(
                 vec![
@@ -446,13 +446,13 @@ mod tests {
                 Player {
                     position: Position::new(4, 4),
                     name: String::new(),
-                    starting_position: StartingPosition::Top,
+                    id: PlayerTurn::One,
                     remaining_walls: NUM_WALLS,
                 },
                 Player {
                     position: Position::new(4, 3),
                     name: String::new(),
-                    starting_position: StartingPosition::Bottom,
+                    id: PlayerTurn::Two,
                     remaining_walls: NUM_WALLS,
                 },
             ),
@@ -494,9 +494,9 @@ mod tests {
         });
 
         // test players can reach from end
-        let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
+        let mut p1 = Player::new(String::from("t"), PlayerTurn::One);
         p1.position = Position::new(4, 4);
-        let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut p2 = Player::new(String::from("b"), PlayerTurn::Two);
         p2.position = Position::new(4, 3);
 
         assert!(g.can_player_reach_goal(&p1));
@@ -513,8 +513,8 @@ mod tests {
             Wall::new(Placement::new(7, 5), Orientation::Horizontal),
         ];
         let mut g = Grid::new();
-        let mut p1 = Player::new(String::from("t"), StartingPosition::Top);
-        let mut p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+        let mut p1 = Player::new(String::from("t"), PlayerTurn::One);
+        let mut p2 = Player::new(String::from("b"), PlayerTurn::Two);
 
         assert!(walls.iter().all(|wall| g.place_wall(&p1, &p2, *wall)));
 
@@ -552,8 +552,8 @@ mod tests {
         });
 
         // test players can't reach from start
-        let p1 = Player::new(String::from("t"), StartingPosition::Top);
-        let p2 = Player::new(String::from("b"), StartingPosition::Bottom);
+        let p1 = Player::new(String::from("t"), PlayerTurn::One);
+        let p2 = Player::new(String::from("b"), PlayerTurn::Two);
 
         let _neighbours = g.get_reachable_neighbour_positions(&p1.position);
         assert!(!g.can_player_reach_goal(&p1));
@@ -569,8 +569,8 @@ mod tests {
         let b2 = Wall::new(Placement::new(0, 1), Orientation::Vertical);
         let b3 = Wall::new(Placement::new(0, 0), Orientation::Vertical);
         let mut g = Grid::new();
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
 
         assert!(!g.intersects_existing_walls(&b1));
         assert!(g.place_wall(&p1, &p2, b1));
@@ -586,8 +586,8 @@ mod tests {
     #[test]
     fn verify_does_intersect_existing_walls() {
         // setup
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
 
         let mut g = Grid::new();
         let b1 = Wall::new(Placement::new(4, 3), Orientation::Horizontal);
@@ -614,8 +614,8 @@ mod tests {
     #[test]
     fn verify_walls_do_not_intersect() {
         let mut g = Grid::new();
-        let p1 = &Player::new(String::new(), StartingPosition::Top);
-        let p2 = &Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = &Player::new(String::new(), PlayerTurn::One);
+        let p2 = &Player::new(String::new(), PlayerTurn::Two);
         let b1 = &Wall {
             orientation: Orientation::Vertical,
 
@@ -685,8 +685,8 @@ mod tests {
             ),
         ];
 
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
         for t in tests.iter() {
             let mut grid = Grid::new();
             assert!(grid.place_wall(&p1, &p2, t.0));
@@ -765,8 +765,8 @@ mod tests {
             ),
         ];
 
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
         for t in tests {
             let mut grid = Grid::new();
             assert!(grid.place_wall(&p1, &p2, t.0));
@@ -781,8 +781,8 @@ mod tests {
 
     #[test]
     fn test_can_place_wall() {
-        let p1 = Player::new(String::new(), StartingPosition::Top);
-        let p2 = Player::new(String::new(), StartingPosition::Bottom);
+        let p1 = Player::new(String::new(), PlayerTurn::One);
+        let p2 = Player::new(String::new(), PlayerTurn::Two);
         let mut grid = Grid::new();
 
         assert!(grid.can_place_wall(
