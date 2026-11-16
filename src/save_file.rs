@@ -4,6 +4,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::core::game_rounds_state::GameRoundsState;
+use crate::core::player_turn::PlayerTurn;
 use serde::{Deserialize, Serialize};
 use vfs::{PhysicalFS, VfsPath};
 
@@ -16,7 +17,7 @@ pub struct SaveFile {
     pub p1_score: usize,
     pub p2_score: usize,
     pub total_rounds: usize,
-    pub current_player_id: u8,
+    pub current_player_id: PlayerTurn,
     pub players: [Player; 2],
     pub walls: Vec<Wall>,
 }
@@ -115,7 +116,7 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
-            current_player_id: 0,
+            current_player_id: PlayerTurn::One,
             total_rounds: 3,
             players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),
@@ -147,7 +148,7 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
-            current_player_id: 0,
+            current_player_id: PlayerTurn::One,
             total_rounds: 3,
             players: [
                 Player::new(String::from("p1111"), StartingPosition::Top),

@@ -6,6 +6,7 @@ use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
 use crate::core::player::{Player, StartingPosition};
+use crate::core::player_turn::PlayerTurn;
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use crate::ui::text_panel::{TextHeading, TextPanel};
@@ -65,9 +66,6 @@ const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
 const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
 const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
-
-/// First player's colour mapping
-const FIRST_PLAYER_ID: u8 = 0;
 
 /// Describes what the mouse is hovering over.
 #[derive(Debug, Clone, PartialEq)]
@@ -321,8 +319,8 @@ fn draw_bounds() {
 }
 
 /// Draws a preview of where a wall could go
-pub fn get_current_player_color(player_id: u8) -> Color {
-    if player_id == FIRST_PLAYER_ID {
+pub fn get_current_player_color(player_id: PlayerTurn) -> Color {
+    if player_id == PlayerTurn::One {
         LIGHT_YELLOW
     } else {
         LIGHT_BLUE
@@ -338,8 +336,11 @@ where
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: u8)
-where
+pub fn draw_wall_placement_preview<T>(
+    uih: &T,
+    wall: Wall,
+    player_id: PlayerTurn,
+) where
     T: UIHandler,
 {
     draw_wall(uih, wall, get_current_player_color(player_id));
@@ -445,8 +446,11 @@ where
 }
 
 /// Highlights player options around the player
-pub fn highlight_player_options<T>(uih: &T, player_id: u8, pos: &Vec<Position>)
-where
+pub fn highlight_player_options<T>(
+    uih: &T,
+    player_id: PlayerTurn,
+    pos: &Vec<Position>,
+) where
     T: UIHandler,
 {
     const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
@@ -496,8 +500,8 @@ mod tests {
 
     #[test]
     fn test_correct_colours() {
-        assert_eq!(LIGHT_YELLOW, get_current_player_color(0));
-        assert_eq!(LIGHT_BLUE, get_current_player_color(1));
+        assert_eq!(LIGHT_YELLOW, get_current_player_color(PlayerTurn::One));
+        assert_eq!(LIGHT_BLUE, get_current_player_color(PlayerTurn::Two));
     }
 
     #[test]
