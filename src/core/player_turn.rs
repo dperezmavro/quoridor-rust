@@ -20,6 +20,7 @@ impl PlayerTurn {
     }
 }
 
+
 impl From<PlayerTurn> for u8 {
     fn from(turn: PlayerTurn) -> Self {
         match turn {
@@ -38,5 +39,16 @@ impl TryFrom<u8> for PlayerTurn {
             PLAYER_2_ID => Ok(PlayerTurn::Two),
             _ => Err(format!("Invalid player id: {}", id)),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_any() {
+        assert_eq!(PlayerTurn::One, 0u8.try_into().unwrap());
+        assert_eq!(PlayerTurn::Two, 1u8.try_into().unwrap());
     }
 }
