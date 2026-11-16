@@ -7,7 +7,7 @@ mod ui;
 use crate::core::game::GameState;
 use crate::core::game::Move;
 use crate::core::player::NUM_WALLS;
-use crate::core::player_turn::PLAYER_1_ID;
+use crate::core::player_id::PlayerId;
 use crate::core::wall::Wall;
 use crate::game_launcher::GameLauncher;
 use crate::save_file::SaveFileManager;
@@ -41,12 +41,10 @@ async fn game_loop<T>(
     grs: Rc<RefCell<GameRoundsState>>,
     ui: &T,
     scores: (usize, usize),
-) -> u8
+) -> PlayerId
 where
     T: UIHandler,
 {
-    // this currently holds wall + user information
-    // could wall be refactored to use this?
     let mut walls: Vec<Wall> = Vec::with_capacity(2 * NUM_WALLS);
     loop {
         ui.draw_game_base(grs.borrow().game.player_wall_counts(), scores);
@@ -59,11 +57,11 @@ where
         // draw players
         ui.draw_player(
             &grs.borrow().game.p1,
-            grs.borrow().game.get_player_turn() == PLAYER_1_ID,
+            grs.borrow().game.get_player_turn() == PlayerId::One,
         );
         ui.draw_player(
             &grs.borrow().game.p2,
-            grs.borrow().game.get_player_turn() != PLAYER_1_ID,
+            grs.borrow().game.get_player_turn() != PlayerId::One,
         );
 
         let res = get_mouse_pointer_state(ui.mouse_position());
@@ -117,7 +115,7 @@ where
 mod tests {
     use super::*;
     use crate::core::player::Player;
-    use crate::core::player_turn::PLAYER_2_ID;
+    use crate::core::player_id::PlayerId;
     use macroquad::color::Color;
     use macroquad::prelude::{TextParams, Vec2};
     use std::cell::RefCell;
@@ -222,7 +220,7 @@ mod tests {
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(
-            PLAYER_2_ID,
+            PlayerId::Two,
             game_loop(Rc::new(RefCell::new(gg)), &mui, (0, 0)).await
         );
     }
@@ -252,7 +250,7 @@ mod tests {
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(
-            PLAYER_2_ID,
+            PlayerId::Two,
             game_loop(Rc::new(RefCell::new(gg)), &mui, (0, 0)).await
         );
     }
@@ -283,7 +281,7 @@ mod tests {
         ]));
         mui.click_coordinates = click_coordinates;
         assert_eq!(
-            PLAYER_2_ID,
+            PlayerId::Two,
             game_loop(Rc::new(RefCell::new(gg)), &mui, (0, 0)).await
         );
     }

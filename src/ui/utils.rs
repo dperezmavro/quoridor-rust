@@ -5,7 +5,8 @@ use macroquad::prelude::*;
 use crate::core::grid::NUM_TILES;
 use crate::core::orientation::Orientation;
 use crate::core::placement::Placement;
-use crate::core::player::{Player, StartingPosition};
+use crate::core::player::Player;
+use crate::core::player_id::PlayerId;
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use crate::ui::text_panel::{TextHeading, TextPanel};
@@ -26,7 +27,7 @@ pub const GAME_STATS_BOX_WIDTH: f32 = 150.0;
 /// Spacing between player and square edge
 const PLAYER_PADDING: f32 = 3.0;
 
-/// Size of each tile, in pixes.
+/// Size of each tile, in pixels.
 pub const TILE_SIZE: f32 = WALL_WIDTH * 5.0;
 
 /// How big to draw the players
@@ -36,7 +37,7 @@ const PLAYER_RADIUS: f32 = TILE_SIZE / 2.0;
 pub const GAME_GRID_BOX_START: f32 = PADDING;
 
 /// Number of grid lines - dynamic to the grid
-const NUM_GRID_LINES_PER_DIM: usize = NUM_TILES - 1;
+const NUM_GRID_LINES_PER_DIM: u8 = NUM_TILES - 1;
 
 /// Total length of the game grid
 const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
@@ -46,7 +47,7 @@ const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
 const TOTAL_LEN: f32 = GAME_GRID_LEN + GAME_STATS_BOX_WIDTH + (3.0 * PADDING);
 
 /// Screen width, in pixels.
-pub const SCREEN_WIDTH: u16 = TOTAL_LEN as u16;
+pub const SCREEN_WIDTH: u8 = TOTAL_LEN as u8;
 
 /// Screen height, in pixels
 pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
@@ -65,9 +66,6 @@ const LIGHT_BLUE: Color = Color { a: 0.7, ..BLUE };
 const LIGHT_GREEN: Color = Color { a: 0.7, ..LIME };
 
 const LIGHT_YELLOW: Color = Color { a: 0.6, ..YELLOW };
-
-/// First player's colour mapping
-const FIRST_PLAYER_ID: u8 = 0;
 
 /// Describes what the mouse is hovering over.
 #[derive(Debug, Clone, PartialEq)]
@@ -99,20 +97,20 @@ pub fn window_conf() -> Conf {
 
 /// Pre-computes the grid's lines where walls will be placed
 #[allow(clippy::declare_interior_mutable_const)]
-const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
+const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM as usize]> =
     LazyCell::new(|| {
-        let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM] =
-            [Rect::default(); 2 * NUM_GRID_LINES_PER_DIM];
+        let mut arr: [Rect; 2 * NUM_GRID_LINES_PER_DIM as usize] =
+            [Rect::default(); 2 * NUM_GRID_LINES_PER_DIM as usize];
         for x in 0..NUM_GRID_LINES_PER_DIM {
             let base_offset: f32 =
                 (x + 1) as f32 * TILE_SIZE + (x as f32 * WALL_WIDTH);
-            arr[x * 2] = Rect {
+            arr[x as usize * 2] = Rect {
                 x: PADDING + base_offset,
                 y: PADDING,
                 w: WALL_WIDTH,
                 h: GAME_GRID_LEN,
             };
-            arr[(x * 2) + 1] = Rect {
+            arr[(x as usize * 2) + 1] = Rect {
                 x: PADDING,
                 y: PADDING + base_offset,
                 w: GAME_GRID_LEN,
@@ -125,7 +123,7 @@ const GRID_LINES_ARR: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]> =
 
 /// Draws the base elements - backdrop, bounds and grid
 pub fn draw_game_grid_base(
-    lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
+    lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM as usize]>,
 ) {
     draw_bounds();
     draw_backdrop();
@@ -176,7 +174,7 @@ pub fn draw_game_stats<T>(
 
 pub struct Ui {
     font: Font,
-    grid_lines: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>,
+    grid_lines: LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM as usize]>,
 }
 
 impl UIHandler for Ui {
@@ -217,15 +215,15 @@ impl UIHandler for Ui {
     fn draw_player(&self, p: &Player, highlight: bool) {
         let x = p.position.x;
         let y = p.position.y;
-        let color = match p.starting_position {
-            StartingPosition::Top => {
+        let color = match p.id {
+            PlayerId::One => {
                 if highlight {
                     LIGHT_YELLOW
                 } else {
                     YELLOW
                 }
             }
-            StartingPosition::Bottom => {
+            PlayerId::Two => {
                 if highlight {
                     LIGHT_BLUE
                 } else {
@@ -281,7 +279,9 @@ impl UIHandler for Ui {
 }
 
 /// Draws the grid
-fn draw_grid_precomputed(lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM]>) {
+fn draw_grid_precomputed(
+    lines: &LazyCell<[Rect; 2 * NUM_GRID_LINES_PER_DIM as usize]>,
+) {
     for v in lines.iter() {
         draw_rectangle(v.x, v.y, v.w, v.h, WHITE);
     }
@@ -320,16 +320,15 @@ fn draw_bounds() {
     );
 }
 
-/// Draws a preview of where a wall could go
-pub fn get_current_player_color(player_id: u8) -> Color {
-    if player_id == FIRST_PLAYER_ID {
-        LIGHT_YELLOW
-    } else {
-        LIGHT_BLUE
+/// Get colour for each player
+pub fn player_colour(player_id: PlayerId) -> Color {
+    match player_id {
+        PlayerId::One => LIGHT_YELLOW,
+        PlayerId::Two => LIGHT_BLUE,
     }
 }
 
-/// Draws a preview of where a wall could go
+/// Draw a placed wall.
 pub fn draw_placed_wall<T>(uih: &T, wall: Wall)
 where
     T: UIHandler,
@@ -338,11 +337,11 @@ where
 }
 
 /// Draws a preview of where a wall could go
-pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: u8)
+pub fn draw_wall_placement_preview<T>(uih: &T, wall: Wall, player_id: PlayerId)
 where
     T: UIHandler,
 {
-    draw_wall(uih, wall, get_current_player_color(player_id));
+    draw_wall(uih, wall, player_colour(player_id));
 }
 
 /// Tests whether the mouse is inside the game grid
@@ -361,12 +360,12 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
         return MouseState::NotInsideBoard;
     }
 
-    let mut row: u16 = 0;
+    let mut row: u8 = 0;
     let mut found_row: bool = false;
     let mut in_horizontal_wall_pos = false;
-    let mut lane: u16 = 0;
+    let mut lane: u8 = 0;
 
-    let mut col: u16 = 0;
+    let mut col: u8 = 0;
     let mut found_col: bool = false;
     let mut in_vertical_wall_pos = false;
 
@@ -377,44 +376,41 @@ pub fn get_mouse_pointer_state(mouse_position: (f32, f32)) -> MouseState {
 
         if mouse_position.0 >= tile_base {
             if mouse_position.0 <= tile_base + TILE_SIZE {
-                col = y as u16;
+                col = y;
                 found_col = true;
             } else if mouse_position.0 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 in_horizontal_wall_pos = true;
-                lane = y as u16;
+                lane = y;
             }
         }
 
         // detect if it is in square
         if mouse_position.1 >= tile_base {
             if mouse_position.1 <= tile_base + TILE_SIZE {
-                row = y as u16;
+                row = y;
                 found_row = true;
             } else if mouse_position.1 <= tile_base + TILE_SIZE + WALL_WIDTH {
                 // detect if it is in wall
                 in_vertical_wall_pos = true;
-                lane = y as u16;
+                lane = y;
             }
         }
     }
 
     if found_row && found_col {
-        MouseState::RowCol(Position {
-            x: col as usize,
-            y: row as usize,
-        })
+        MouseState::RowCol(Position { x: col, y: row })
     } else if in_horizontal_wall_pos && in_vertical_wall_pos {
         MouseState::InBorderCrossSection
     } else {
         if found_row {
             return MouseState::WallPosition(Wall::new(
-                Placement::new(row as usize, lane as usize),
+                Placement::new(row, lane),
                 Orientation::Vertical,
             ));
         }
 
         MouseState::WallPosition(Wall::new(
-            Placement::new(col as usize, lane as usize),
+            Placement::new(col, lane),
             Orientation::Horizontal,
         ))
     }
@@ -425,7 +421,7 @@ pub fn draw_wall<T>(uih: &T, b: Wall, c: Color)
 where
     T: UIHandler,
 {
-    if b.placement.tile as u16 >= NUM_TILES as u16 - 1 {
+    if b.placement.tile >= NUM_TILES - 1 {
         return;
     }
 
@@ -445,8 +441,11 @@ where
 }
 
 /// Highlights player options around the player
-pub fn highlight_player_options<T>(uih: &T, player_id: u8, pos: &Vec<Position>)
-where
+pub fn highlight_player_options<T>(
+    uih: &T,
+    player_id: PlayerId,
+    pos: &Vec<Position>,
+) where
     T: UIHandler,
 {
     const OFFSET: f32 = TILE_SIZE + WALL_WIDTH;
@@ -457,7 +456,7 @@ where
             GAME_GRID_BOX_START + ((p.y as f32) * OFFSET),
             TILE_SIZE,
             TILE_SIZE,
-            get_current_player_color(player_id),
+            player_colour(player_id),
         );
     }
 }
@@ -496,8 +495,8 @@ mod tests {
 
     #[test]
     fn test_correct_colours() {
-        assert_eq!(LIGHT_YELLOW, get_current_player_color(0));
-        assert_eq!(LIGHT_BLUE, get_current_player_color(1));
+        assert_eq!(LIGHT_YELLOW, player_colour(PlayerId::One));
+        assert_eq!(LIGHT_BLUE, player_colour(PlayerId::Two));
     }
 
     #[test]
@@ -603,7 +602,7 @@ mod tests {
         for x in 0..tile_coordinates.len() {
             for y in 0..tile_coordinates.len() {
                 assert_eq!(
-                    MouseState::RowCol(Position::new(x, y)),
+                    MouseState::RowCol(Position::new(x as u8, y as u8)),
                     get_mouse_pointer_state((
                         tile_coordinates[x],
                         tile_coordinates[y]
@@ -635,7 +634,7 @@ mod tests {
             for (tile, tile_coordinate) in tile_coordinates.iter().enumerate() {
                 assert_eq!(
                     MouseState::WallPosition(Wall::new(
-                        Placement::new(tile, lane),
+                        Placement::new(tile as u8, lane as u8),
                         Orientation::Horizontal
                     )),
                     get_mouse_pointer_state((
@@ -669,7 +668,7 @@ mod tests {
             for (tile, tile_coordinate) in tile_coordinates.iter().enumerate() {
                 assert_eq!(
                     MouseState::WallPosition(Wall::new(
-                        Placement::new(tile, lane),
+                        Placement::new(tile as u8, lane as u8),
                         Orientation::Vertical
                     )),
                     get_mouse_pointer_state((

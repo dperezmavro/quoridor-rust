@@ -1,6 +1,6 @@
 use crate::core::grid::Grid;
 use crate::core::player::Player;
-use crate::core::player_turn::{PLAYER_1_ID, PlayerTurn};
+use crate::core::player_id::PlayerId;
 use crate::core::position::Position;
 use crate::core::wall::Wall;
 use std::collections::HashSet;
@@ -8,17 +8,15 @@ use std::collections::HashSet;
 #[derive(Debug, PartialEq, Clone)]
 pub enum GameState {
     GameOngoing,
-    GameFinished(u8),
+    GameFinished(PlayerId),
 }
-
-impl GameState {}
 
 #[derive(Debug, PartialEq)]
 pub struct Game {
     pub p1: Player,
     pub p2: Player,
     pub grid: Grid,
-    player_turn: PlayerTurn,
+    player_turn: PlayerId,
     pub state: GameState,
 }
 
@@ -34,7 +32,7 @@ impl Game {
             grid,
             p1,
             p2,
-            player_turn: PlayerTurn::Player1,
+            player_turn: PlayerId::One,
             state: GameState::GameOngoing,
         }
     }
@@ -42,7 +40,7 @@ impl Game {
     pub fn with_state(
         p1: Player,
         p2: Player,
-        player_turn: PlayerTurn,
+        player_turn: PlayerId,
         walls: Vec<Wall>,
     ) -> Self {
         let mut grid = Grid::new();
@@ -59,7 +57,7 @@ impl Game {
     }
 
     pub fn can_add_wall(&mut self, b: Wall) -> bool {
-        let player = if self.player_turn == PlayerTurn::Player1 {
+        let player = if self.player_turn == PlayerId::One {
             &self.p1
         } else {
             &self.p2
@@ -69,7 +67,7 @@ impl Game {
     }
 
     pub fn move_player(&mut self, pos: Position) -> bool {
-        let player: &mut Player = if self.get_player_turn() == PLAYER_1_ID {
+        let player: &mut Player = if self.get_player_turn() == PlayerId::One {
             &mut self.p1
         } else {
             &mut self.p2
@@ -81,7 +79,7 @@ impl Game {
     }
 
     fn get_players(&self) -> (&Player, &Player) {
-        if self.get_player_turn() == PLAYER_1_ID {
+        if self.get_player_turn() == PlayerId::One {
             return (&self.p1, &self.p2);
         }
 
@@ -168,17 +166,17 @@ impl Game {
         self.grid.place_wall(&self.p1, &self.p2, b)
     }
 
-    pub fn get_player_turn(&self) -> u8 {
-        self.player_turn.get_id()
+    pub fn get_player_turn(&self) -> PlayerId {
+        self.player_turn
     }
 
     pub fn next_player(&mut self) {
         match self.player_turn {
-            PlayerTurn::Player1 => {
-                self.player_turn = PlayerTurn::Player2;
+            PlayerId::One => {
+                self.player_turn = PlayerId::Two;
             }
-            PlayerTurn::Player2 => {
-                self.player_turn = PlayerTurn::Player1;
+            PlayerId::Two => {
+                self.player_turn = PlayerId::One;
             }
         }
     }
@@ -192,12 +190,11 @@ impl Game {
             return false;
         }
 
-        let curr_player: &mut Player =
-            if self.player_turn == PlayerTurn::Player1 {
-                &mut self.p1
-            } else {
-                &mut self.p2
-            };
+        let curr_player: &mut Player = if self.player_turn == PlayerId::One {
+            &mut self.p1
+        } else {
+            &mut self.p2
+        };
 
         match m {
             Move::PlaceWall(wall) => {
@@ -232,19 +229,18 @@ impl Game {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::game::PlayerTurn::{Player1, Player2};
+    use crate::core::game::PlayerId::{One, Two};
 
     use crate::core::orientation::Orientation;
     use crate::core::placement::Placement;
-    use crate::core::player::{NUM_WALLS, StartingPosition};
+    use crate::core::player::NUM_WALLS;
     use crate::core::position::Position;
     use crate::core::wall::Wall;
 
     fn setup_new_game() -> Game {
         let grid = Grid::new();
-        let p1: Player = Player::new(String::from("a"), StartingPosition::Top);
-        let p2: Player =
-            Player::new(String::from("b"), StartingPosition::Bottom);
+        let p1: Player = Player::new(String::from("a"), PlayerId::One);
+        let p2: Player = Player::new(String::from("b"), PlayerId::Two);
         Game::new(grid, p1, p2)
     }
     const DEFAULT_STARTING_NEIGHBOURS: usize = 3;
@@ -324,21 +320,21 @@ mod test {
     fn test_player_index_changed() {
         let mut g = setup_new_game();
 
-        assert_eq!(Player1, g.player_turn);
+        assert_eq!(One, g.player_turn);
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(Player2, g.player_turn);
+        assert_eq!(Two, g.player_turn);
 
         assert!(g.process_move(Move::PlaceWall(Wall::new(
             Placement::new(2, 1),
             Orientation::Horizontal,
         ))));
 
-        assert_eq!(Player1, g.player_turn);
+        assert_eq!(One, g.player_turn);
     }
 
     #[test]
@@ -466,7 +462,7 @@ mod test {
         // player 2 move forward
         assert!(
             g.process_move(Move::PlayerAdvance(Position::new(4, 7))),
-            "player turn {}, {:?}",
+            "player turn {:?}, {:?}",
             g.get_player_turn(),
             g.p2,
         );
@@ -511,11 +507,11 @@ mod test {
             Position { x: 4, y: 4 },
             Position { x: 3, y: 5 },
             Position { x: 5, y: 5 },
-            // aditional diagonal wall
+            // additional diagonal wall
             Position { x: 3, y: 6 },
             Position { x: 5, y: 6 },
         ];
-        assert_eq!(0, g.get_player_turn());
+        assert_eq!(PlayerId::One, g.get_player_turn());
         assert_eq!(want.len(), res.len(), "found: {:?}", res);
         assert_eq!(want, res, "{:?}", res);
     }
@@ -542,7 +538,7 @@ mod test {
             Placement::new(4, 4),
             Orientation::Horizontal
         ))));
-        assert_eq!(1, g.get_player_turn());
+        assert_eq!(PlayerId::Two, g.get_player_turn());
 
         let res = g.get_player_options();
         assert_eq!(want.len(), res.len(), "found: {:?}", res);

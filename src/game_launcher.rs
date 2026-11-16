@@ -74,7 +74,7 @@ where
 mod tests {
     use super::*;
     use crate::core::player::Player;
-    use crate::core::player_turn::PLAYER_2_ID;
+    use crate::core::player_id::PlayerId;
     use macroquad::color::Color;
     use macroquad::prelude::{TextParams, Vec2};
     use std::cell::RefCell;
@@ -210,7 +210,7 @@ mod tests {
         };
 
         let state = String::from(
-            r#"{"p1_score":0,"p2_score":0,"total_rounds":0,"current_player_id":1,"players":[{"starting_position":"Top","name":"p1","position":{"x":4,"y":1},"remaining_walls":10},{"starting_position":"Bottom","name":"p2","position":{"x":3,"y":1},"remaining_walls":10}],"walls":[]}"#,
+            r#"{"p1_score":0,"p2_score":0,"total_rounds":0,"current_player_id":1,"players":[{"id":0,"name":"p1","position":{"x":4,"y":1},"remaining_walls":10},{"id":1,"name":"p2","position":{"x":3,"y":1},"remaining_walls":10}],"walls":[]}"#,
         );
 
         sfm.fs
@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(1, gl.game_rounds_state.borrow().game.p2.position.y);
 
         assert_eq!(
-            PLAYER_2_ID,
+            PlayerId::Two,
             gl.game_rounds_state.borrow().game.get_player_turn()
         );
 

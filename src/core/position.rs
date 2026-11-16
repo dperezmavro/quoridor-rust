@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
     Serialize, Deserialize, Clone, Copy, Eq, Hash, Debug, Default, PartialEq,
 )]
 pub struct Position {
-    pub x: usize,
-    pub y: usize,
+    pub x: u8,
+    pub y: u8,
 }
 
 impl Position {
-    pub fn new(x: usize, y: usize) -> Self {
+    pub fn new(x: u8, y: u8) -> Self {
         Self { x, y }
     }
 

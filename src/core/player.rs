@@ -1,44 +1,41 @@
 use crate::core::grid::NUM_TILES;
+use crate::core::player_id::PlayerId;
 use crate::core::position::Position;
 use serde::{Deserialize, Serialize};
 
 /// Number of walls per player
 pub const NUM_WALLS: usize = 10;
 
-/// Enum for starting position
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Copy, Clone)]
-pub enum StartingPosition {
-    Top,
-    Bottom,
-}
-
 /// Describes the player, their position and their remaining blocks
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct Player {
-    pub starting_position: StartingPosition,
+    pub id: PlayerId,
     pub name: String,
     pub position: Position,
     pub remaining_walls: usize,
 }
 
+const ROW_INDEX_FIRST: u8 = 0;
+const ROW_INDEX_LAST: u8 = NUM_TILES - 1;
+
 impl Player {
-    pub fn new(name: String, sp: StartingPosition) -> Self {
-        let p_y = match sp {
-            StartingPosition::Top => 0,
-            StartingPosition::Bottom => NUM_TILES - 1,
+    pub fn new(name: String, id: PlayerId) -> Self {
+        let p_y = match id {
+            PlayerId::One => ROW_INDEX_FIRST,
+            PlayerId::Two => ROW_INDEX_LAST,
         };
         Self {
             name,
-            starting_position: sp,
+            id,
             position: Position::new(NUM_TILES / 2, p_y),
             remaining_walls: NUM_WALLS,
         }
     }
 
-    pub fn goal_row(&self) -> usize {
-        match self.starting_position {
-            StartingPosition::Top => NUM_TILES - 1,
-            StartingPosition::Bottom => 0,
+    pub fn goal_row(&self) -> u8 {
+        match self.id {
+            PlayerId::One => NUM_TILES - 1,
+            PlayerId::Two => 0,
         }
     }
 
@@ -95,15 +92,15 @@ mod tests {
 
     #[test]
     fn test_player_white() {
-        let p = Player::new("DUMMY".to_string(), StartingPosition::Top);
+        let p = Player::new("DUMMY".to_string(), PlayerId::One);
         assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, 0);
     }
 
     #[test]
     fn test_can_cross_over() {
-        let mut p1 = Player::new("DUMMY".to_string(), StartingPosition::Top);
-        let mut p2 = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+        let mut p1 = Player::new("DUMMY".to_string(), PlayerId::One);
+        let mut p2 = Player::new("DUMMY".to_string(), PlayerId::Two);
 
         p1.position = Position::new(3, 4);
         p2.position = Position::new(4, 4);
@@ -114,8 +111,8 @@ mod tests {
 
     #[test]
     fn test_can_jump_over() {
-        let mut p1 = Player::new("DUMMY".to_string(), StartingPosition::Top);
-        let mut p2 = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+        let mut p1 = Player::new("DUMMY".to_string(), PlayerId::One);
+        let mut p2 = Player::new("DUMMY".to_string(), PlayerId::Two);
 
         p1.position = Position::new(4, 3);
         p2.position = Position::new(4, 4);
@@ -126,20 +123,20 @@ mod tests {
 
     #[test]
     fn test_player_position() {
-        let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+        let p = Player::new("DUMMY".to_string(), PlayerId::Two);
         assert_eq!(p.position.x, NUM_TILES / 2);
         assert_eq!(p.position.y, NUM_TILES - 1);
     }
 
     #[test]
     fn test_player_walls() {
-        let p = Player::new("DUMMY".to_string(), StartingPosition::Bottom);
+        let p = Player::new("DUMMY".to_string(), PlayerId::Two);
         assert_eq!(p.remaining_walls, NUM_WALLS);
     }
 
     #[test]
     pub fn test_are_positions_haligned() {
-        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        let mut p1 = Player::new(String::from("DUMMY"), PlayerId::One);
         p1.position = Position::new(1, 1);
         let mut p2 = p1.clone();
         p2.position = Position::new(2, 2);
@@ -152,7 +149,7 @@ mod tests {
 
     #[test]
     pub fn test_is_there() {
-        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        let mut p1 = Player::new(String::from("DUMMY"), PlayerId::One);
         assert!(!p1.is_there(&Position::new(1, 1)));
         p1.position = Position::new(1, 1);
         assert!(p1.is_there(&Position::new(1, 1)));
@@ -160,7 +157,7 @@ mod tests {
 
     #[test]
     pub fn test_are_positions_valigned() {
-        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        let mut p1 = Player::new(String::from("DUMMY"), PlayerId::One);
         p1.position = Position::new(1, 1);
         let mut p2 = p1.clone();
         p2.position = Position::new(2, 2);
@@ -173,7 +170,7 @@ mod tests {
 
     #[test]
     pub fn test_are_positions_above() {
-        let mut p1 = Player::new(String::from("DUMMY"), StartingPosition::Top);
+        let mut p1 = Player::new(String::from("DUMMY"), PlayerId::One);
         p1.position = Position::new(1, 1);
         let mut p2 = p1.clone();
         p2.position = Position::new(2, 2);

@@ -4,19 +4,20 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::core::game_rounds_state::GameRoundsState;
+use crate::core::player_id::PlayerId;
 use serde::{Deserialize, Serialize};
 use vfs::{PhysicalFS, VfsPath};
 
 /// Default save file name
 const SAVE_FILE_NAME: &str = "quoridor-rs.save.json";
 
-/// Responsible for saving and loading games
+/// Save file contents
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct SaveFile {
     pub p1_score: usize,
     pub p2_score: usize,
     pub total_rounds: usize,
-    pub current_player_id: u8,
+    pub current_player_id: PlayerId,
     pub players: [Player; 2],
     pub walls: Vec<Wall>,
 }
@@ -34,16 +35,16 @@ impl SaveFile {
     }
 }
 
-/// Wraps the FS library and state object
+/// Responsible for saving and loading games
 pub struct SaveFileManager {
     pub fs: VfsPath,
 }
 
-impl Drop for SaveFileManager {
-    fn drop(&mut self) {
-        println!("[+] Saving file to: TODO");
-    }
-}
+// impl Drop for SaveFileManager {
+//     fn drop(&mut self) {
+//         println!("[+] Saving file to: TODO");
+//     }
+// }
 
 impl SaveFileManager {
     pub fn new() -> Self {
@@ -90,7 +91,6 @@ impl SaveFileManager {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::player::StartingPosition;
     use vfs::MemoryFS;
 
     #[test]
@@ -115,11 +115,11 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
-            current_player_id: 0,
+            current_player_id: PlayerId::One,
             total_rounds: 3,
             players: [
-                Player::new(String::from("p1111"), StartingPosition::Top),
-                Player::new(String::from("p222"), StartingPosition::Bottom),
+                Player::new(String::from("p1111"), PlayerId::One),
+                Player::new(String::from("p222"), PlayerId::Two),
             ],
             walls: vec![],
         };
@@ -147,11 +147,11 @@ mod test {
         let sf = SaveFile {
             p1_score: 1,
             p2_score: 2,
-            current_player_id: 0,
+            current_player_id: PlayerId::One,
             total_rounds: 3,
             players: [
-                Player::new(String::from("p1111"), StartingPosition::Top),
-                Player::new(String::from("p222"), StartingPosition::Bottom),
+                Player::new(String::from("p1111"), PlayerId::One),
+                Player::new(String::from("p222"), PlayerId::Two),
             ],
             walls: vec![],
         };
