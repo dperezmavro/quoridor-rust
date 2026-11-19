@@ -47,7 +47,7 @@ const GAME_GRID_LEN: f32 = (TILE_SIZE * NUM_TILES as f32)
 const TOTAL_LEN: f32 = GAME_GRID_LEN + GAME_STATS_BOX_WIDTH + (3.0 * PADDING);
 
 /// Screen width, in pixels.
-pub const SCREEN_WIDTH: u8 = TOTAL_LEN as u8;
+pub const SCREEN_WIDTH: u16 = TOTAL_LEN as u16;
 
 /// Screen height, in pixels
 pub const SCREEN_HEIGHT: u16 = PADDING as u16 * 2 + GAME_GRID_LEN as u16;
